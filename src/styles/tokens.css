@@ -1,0 +1,177 @@
+/* Repo path: src/styles/tokens.css
+ *
+ * SINGLE SOURCE OF TRUTH for every color in the project.
+ * No other file may contain a raw hex, rgb, or hsl value.
+ *
+ * The four [data-time] blocks override the SAME token names. Write component CSS once
+ * against the semantic tokens; it will re-theme for free. Any new color must be added to
+ * all four blocks, or it will be wrong three-quarters of the time.
+ */
+
+:root {
+  /* ---- Core palette (neutral / noon baseline) ---------------------------- */
+  --surface-wall:   #FBF7F4;  /* bakery stucco, cards */
+  --surface-trim:   #F2C8D3;  /* awning, window frames, signage */
+  --surface-roof:   #A8C8DE;  /* roof tile, shutters */
+  --accent-berry:   #B84A6E;  /* the ONE saturated color. Verified: 4.95:1 with
+                                 --on-accent, 4.65:1 on --surface-wall. The more
+                                 obvious #C2577A measures 4.25:1 and fails AA. */
+  --ink:            #3E3038;  /* all text */
+  --cat-ginger:     #E08A4B;  /* Junnie. Reserved. */
+  --on-accent:      #FFFFFF;  /* text/icons ON --accent-berry. Flips at night. */
+
+  /* ---- Derived surfaces -------------------------------------------------- */
+  --surface-raised: #FFFFFF;
+  --surface-sunken: #EFE7E4;
+  --ink-soft:       #6B5A62;  /* secondary text. AA on --surface-wall. */
+  --hairline:       #E2D5D9;
+
+  /* ---- Scene environment ------------------------------------------------- */
+  --sky-top:        #9FC9E8;
+  --sky-bottom:     #DCEBF5;
+  --ground:         #A8CE8B;
+  --ground-shade:   #8FBA73;
+  --light-tint:     transparent;          /* the wash over the whole scene */
+  --scene-filter:   none;                 /* brightness/saturate adjustment */
+  --window-glow:    transparent;          /* lit bakery windows at night */
+  --shadow-cast:    rgba(62, 48, 56, 0.16);
+
+  /* ---- Type -------------------------------------------------------------- */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-ui:      "Nunito", system-ui, -apple-system, sans-serif;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.75rem;
+  --text-2xl:  2.5rem;
+
+  --leading-tight: 1.2;
+  --leading-body:  1.6;
+
+  /* ---- Space (4px base) -------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* ---- Radius ------------------------------------------------------------ */
+  --radius-sm:   4px;
+  --radius-md:   10px;
+  --radius-lg:   18px;
+  --radius-full: 999px;
+
+  /* ---- Layers — never write a bare z-index ------------------------------- */
+  --z-sky:       0;
+  --z-backdrop:  5;   /* distant landmark layer */
+  --z-scene:    10;
+  --z-props:    20;
+  --z-actors:   30;
+  --z-tint:     40;   /* time-of-day wash: ABOVE the scene, BELOW the UI */
+  --z-ui:      100;   /* clock, location label, resume link — never dimmed */
+  --z-panel:   200;
+  --z-modal:   300;
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --dur-bob:        400ms;
+  --dur-scene:      250ms;
+  --dur-timeshift:  600ms;
+  --ease-soft:      cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  /* ---- UI chrome (clock, location label) — readable in all four themes ---- */
+  --chrome-bg:   rgba(251, 247, 244, 0.88);
+  --chrome-ink:  #3E3038;
+
+  /* ---- Touch ------------------------------------------------------------- */
+  --tap-min: 44px;
+}
+
+/* =========================================================================
+ * TIME OF DAY
+ * Backgrounds are painted ONCE under neutral light. These blocks are the
+ * entire day/night system — there are no per-time background images.
+ * ========================================================================= */
+
+/* Four states, one per landmark. There is no `afternoon` — see PRD §6 R27.
+ * Each --light-tint brings the NEUTRAL bakery into agreement with a backdrop
+ * that already has its time of day baked in. The tint never touches the backdrop. */
+
+[data-time="morning"] {       /* Hollywood Sign */
+  --sky-top:      #A8CFEA;
+  --sky-bottom:   #FCE0C4;
+  --light-tint:   rgba(255, 216, 168, 0.16);
+  --scene-filter: brightness(1.03) saturate(0.98);
+  --ground:       #B0D492;
+  --shadow-cast:  rgba(58, 70, 110, 0.16);  /* COOL shadows — this is what reads as
+                                               morning rather than sunset */
+  --window-glow:  transparent;
+}
+
+[data-time="sunset"] {        /* Laguna Beach */
+  --sky-top:      #E8734F;
+  --sky-bottom:   #F9C98E;
+  --light-tint:   rgba(255, 126, 64, 0.30);
+  --scene-filter: brightness(0.94) saturate(1.12);
+  --ground:       #8FA86E;
+  --shadow-cast:  rgba(110, 48, 32, 0.30);
+  --window-glow:  rgba(255, 206, 140, 0.52);
+}
+
+[data-time="noon"] {          /* Santa Monica Pier */
+  --sky-top:      #9FC9E8;
+  --sky-bottom:   #DCEBF5;
+  --light-tint:   transparent;
+  --scene-filter: none;
+  --ground:       #A8CE8B;
+  --shadow-cast:  rgba(62, 48, 56, 0.16);
+  --window-glow:  transparent;
+}
+
+[data-time="night"] {         /* Griffith Observatory */
+  --sky-top:      #1E2547;
+  --sky-bottom:   #46436E;
+  --light-tint:   rgba(42, 52, 112, 0.38);
+  --scene-filter: brightness(0.78) saturate(0.82);
+  --ground:       #5E7A5C;
+  --shadow-cast:  rgba(14, 18, 40, 0.34);
+  --window-glow:  rgba(255, 206, 128, 0.72);
+
+  /* Text surfaces stay readable after dark — the UI overlay does NOT get dimmed. */
+  --surface-wall:   #2A2436;
+  --surface-raised: #363046;
+  --surface-sunken: #201B2A;
+  --ink:            #F3ECEF;
+  --ink-soft:       #C0B2BC;
+  --hairline:       #4A4054;
+  --chrome-bg:      rgba(42, 36, 54, 0.88);
+  --chrome-ink:     #F3ECEF;
+
+  --accent-berry:   #E88BA8;  /* lightened for the dark surface: 6.19:1.
+                                 The daytime #B84A6E measures 3.20:1 here. */
+  --on-accent:      #2A2436;  /* flips to dark: white on #E88BA8 is 2.42:1, a clear
+                                 fail. This is why --on-accent is a token. */
+}
+
+/* =========================================================================
+ * Reduced motion. Every animation in the project sits inside the
+ * no-preference query; this is the safety net.
+ * ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-bob:       0ms;
+    --dur-scene:     0ms;
+    --dur-timeshift: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
