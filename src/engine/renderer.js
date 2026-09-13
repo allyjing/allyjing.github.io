@@ -9,6 +9,7 @@
 import { getScene } from '../data/scenes.js';
 import { landmarkForTime, backdropImage } from '../data/landmarks.js';
 import { backdropAlt } from '../data/content.js';
+import { applyCoverBox } from './layout.js';
 
 function el(id) {
   const node = document.getElementById(id);
@@ -42,17 +43,23 @@ function renderActors(actors) {
     img.src = actor.image;
     img.alt = actor.alt;
 
-    // Percentages of the stage, so positions hold at any viewport size.
-    img.style.left = `${actor.left}%`;
-    img.style.bottom = `${actor.bottom}%`;
     img.style.height = `${actor.height}%`;
-
-    /* Direction is a horizontal flip and nothing more — there is no back-facing or
-     * front-facing sprite, and there are no walk-cycle frames (PRD §8.3).
-     * translateX(-50%) centres the sprite on its own x position. */
-    img.style.transform = `translateX(-50%) scaleX(${actor.facing})`;
+    placeActor(img, actor, actor.facing);
     layer.append(img);
   }
+}
+
+/* Positions one actor in image coordinates. x/y are percentages of the ARTWORK, not
+ * the stage — the actors layer is sized to the artwork's box by layout.js, so these
+ * stay pinned to the painted ground at any window shape.
+ *
+ * y is where the feet are, hence translate(-50%, -100%): centred on x, sitting on y.
+ * Direction is a horizontal flip and nothing more — one sprite per character, no
+ * walk-cycle frames (PRD §8.3). */
+export function placeActor(img, position, facing) {
+  img.style.left = `${position.x}%`;
+  img.style.top = `${position.y}%`;
+  img.style.transform = `translate(-50%, -100%) scaleX(${facing})`;
 }
 
 export function renderScene(sceneId, time) {
@@ -75,5 +82,19 @@ export function renderScene(sceneId, time) {
   if (scene.hasBackdrop) renderBackdrop(time);
 
   renderActors(scene.actors);
+  applyCoverBox(stage, scene.aspect);
   return scene;
+}
+
+// The artwork box depends on the window, so it has to be recomputed when that changes.
+export function watchResize(scene) {
+  const stage = el('stage');
+  const update = () => applyCoverBox(stage, scene.aspect);
+  window.addEventListener('resize', update);
+  update();
+  return () => window.removeEventListener('resize', update);
+}
+
+export function actorElement(id) {
+  return document.getElementById(`actor-${id}`);
 }

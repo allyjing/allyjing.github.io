@@ -1,24 +1,51 @@
 /* Repo path: src/engine/main.js
  *
- * Boot. Wires the router to the renderer and nothing else.
+ * Boot. Wires the router, the renderer and movement together, and nothing else.
  *
- * Phase 1 scope: one static scene. No movement (Phase 2), no clock or location label
- * (Phase 3), no panels (Phase 5).
+ * Phase 2 scope: click-to-move and keyboard movement inside a walkable polygon.
+ * Still to come: the clock and location label (Phase 3), and panels (Phase 5).
  */
 
 import { site } from '../data/content.js';
+import { getScene } from '../data/scenes.js';
 import { timeStateNow } from '../data/theme.js';
 import { startRouter } from './router.js';
-import { applyTimeState, renderScene } from './renderer.js';
+import { applyTimeState, renderScene, watchResize, actorElement, placeActor } from './renderer.js';
+import { createWalker } from './movement.js';
+import { bindInput } from './input.js';
 
 // The title is copy, so it comes from content.js rather than being typed into <title>.
 document.title = site.title;
 
 // First load derives time of day from the visitor's own clock (PRD R27).
-let time = timeStateNow();
+const time = timeStateNow();
 applyTimeState(time);
 
+let teardown = [];
+
+function enterScene(sceneId) {
+  for (const off of teardown) off();
+  teardown = [];
+
+  const scene = renderScene(sceneId, time);
+  teardown.push(watchResize(scene));
+
+  const player = scene.actors.find((actor) => actor.walks);
+  if (!player) return;
+
+  const sprite = actorElement(player.id);
+  const walker = createWalker({
+    start: { x: player.x, y: player.y },
+    polygon: scene.walkable,
+    onMove: (position, facing) => placeActor(sprite, position, facing),
+  });
+
+  walker.start();
+  teardown.push(walker.stop);
+  teardown.push(bindInput({ stage: document.getElementById('stage'), walker, aspect: scene.aspect }));
+}
+
 startRouter((route) => {
-  renderScene(route.scene, time);
+  enterScene(getScene(route.scene) ? route.scene : 'exterior');
   // route.panel is parsed and deliberately ignored until Phase 5.
 });

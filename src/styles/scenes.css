@@ -76,8 +76,24 @@
   transition: filter var(--dur-timeshift) var(--ease-soft);
 }
 
-.layer--props  { z-index: var(--z-props);  pointer-events: none; }
-.layer--actors { z-index: var(--z-actors); pointer-events: none; }
+/* Props and actors are sized to the ARTWORK, not the stage. layout.js publishes the
+   box the cropped scene image actually occupies, so a position expressed as a
+   percentage in here lands on the same painted spot at every window shape. */
+.layer--props,
+.layer--actors {
+  inset: auto;
+  left: var(--scene-x, 0px);
+  top: var(--scene-y, 0px);
+  width: var(--scene-w, 100%);
+  height: var(--scene-h, 100%);
+  pointer-events: none;
+}
+
+.layer--props  { z-index: var(--z-props); }
+.layer--actors { z-index: var(--z-actors); }
+
+/* The stage takes the clicks, because the actors layer must not intercept them. */
+.stage { cursor: pointer; }
 
 /* --- actors ----------------------------------------------------------------
    Positioned from the stage floor, sized as a percentage of stage height, and
@@ -89,6 +105,7 @@
   position: absolute;
   width: auto;
   transform-origin: 50% 100%;
+  will-change: transform;        /* movement is transform-only, so keep it composited */
   filter: var(--scene-filter) drop-shadow(0 var(--space-1) var(--space-2) var(--shadow-cast));
   transition: filter var(--dur-timeshift) var(--ease-soft);
 }

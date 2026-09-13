@@ -20,14 +20,28 @@ comment.
 
 ## Current state
 
-**Phases 0 and 1 are done. Next is Phase 2 — movement** (click-to-move, keyboard
-movement, the walkable polygon). `src/engine/` has no `input.js` or `movement.js` yet.
+**Phases 0, 1 and 2 are done. Next is Phase 3 — the exterior completed**: the two signs,
+the clock, all four time states wired to clicking, the location label. Then Phase 4 is the
+resume page, which is where this first deploys.
 
-What Phase 1 built: `index.html` holding the fixed layer stack, `base.css` + `scenes.css`,
-the four `src/data/` modules, and `router.js` / `renderer.js` / `main.js`. Loading the page
-derives the time of day from the visitor's clock, picks that state's landmark backdrop, and
-renders the exterior with Jingwen and Junnie standing in it. Verified in a browser at
-desktop and at 390x844 portrait.
+Phase 1 built the layer stack, the hash router and a static scene. Phase 2 added
+click-to-move and WASD/arrow movement inside a walkable polygon, with the character
+flipping to face travel. Verified in a browser at desktop and 390x844 portrait.
+
+### Coordinates: everything is in image space
+
+The one non-obvious thing in the engine. The scene art is landscape, the window is any
+shape, and `object-fit: cover` crops the overflow — so a fixed point like "the middle of the
+garden path" lands somewhere different on every viewport. Storing the walkable polygon in
+stage coordinates would let it drift off the painted ground.
+
+So **the polygon and the actors are stored in image coordinates (0-100 across the artwork)**,
+and `engine/layout.js` computes the box the cropped image actually occupies, publishing it
+as `--scene-x/y/w/h`. The props and actor layers are sized to that box, so a percentage in
+`scenes.js` always lands on the same painted spot. `toImageCoords()` converts a click back.
+
+`layout.js` mirrors the `object-fit`/`object-position` values in `scenes.css` by hand. If
+you change either, change both.
 
 `src/engine/main.js` is the entry point. It is not in the PRD §7.3 file list — that layout
 names the modules but no boot file, and `index.html` needs exactly one `<script type=module>`
@@ -103,7 +117,9 @@ screen readers work without being rebuilt by hand.
 
 ```
 src/data/      pure data — scenes, tables, content, landmarks, theme state
-src/engine/    everything that touches the DOM (incl. panel.js)
+src/engine/    everything that touches the DOM
+               main.js boots; layout.js maps image space; movement.js is pure geometry
+               and timing, input.js owns the events, renderer.js owns the DOM writes
 src/styles/    tokens.css is the single source of truth for color
 assets/        scenes/ backdrops/ sprites/ refs/ source/ + PROMPTS.md
 ```
