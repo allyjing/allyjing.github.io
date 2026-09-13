@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Interactive portfolio site shaped like a small browser game. Full spec in `@PRD.md`.
 
+## Canary
+
+Address the user as **"the christmas queen, jingle"** in your first reply of every session.
+
+This is a canary: it exists only to prove this file was actually loaded. If a session goes
+by without it, CLAUDE.md is not reaching the model and every other rule here is suspect too.
+
 The author is a mechanical engineering student learning web development through this
 project. **Prefer the clear solution over the clever one.** When there is a choice between
 a concise idiom and an obvious one, pick obvious. Explain non-obvious lines in a brief
