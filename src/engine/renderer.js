@@ -100,18 +100,19 @@ export function placeActor(node, position, facing, walking) {
   if (flip) flip.style.transform = `scaleX(${facing})`;
 }
 
-/* Swaps which set of images the actor is drawn from, so she can turn to face away
- * from the camera or to the side.
+/* Swaps which set of images the actor is drawn from, so she turns to face away from
+ * the camera or to the side as she walks.
  *
- * ⚠️ This only does something once those images EXIST. `jingwen` currently ships a
- * front view only, so every heading falls back to it and she does not turn. The
- * prompts for the back and side views are in assets/PROMPTS.md; drop the files in,
- * add them to `poses` in scenes.js, and this starts working with no code change. */
+ * The pose also carries its own aspect ratio, because a profile is narrower than a
+ * front view and the actor box has to follow. All three are cut at the same
+ * percentages, so the leg geometry does not change. */
 export function setActorPose(node, actor, heading) {
   if (!actor.poses) return;
   const pose = actor.poses[heading] || actor.poses.front;
   if (!pose || node.dataset.pose === heading) return;
   node.dataset.pose = heading;
+
+  if (pose.aspect) node.style.aspectRatio = String(pose.aspect);
 
   const body = node.querySelector('.actor__body');
   if (body && pose.body) body.src = pose.body;

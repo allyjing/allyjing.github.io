@@ -200,13 +200,19 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   welded to the body, which is what a bending knee looks like from the front. Rotation is
   kept to ±2.5° and does not drive the motion.
 
-  **She cannot turn around, and this is an art gap, not a code one.** There is only a front
-  view. `scaleX(-1)` is applied but the sprite is ~92% symmetric, so mirroring it is nearly
-  invisible; a 3° lean into the travel direction is what actually reads as direction. The
-  engine already derives a heading from the movement vector and looks up `poses[heading]` in
-  `scenes.js`, falling back to the front view — so generating a back and a side view and
-  filling in `poses` makes her turn with **no code change**. Prompts are in
-  `assets/PROMPTS.md` §8-9.
+  **She has three views — front, back and side — and turns between them.** The walker
+  derives a heading from the movement vector and the renderer swaps `poses[heading]`. The
+  side view is drawn facing RIGHT and mirrored with `scaleX(-1)` for the other direction,
+  which is the one case where the flip genuinely reads, because a profile is not symmetric.
+
+  All three are cut at the same percentages so the hip geometry never changes, and all are
+  normalised to the same height so she does not jump when she turns. Only `aspect` differs
+  per pose — a profile is narrower — and the renderer updates the actor box with it.
+
+  **Head-on and profile need opposite motion, which is the whole trap here.** Front and back
+  lift the foot with `scaleY` about the hip; rotating instead would swing the feet sideways,
+  which is a waddle. In profile the legs genuinely scissor front-to-back, so `side` uses
+  rotation (`step-profile`) — the exact motion that is wrong head-on.
 
 `assets/PROMPTS.md` is the asset bible: the shared style line to paste into **every**
 prompt verbatim, the exact prompt for each of the seven existing assets, the generation

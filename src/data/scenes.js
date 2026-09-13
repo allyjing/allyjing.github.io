@@ -10,17 +10,25 @@
 
 import { sceneAlt, actorAlt } from './content.js';
 
-/* Jingwen's front view, cut into three pieces so her legs can swing.
+/* Jingwen's three views. Each is cut into a body and two legs so the legs can move,
+ * and all three are cut at the SAME percentages (see bodyHeight/legTop below) so the
+ * hip geometry is identical and she cannot jump when she turns.
  *
- * There is only a front view. Walking away from the camera or sideways should turn
- * her, and cannot until a back and a side view exist — the prompts are in
- * assets/PROMPTS.md. Add them to `poses` below and the engine picks them up with no
- * code change. */
-const jingwenFront = {
-  body: 'assets/sprites/jingwen-body.png',
-  legLeft: 'assets/sprites/jingwen-leg-left.png',
-  legRight: 'assets/sprites/jingwen-leg-right.png',
-};
+ * `aspect` differs per pose because a profile is narrower than a front view; the
+ * renderer updates the actor box when the pose changes. Heights are normalised, so
+ * she stays the same height throughout. */
+function pose(prefix, aspect) {
+  return {
+    aspect,
+    body: `assets/sprites/${prefix}-body.png`,
+    legLeft: `assets/sprites/${prefix}-leg-left.png`,
+    legRight: `assets/sprites/${prefix}-leg-right.png`,
+  };
+}
+
+const jingwenFront = pose('jingwen', 222 / 720);
+const jingwenBack  = pose('jingwen-back', 227 / 720);
+const jingwenSide  = pose('jingwen-side', 193 / 720);
 
 export const scenes = {
   exterior: {
@@ -68,9 +76,10 @@ export const scenes = {
         aspect: 222 / 720,
         parts: jingwenFront,
         poses: {
-          front: jingwenFront,
-          // back: { body: ..., legLeft: ..., legRight: ... },   <- generate these
-          // side: { body: ..., legLeft: ..., legRight: ... },
+          front: jingwenFront,   // walking toward the viewer, or standing
+          back: jingwenBack,     // walking away
+          side: jingwenSide,     // walking left or right; drawn facing RIGHT and
+                                 // mirrored with scaleX(-1) for the other way
         },
         bodyHeight: 63.194,
         legTop: 61.806,

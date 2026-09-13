@@ -194,12 +194,17 @@ you built anything on top of it.
 Phase 0 is therefore: `jingwen.png`, `junnie.png`, `exterior.webp`,
 `hollywood-sign-morning.webp`, `griffith-night.webp`. Santa Monica and Laguna are Phase 3.
 
-## 8-9. Jingwen turning — back and side views (NOT YET GENERATED)
+## 8-9. Jingwen turning — back and side views (GENERATED, in use)
 
-She currently has a front view only, so she never turns: walking away from the camera or
-off to the side still shows her face. The engine already picks a pose from the direction of
-travel and falls back to the front view, so generating these two and adding them to `poses`
-in `src/data/scenes.js` is all that is needed — no code change.
+Both were generated on 2026-09-13 and are wired up: she now turns to face away when walking
+up, and into profile when walking sideways.
+
+⚠️ **These two came back on a DUSTY ROSE background (191, 97, 140), not the bright magenta
+of the front sheet.** That matters: her hair brown sits only ~83 away from that colour in
+RGB, so the default keying tolerance of 100 would have eaten into her hair. They were keyed
+at tolerance 60 instead. **If you regenerate anything, check the margin before keying** —
+the script takes tolerance as its fourth argument. Bright magenta is still the better
+background precisely because nothing on her comes close to it.
 
 **Both must use `refs/jingwen-ref.png` as an img2img reference**, not the text alone, or
 the hair, the navy and the proportions will drift. Match her height in frame as closely as

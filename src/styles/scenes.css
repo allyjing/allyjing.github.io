@@ -170,6 +170,20 @@
     50%      { translate: 0 -2px; }
   }
 
+  /* In PROFILE the legs scissor forward and back, and that IS a rotation about the
+     hip — the same motion that looks like a waddle head-on is the correct one here.
+     The two halves of the merged profile leg shape swing in opposite phase. */
+  .actor[data-pose='side'] .actor__leg--left,
+  .actor[data-pose='side'] .actor__leg--right {
+    animation-name: step-profile;
+  }
+
+  @keyframes step-profile {
+    0%   { rotate:  9deg; scale: 1 1; }
+    50%  { rotate: -9deg; scale: 1 0.97; }
+    100% { rotate:  9deg; scale: 1 1; }
+  }
+
   /* A step, seen head-on.
    *
    * The motion that reads as walking from the FRONT is the foot LIFTING, not the
