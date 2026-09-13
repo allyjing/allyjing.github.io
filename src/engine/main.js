@@ -10,7 +10,7 @@ import { site } from '../data/content.js';
 import { getScene } from '../data/scenes.js';
 import { timeStateNow } from '../data/theme.js';
 import { startRouter } from './router.js';
-import { applyTimeState, renderScene, watchResize, actorElement, placeActor } from './renderer.js';
+import { applyTimeState, renderScene, watchResize, actorElement, placeActor, setActorPose } from './renderer.js';
 import { createWalker } from './movement.js';
 import { bindInput } from './input.js';
 
@@ -37,7 +37,10 @@ function enterScene(sceneId) {
   const walker = createWalker({
     start: { x: player.x, y: player.y },
     polygon: scene.walkable,
-    onMove: (position, facing, moving) => placeActor(sprite, position, facing, moving),
+    onMove: (position, facing, moving, heading) => {
+      setActorPose(sprite, player, heading);
+      placeActor(sprite, position, facing, moving);
+    },
   });
 
   walker.start();

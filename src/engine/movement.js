@@ -72,16 +72,29 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
   let last = null;
   let frame = null;
   let moving = false;
+  let heading = 'front';
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function commit(next) {
     const clamped = clampToPolygon(next, polygon);
-    // Only flip on real horizontal movement; a tiny jitter should not spin her round.
     const dx = clamped.x - position.x;
+    const dy = clamped.y - position.y;
+
+    // Only flip on real horizontal movement; a tiny jitter should not spin her round.
     if (Math.abs(dx) > 0.01) facing = dx > 0 ? 1 : -1;
+
+    /* Which way she is facing the camera. Mostly-sideways movement is 'side';
+     * otherwise it is toward the viewer ('front') or away from them ('back').
+     * The 1.2 bias means a diagonal counts as sideways, which looks better than
+     * flicking between poses on a near-diagonal walk. */
+    if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+      if (Math.abs(dx) * 1.2 > Math.abs(dy)) heading = 'side';
+      else heading = dy < 0 ? 'back' : 'front';
+    }
+
     position = clamped;
-    onMove(position, facing, moving);
+    onMove(position, facing, moving, heading);
   }
 
   /* Walking vs standing still drives the leg animation and the lean, so the change
@@ -89,7 +102,7 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
   function setMoving(next) {
     if (next === moving) return;
     moving = next;
-    onMove(position, facing, moving);
+    onMove(position, facing, moving, heading);
   }
 
   function step(now) {
@@ -120,6 +133,7 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
   return {
     get position() { return { ...position }; },
     get facing() { return facing; },
+    get heading() { return heading; },
 
     moveTo(point) {
       const destination = clampToPolygon(point, polygon);

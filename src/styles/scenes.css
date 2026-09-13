@@ -142,22 +142,22 @@
 .actor__leg--right { left: 50%; }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Idle: a slow breathing bob. Walking: a quicker one, plus the legs.
-     Animating `translate` rather than `transform` leaves the inline transform
-     (which carries the lean) alone -- they are independent properties. */
+  /* Idle: a slow breathing bob. */
   .actor { animation: breathe 2s var(--ease-soft) infinite alternate; }
 
+  /* Walking: the body dips TWICE per stride -- once per footfall -- so its period
+     is half a stride. Animating `translate` leaves the inline `transform` (which
+     carries the lean) alone; they are independent properties. */
   .actor[data-walking='true'] {
-    animation: bob var(--dur-bob) var(--ease-soft) infinite alternate;
+    animation: bob calc(var(--dur-step) / 2) var(--ease-soft) infinite;
   }
 
-  /* The legs swing in opposite phase, which is the whole trick. One stride is
-     --dur-step; each leg takes half of it forward and half back. */
+  /* The legs are in opposite phase, which is what makes it a walk. */
   .actor[data-walking='true'] .actor__leg--left {
     animation: step var(--dur-step) var(--ease-soft) infinite;
   }
   .actor[data-walking='true'] .actor__leg--right {
-    animation: step var(--dur-step) var(--ease-soft) infinite reverse;
+    animation: step var(--dur-step) var(--ease-soft) infinite -280ms;
   }
 
   @keyframes breathe {
@@ -166,13 +166,25 @@
   }
 
   @keyframes bob {
-    from { translate: 0 0; }
-    to   { translate: 0 -2px; }
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -2px; }
   }
 
+  /* A step, seen head-on.
+   *
+   * The motion that reads as walking from the FRONT is the foot LIFTING, not the
+   * leg swinging sideways. Swinging it around the hip is what a waddle is.
+   *
+   * So the lift is done with scaleY about the hip: shortening the leg raises the
+   * foot while the hip stays welded to the body, which is exactly what a knee
+   * bending looks like from here. Rotation is kept small -- just enough to suggest
+   * the leg passing under the body -- and does not drive the movement. */
   @keyframes step {
-    0%   { rotate: -7deg; }
-    50%  { rotate:  7deg; }
-    100% { rotate: -7deg; }
+    0%   { scale: 1 1;    rotate:  2.5deg; }   /* planted, trailing  */
+    20%  { scale: 1 0.90; rotate:  1.5deg; }   /* heel comes up      */
+    40%  { scale: 1 0.84; rotate: -1deg;   }   /* knee up, foot high */
+    60%  { scale: 1 0.93; rotate: -2.5deg; }   /* reaching forward   */
+    80%  { scale: 1 1;    rotate: -1.5deg; }   /* foot plants        */
+    100% { scale: 1 1;    rotate:  2.5deg; }   /* takes the weight   */
   }
 }

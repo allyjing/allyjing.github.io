@@ -194,6 +194,44 @@ you built anything on top of it.
 Phase 0 is therefore: `jingwen.png`, `junnie.png`, `exterior.webp`,
 `hollywood-sign-morning.webp`, `griffith-night.webp`. Santa Monica and Laguna are Phase 3.
 
+## 8-9. Jingwen turning — back and side views (NOT YET GENERATED)
+
+She currently has a front view only, so she never turns: walking away from the camera or
+off to the side still shows her face. The engine already picks a pose from the direction of
+travel and falls back to the front view, so generating these two and adding them to `poses`
+in `src/data/scenes.js` is all that is needed — no code change.
+
+**Both must use `refs/jingwen-ref.png` as an img2img reference**, not the text alone, or
+the hair, the navy and the proportions will drift. Match her height in frame as closely as
+you can: the three views get cut at the same percentages, so a figure that sits higher or
+lower in frame will make her jump when she turns.
+
+### 8. `refs/jingwen-back-ref.png`
+
+> Full-body character illustration of a young woman seen from BEHIND, facing directly away
+> from the viewer, neutral relaxed pose, arms at her sides. Shoulder-length brown hair worn
+> down, seen from the back. Navy blue top, blue jeans, white sneakers. No face visible.
+> Centered, full body visible head to feet, flat solid magenta background.
+> [SHARED STYLE LINE]
+
+The one thing to check: no face. Generators often turn the head back toward the viewer.
+
+### 9. `refs/jingwen-side-ref.png`
+
+> Full-body character illustration of a young woman standing in PROFILE, facing the
+> viewer's RIGHT, neutral relaxed pose, arms at her sides. Shoulder-length brown hair worn
+> down with curled curtain bangs, seen from the side. Navy blue top, blue jeans, white
+> sneakers. Simple friendly face in profile, minimal features. Centered, full body visible
+> head to feet, flat solid magenta background. [SHARED STYLE LINE]
+
+**Facing right matters.** The engine mirrors with `scaleX(-1)` to get the left-facing
+version, so only one side needs generating — but it has to be the right-facing one.
+
+### After generating
+
+Key and cut them the same way as the front view (see item 4 under Outstanding asset work),
+then fill in `poses.back` and `poses.side` in `src/data/scenes.js`.
+
 ## Naming rules
 
 GitHub Pages serves from Linux and is case-sensitive; your Mac is not. A file saved as

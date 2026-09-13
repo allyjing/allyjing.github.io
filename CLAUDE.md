@@ -194,15 +194,19 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   generated pose with no frames; the cut is done in software from the single sprite. The
   cut lines are recorded in `scenes.js` as percentages and must match the images.
 
-  **`scaleX(-1)` alone is not visible on this art.** The sprite is a straight-on front view
-  and measures ~92% symmetric, so mirroring it changes almost nothing on screen. The flip is
-  still applied, but what actually reads as direction is a 3° lean into the travel
-  direction. The lean sits on `.actor` and the mirror on `.actor__flip` — deliberately
-  separate elements, because one combined transform would mirror the lean too and she would
-  lean backwards whenever she walked left.
+  **Steps are a foot LIFTING, not a leg swinging.** Rotating the legs around the hip is
+  what a waddle is — from a head-on view it swings the feet sideways. The lift is done with
+  `scaleY` about the hip instead: shortening the leg raises the foot while the hip stays
+  welded to the body, which is what a bending knee looks like from the front. Rotation is
+  kept to ±2.5° and does not drive the motion.
 
-  A 3/4 or side-facing pose would fix this properly at the art level. Worth considering when
-  the exterior is regenerated.
+  **She cannot turn around, and this is an art gap, not a code one.** There is only a front
+  view. `scaleX(-1)` is applied but the sprite is ~92% symmetric, so mirroring it is nearly
+  invisible; a 3° lean into the travel direction is what actually reads as direction. The
+  engine already derives a heading from the movement vector and looks up `poses[heading]` in
+  `scenes.js`, falling back to the front view — so generating a back and a side view and
+  filling in `poses` makes her turn with **no code change**. Prompts are in
+  `assets/PROMPTS.md` §8-9.
 
 `assets/PROMPTS.md` is the asset bible: the shared style line to paste into **every**
 prompt verbatim, the exact prompt for each of the seven existing assets, the generation

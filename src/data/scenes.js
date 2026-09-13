@@ -10,6 +10,18 @@
 
 import { sceneAlt, actorAlt } from './content.js';
 
+/* Jingwen's front view, cut into three pieces so her legs can swing.
+ *
+ * There is only a front view. Walking away from the camera or sideways should turn
+ * her, and cannot until a back and a side view exist — the prompts are in
+ * assets/PROMPTS.md. Add them to `poses` below and the engine picks them up with no
+ * code change. */
+const jingwenFront = {
+  body: 'assets/sprites/jingwen-body.png',
+  legLeft: 'assets/sprites/jingwen-leg-left.png',
+  legRight: 'assets/sprites/jingwen-leg-right.png',
+};
+
 export const scenes = {
   exterior: {
     id: 'exterior',
@@ -54,10 +66,11 @@ export const scenes = {
         id: 'jingwen', alt: actorAlt.jingwen,
         x: 46, y: 92, height: 30, facing: 1, walks: true,
         aspect: 222 / 720,
-        parts: {
-          body: 'assets/sprites/jingwen-body.png',
-          legLeft: 'assets/sprites/jingwen-leg-left.png',
-          legRight: 'assets/sprites/jingwen-leg-right.png',
+        parts: jingwenFront,
+        poses: {
+          front: jingwenFront,
+          // back: { body: ..., legLeft: ..., legRight: ... },   <- generate these
+          // side: { body: ..., legLeft: ..., legRight: ... },
         },
         bodyHeight: 63.194,
         legTop: 61.806,
