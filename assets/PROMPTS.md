@@ -206,6 +206,24 @@ at tolerance 60 instead. **If you regenerate anything, check the margin before k
 the script takes tolerance as its fourth argument. Bright magenta is still the better
 background precisely because nothing on her comes close to it.
 
+⚠️ **Her hair also came back a different colour**, which is §8.5's colour-drift failure
+mode arriving exactly as predicted:
+
+| view | hair, as generated |
+|---|---|
+| front (anchor) | `(91, 63, 57)` — dark, cool brown |
+| back | `(132, 82, 66)` — lighter, warmer |
+| side | `(128, 78, 67)` — lighter, warmer |
+
+The back and side were corrected to the front, because the front sheet is the anchor every
+other asset in the project was generated against. `source/recolour-hair.py` did it: a
+per-channel statistical transfer that shifts the mean and rescales the spread, so the base
+tone, shadow, highlight and outline stay distinct instead of flattening to one colour. All
+three now sit within ~6 units of each other.
+
+**This will happen again on any regeneration.** Naming a hex value in the prompt does not
+reliably hold it. Generate, then measure and correct — it is faster and it actually works.
+
 **Both must use `refs/jingwen-ref.png` as an img2img reference**, not the text alone, or
 the hair, the navy and the proportions will drift. Match her height in frame as closely as
 you can: the three views get cut at the same percentages, so a figure that sits higher or
