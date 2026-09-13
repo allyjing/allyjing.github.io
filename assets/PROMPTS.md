@@ -238,11 +238,27 @@ Extensions are `.jpg`/`.png`, not the `.webp` this document specifies — see it
 
 ## Outstanding asset work
 
-1. ~~`sprites/` is empty.~~ **Done.** `sprites/jingwen.png` (111x360, 51 KB) and
-   `sprites/junnie.png` (147x260, 57 KB) were keyed from the refs, 1px-eroded to kill the
-   fringe, cropped to the subject and downscaled. Both are under the 60 KB budget. The
-   two sheets use slightly different magentas — (230,74,214) and (254,65,246) — so the key
-   colour is sampled from each image's own corner rather than assumed to be #FF00FF.
+1. ~~`sprites/` is empty.~~ **Done.** `sprites/jingwen.png` (222x720, 81 KB) and
+   `sprites/junnie.png` (237x420, 76 KB), keyed from the refs.
+
+   ⚠️ **Both exceed the 60 KB per-sprite budget in PRD §10.** Deliberate: the first pass hit
+   51 KB at 360px tall, but an actor is sized at 34% of stage height, which is ~290 CSS px
+   on a 390x844 phone and ~580 device px at 2x — so a 360px sprite was being upscaled, and
+   it looked soft. Doubling the height fixed that. Total page weight is still ~1.1 MB
+   against the 1.5 MB budget, so the aggregate limit holds; only the per-sprite line does
+   not. Converting to WebP would bring both back under it.
+
+   Keying notes, if this ever needs redoing:
+   - The two sheets use different magentas — (230,74,214) and (254,65,246) — so the key
+     colour is read from each image's own corner rather than assumed to be #FF00FF.
+   - **Do not key by colour distance alone.** The first attempt did, and a tolerance wide
+     enough to catch the blended edge also swallowed the pink neck shadow and the lips,
+     leaving holes that read as a speckled choker. The fix is a flood fill inward from the
+     border, so only background actually connected to the edge is ever removed.
+   - Magenta trapped in interior gaps (between locks of hair) is unreachable by that fill
+     and needs a separate pass. It is identified as "red and blue both well above green,"
+     which no legitimate colour in this palette satisfies — the blush, lips and ginger fur
+     all have blue at or below green. **Re-check that assumption for any new character.**
 2. **Nothing is WebP yet, and `scenes/exterior.jpg` is 375 KB — over the 250 KB budget.**
    The four backdrops are 123–178 KB and already pass. `sips` on this machine reads WebP but
    cannot write it, and there is no ImageMagick or Pillow:

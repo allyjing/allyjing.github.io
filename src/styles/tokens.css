@@ -103,8 +103,8 @@
 [data-time="morning"] {       /* Hollywood Sign */
   --sky-top:      #A8CFEA;
   --sky-bottom:   #FCE0C4;
-  --light-tint:   rgba(255, 216, 168, 0.16);
-  --scene-filter: brightness(1.03) saturate(0.98);
+  --light-tint:   rgba(255, 216, 168, 0.08);
+  --scene-filter: brightness(1.04) saturate(1.02);
   --ground:       #B0D492;
   --shadow-cast:  rgba(58, 70, 110, 0.16);  /* COOL shadows — this is what reads as
                                                morning rather than sunset */
@@ -114,8 +114,11 @@
 [data-time="sunset"] {        /* Laguna Beach */
   --sky-top:      #E8734F;
   --sky-bottom:   #F9C98E;
-  --light-tint:   rgba(255, 126, 64, 0.30);
-  --scene-filter: brightness(0.94) saturate(1.12);
+  /* A heavy orange wash over the whole frame turns the scene muddy brown, so the
+   * overlay stays light and --scene-filter carries the warmth instead. Filters
+   * respect alpha; a full-frame overlay does not. */
+  --light-tint:   rgba(255, 150, 105, 0.10);
+  --scene-filter: brightness(0.98) saturate(1.20);
   --ground:       #8FA86E;
   --shadow-cast:  rgba(110, 48, 32, 0.30);
   --window-glow:  rgba(255, 206, 140, 0.52);
@@ -134,8 +137,8 @@
 [data-time="night"] {         /* Griffith Observatory */
   --sky-top:      #1E2547;
   --sky-bottom:   #46436E;
-  --light-tint:   rgba(42, 52, 112, 0.38);
-  --scene-filter: brightness(0.78) saturate(0.82);
+  --light-tint:   rgba(42, 52, 112, 0.28);
+  --scene-filter: brightness(0.74) saturate(0.80);
   --ground:       #5E7A5C;
   --shadow-cast:  rgba(14, 18, 40, 0.34);
   --window-glow:  rgba(255, 206, 128, 0.72);
