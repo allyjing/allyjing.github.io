@@ -104,6 +104,12 @@ as digits change.
 - **Never place white directly on `--accent-berry`.** Use `--on-accent`, which flips to a
   dark value under `[data-time="night"]`. White on the night accent measures 2.42:1 — a
   clear failure — while `--on-accent` holds 6.19:1 in both themes.
+- **Every surface token that can carry `--ink` must be overridden in the night block.**
+  `--ink` flips to near-white after dark; a pastel surface that does not flip with it
+  inverts into light-on-light. `--surface-trim` originally had no night value, and the
+  garden signs using it measured **1.29:1** at night — a severe failure that looks perfect
+  in daylight and is only visible if you actually load the night scene. Check new tokens in
+  both themes, not one.
 - Check every text-on-background pairing against WCAG AA. Pastels fail routinely. Measured
   values for the pairings most likely to be reached for:
 
@@ -113,6 +119,8 @@ as digits change.
   | `--ink-soft` on `--surface-wall` | 6.04 | AA |
   | `--ink` on `--surface-trim` | 8.30 | AAA |
   | `--ink` on `--surface-roof` | 7.11 | AAA |
+  | `--ink` on `--surface-trim`, **night** | 9.35 | AAA |
+  | `--ink` on `--surface-roof`, **night** | 8.98 | AAA |
   | `--on-accent` on `--accent-berry` | 4.95 | AA |
   | `--accent-berry` on `--surface-wall` | 4.65 | AA |
   | `--surface-wall` on `--surface-trim` | 1.41 | **fails — never do this** |

@@ -60,16 +60,24 @@ export const resume = {
   ariaLabel: "Jingwen's resume, a plain text page",
 };
 
-/* The clock (R26). Each state shows a representative time rather than the real
- * clock, because clicking cycles the state and a real time would contradict it. */
-export const timeLabels = {
-  morning: { time: '8:00', meridiem: 'AM', name: 'Morning' },
-  noon:    { time: '1:00', meridiem: 'PM', name: 'Noon' },
-  sunset:  { time: '6:30', meridiem: 'PM', name: 'Sunset' },
-  night:   { time: '10:00', meridiem: 'PM', name: 'Night' },
+/* The clock (R26) shows TWO things: the visitor's real wall-clock time, which keeps
+ * ticking, and the name of the scene they are currently looking at. On arrival those
+ * agree, because the scene is derived from their clock (R27). After they click to
+ * cycle, the time stays true and the name tells them which view they have chosen. */
+export const timeNames = {
+  morning: 'Morning',
+  noon: 'Noon',
+  sunset: 'Sunset',
+  night: 'Night',
 };
 
 export const chrome = {
   // Both readouts advance the same single value, so they say the same thing (R18).
   cycleHint: 'Change the time of day and the view',
+};
+
+/* Signs that are part of the scenery rather than links. This one points at the door;
+ * it becomes the way into the interior in Phase 5. */
+export const decor = {
+  enter: { label: 'Please enter' },
 };

@@ -115,6 +115,29 @@ function renderSigns(signs) {
   }
 }
 
+/* Scenery signs. No link, no button, not focusable, and the layer is aria-hidden —
+ * this is painted detail, and a screen reader announcing "Please enter" as a control
+ * that does nothing would be worse than silence. It becomes the real door in
+ * Phase 5, and gets a proper accessible name then. */
+function renderDecor(items) {
+  const layer = el('decor');
+  layer.replaceChildren();
+  if (!items) return;
+
+  for (const item of items) {
+    const post = document.createElement('div');
+    post.className = 'sign sign--decor';
+    post.style.left = `${item.x}%`;
+    post.style.top = `${item.y}%`;
+
+    const board = document.createElement('div');
+    board.className = 'sign__board';
+    board.textContent = item.label;
+    post.append(board);
+    layer.append(post);
+  }
+}
+
 /* Builds one actor. Jingwen is assembled from three images so her legs can swing;
  * Junnie is a single image. Both end up as a .actor box positioned the same way, so
  * nothing downstream needs to know which is which.
@@ -230,6 +253,12 @@ export function renderScene(sceneId, time) {
     sceneImg.src = scene.image;
     sceneImg.alt = scene.alt;
     sceneImg.hidden = false;
+
+    /* The mask and the image are both sized with `cover` against the same element
+     * box, from sources with the same aspect ratio, so they line up exactly. */
+    const mask = scene.mask ? `url(${scene.mask})` : 'none';
+    sceneImg.style.maskImage = mask;
+    sceneImg.style.webkitMaskImage = mask;   // Safari still wants the prefix
   } else {
     sceneImg.hidden = true;              // interior has no art yet (Phase 5)
   }
@@ -238,6 +267,7 @@ export function renderScene(sceneId, time) {
   if (scene.hasBackdrop) renderBackdrop(time, { immediate: true });
 
   renderSigns(scene.signs);
+  renderDecor(scene.decor);
   renderActors(scene.actors);
   applyCoverBox(stage, scene.aspect);
   return scene;

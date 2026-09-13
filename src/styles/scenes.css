@@ -76,12 +76,22 @@
   z-index: var(--z-scene);
   filter: var(--scene-filter);
   transition: filter var(--dur-timeshift) var(--ease-soft);
+
+  /* Matches object-fit/object-position above so the mask registers with the image
+     at every window shape. Change one, change all four. */
+  mask-size: cover;
+  mask-position: center bottom;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center bottom;
+  -webkit-mask-repeat: no-repeat;
 }
 
 /* Props and actors are sized to the ARTWORK, not the stage. layout.js publishes the
    box the cropped scene image actually occupies, so a position expressed as a
    percentage in here lands on the same painted spot at every window shape. */
 .layer--props,
+.layer--decor,
 .layer--actors {
   inset: auto;
   pointer-events: none;
@@ -93,6 +103,12 @@
 }
 
 .layer--props  { z-index: var(--z-props); }
+
+/* Scenery signs. Same z as the props layer, but later in the DOM so it paints over
+   them, and still below the actors — she should walk in front of a sign, not behind.
+   Unlike the props layer this one NEVER docks to the corner: decor belongs to the
+   painting, so it keeps the artwork box at every viewport shape. */
+.layer--decor { z-index: var(--z-props); }
 /* The signs live in the props layer and DO take clicks, even though the layer
    itself does not — otherwise the layer would swallow clicks meant for the ground. */
 .layer--props .sign { pointer-events: auto; }

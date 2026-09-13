@@ -8,7 +8,7 @@
  * --chrome-ink, which flip per theme instead.
  */
 
-import { timeLabels, resume as resumeCopy, chrome as chromeCopy } from '../data/content.js';
+import { timeNames, resume as resumeCopy, chrome as chromeCopy } from '../data/content.js';
 import { landmarkForTime, locationLabel } from '../data/landmarks.js';
 
 function button(className, onClick) {
@@ -55,17 +55,31 @@ export function buildChrome({ onCycle }) {
   const location = buildLocation(onCycle);
   layer.append(clock, location, buildResume());
 
-  return function update(time) {
-    const label = timeLabels[time];
-    clock.querySelector('.clock__time').textContent = `${label.time} ${label.meridiem}`;
-    clock.querySelector('.clock__name').textContent = label.name;
+  // The visitor's real time, which keeps ticking regardless of the scene they pick.
+  function wallClock() {
+    return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
 
-    const landmark = landmarkForTime(time);
+  let current = null;
+
+  function update(time) {
+    if (time) current = time;
+    const name = timeNames[current];
+    const now = wallClock();
+
+    clock.querySelector('.clock__time').textContent = now;
+    clock.querySelector('.clock__name').textContent = name;
+
+    const landmark = landmarkForTime(current);
     location.textContent = locationLabel(landmark);
 
-    /* Announced as a live region rather than a button label, so a screen reader
-     * hears what changed after a click instead of re-reading the control. */
     location.setAttribute('aria-label', `${locationLabel(landmark)}. ${chromeCopy.cycleHint}`);
-    clock.setAttribute('aria-label', `${label.time} ${label.meridiem}, ${label.name}. ${chromeCopy.cycleHint}`);
-  };
+    clock.setAttribute('aria-label', `${now}, showing ${name}. ${chromeCopy.cycleHint}`);
+  }
+
+  /* Tick so the displayed time stays true. Every 15s rather than every minute, so
+   * the visible minute never lags reality by more than a few seconds. */
+  setInterval(() => { if (current) update(); }, 15000);
+
+  return update;
 }
