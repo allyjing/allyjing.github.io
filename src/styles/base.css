@@ -1,0 +1,47 @@
+/* Repo path: src/styles/base.css
+ *
+ * Reset, document defaults, and the accessibility floor. No colour literals — every
+ * value here is a token from tokens.css.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  background: var(--surface-sunken);
+  overflow: hidden;               /* the stage fills the viewport; the page never scrolls */
+
+  /* Tokens re-theme instantly when data-time changes; this makes it a cross-fade
+     rather than a hard cut (PRD R30). */
+  transition: background-color var(--dur-timeshift) var(--ease-soft);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+/* Every interactive element gets a visible focus ring. Never `outline: none` without
+   a replacement — this is the single easiest accessibility rule to break. */
+:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+img {
+  /* The art is deliberately smooth, not pixel art. `pixelated` fights the brief. */
+  image-rendering: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}

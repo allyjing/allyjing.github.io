@@ -1,0 +1,108 @@
+/* Repo path: src/styles/scenes.css
+ *
+ * The stage and its layers. Stacking uses the --z-* tokens only — a bare z-index here
+ * would sit outside the system and eventually fight it.
+ */
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;   /* dvh accounts for mobile Safari's collapsing toolbar; the 100vh
+                       line above is the fallback for browsers without dvh */
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The scene art is landscape (about 1.83:1) and the primary target is a 390x844
+   portrait phone, so it is cropped to fill rather than letterboxed. The bakery sits
+   left of centre, which is what `center` keeps in frame. */
+.layer--backdrop,
+.layer--scene {
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* --- sky -------------------------------------------------------------------
+   A loading fallback only. Each backdrop image carries its own sky now, so this
+   is what shows for the moment before the backdrop decodes. */
+.layer--sky {
+  z-index: var(--z-sky);
+  background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+  transition: background var(--dur-timeshift) var(--ease-soft);
+}
+
+/* --- backdrop --------------------------------------------------------------
+   The distant landmark. Each image has its own time of day BAKED IN, which is why
+   the tint below must never reach it: a night tint over an already-night Griffith
+   renders black. */
+.layer--backdrop {
+  z-index: var(--z-backdrop);
+  transition: opacity var(--dur-timeshift) var(--ease-soft);
+}
+
+/* Hidden on scenes with no backdrop (the interior), set by the renderer. */
+.stage[data-backdrop='false'] .layer--backdrop { display: none; }
+
+/* --- tint ------------------------------------------------------------------
+   ⚠️ PRD §9 and tokens.css disagree about where this belongs, and the token wins:
+   --z-tint is 40, above the scene (10) and the actors (30), so DOM order here is
+   irrelevant. That is what makes the wash actually reach the bakery, which is its
+   stated job.
+
+   The cost is that it also covers the backdrop. Harmless today, because the
+   placeholder exterior is opaque — but once the transparent cutout lands, this will
+   lay a night tint over an already-night Griffith and render it black, the exact
+   failure both PRD §9 and design.md warn about. Unresolved; see CLAUDE.md. */
+.layer--tint {
+  z-index: var(--z-tint);
+  background: var(--light-tint);
+  pointer-events: none;
+  transition: background-color var(--dur-timeshift) var(--ease-soft);
+}
+
+/* --- scene -----------------------------------------------------------------
+   The bakery, painted once under neutral light. --scene-filter is what actually
+   brings it into agreement with the backdrop's time of day. */
+.layer--scene {
+  z-index: var(--z-scene);
+  filter: var(--scene-filter);
+  transition: filter var(--dur-timeshift) var(--ease-soft);
+}
+
+.layer--props  { z-index: var(--z-props);  pointer-events: none; }
+.layer--actors { z-index: var(--z-actors); pointer-events: none; }
+
+/* --- actors ----------------------------------------------------------------
+   Positioned from the stage floor, sized as a percentage of stage height, and
+   centred on their own x with translateX(-50%).
+
+   Direction is scaleX(-1) and nothing else: one sprite per character, no
+   walk-cycle frames, no sprite sheet (PRD §8.3). */
+.actor {
+  position: absolute;
+  width: auto;
+  transform-origin: 50% 100%;
+  filter: var(--scene-filter) drop-shadow(0 var(--space-1) var(--space-2) var(--shadow-cast));
+  transition: filter var(--dur-timeshift) var(--ease-soft);
+}
+
+/* Phase 2 replaces this with real movement. The bob is here now because it is the
+   thing that makes a single static sprite read as alive, and it is pure CSS. */
+@media (prefers-reduced-motion: no-preference) {
+  .actor { animation: bob var(--dur-bob) var(--ease-soft) infinite alternate; }
+
+  /* Animates `translate`, not `transform`. The renderer sets scaleX on `transform`
+     inline, and transform is a single property — animating it here would overwrite
+     the flip. `translate` is an independent property, so the two compose cleanly. */
+  @keyframes bob {
+    from { translate: 0 0; }
+    to   { translate: 0 -2px; }
+  }
+}

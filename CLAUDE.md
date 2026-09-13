@@ -20,15 +20,18 @@ comment.
 
 ## Current state
 
-**Phase 0 is done; no code exists yet.** The repo has zero commits. What is in place:
+**Phases 0 and 1 are done. Next is Phase 2 — movement** (click-to-move, keyboard
+movement, the walkable polygon). `src/engine/` has no `input.js` or `movement.js` yet.
 
-- All planning documents at their intended paths: `PRD.md`, `.claude/rules/design.md`,
-  `src/styles/tokens.css`.
-- All seven Phase 0 images placed and named lowercase-with-hyphens under `assets/`.
-- `src/data/`, `src/engine/`, `assets/sprites/` exist but are empty (`.gitkeep` only).
+What Phase 1 built: `index.html` holding the fixed layer stack, `base.css` + `scenes.css`,
+the four `src/data/` modules, and `router.js` / `renderer.js` / `main.js`. Loading the page
+derives the time of day from the visitor's clock, picks that state's landmark backdrop, and
+renders the exterior with Jingwen and Junnie standing in it. Verified in a browser at
+desktop and at 390x844 portrait.
 
-**Next is Phase 1 (PRD §12):** `index.html`, the hash router, one scene rendering
-`assets/scenes/exterior.jpg` and a static character. No movement yet.
+`src/engine/main.js` is the entry point. It is not in the PRD §7.3 file list — that layout
+names the modules but no boot file, and `index.html` needs exactly one `<script type=module>`
+to start things.
 
 The art spike passed its own test (§12): the four backdrops hold one illustration style
 across a full morning-to-night swing. Style is flat vector with soft linework — match it.
@@ -49,25 +52,36 @@ derive the path from the landmark. Extensions become `.webp` once the images are
 `assets/source/` holds untouched generation masters — never reference these from code.
 See `assets/PROMPTS.md` for folder roles and outstanding asset work.
 
-### Two art problems to raise before Phase 3
+### Decisions taken 2026-09-13
 
-Neither blocks Phase 1. Both are Jingwen's call, not something to quietly work around.
+- **The exterior gets regenerated as a transparent foreground cutout**, and **relocated to
+  Southern California** (stucco, tile, bougainvillea — not the English cottage it came back
+  as). One regeneration fixes both. The replacement prompt is at the end of
+  `assets/PROMPTS.md`. Until then `assets/scenes/exterior.jpg` is a placeholder: it is an
+  opaque full landscape, so **the landmark backdrop behind it will not be visible.** Build
+  the layer stack per PRD §9 anyway — it is correct, and it starts working the moment the
+  cutout lands.
+- **The repo is named `allyjing.github.io` on GitHub** (PRD §10.3), for a user site at the
+  domain root. Note the *local folder* name is irrelevant to Pages — only the GitHub repo
+  name matters, so there is nothing to rename locally.
 
-1. **The exterior has no room for a backdrop layer.** PRD §9 layers the distant landmark
-   *behind* the bakery, but `assets/scenes/exterior.jpg` is a complete opaque landscape —
-   its own sky, hills, and treeline fill the frame edge to edge. Composited as specified,
-   the backdrop is invisible. It needs to be regenerated as a foreground cutout with
-   transparency above the horizon, or the design has to change.
-2. **The bakery is an English/European cottage, not Los Angeles.** Half-timbering, slate
-   roof, rolling green hills. Behind it the PRD puts the Hollywood Sign and a Griffith
-   Observatory city-lights panorama. That is a real tonal mismatch, and it is the kind of
-   thing that reads as a mistake rather than a choice.
+### The time-of-day tint is unresolved
 
-### Sprites do not exist yet
+**PRD §9 and `tokens.css` disagree, and the token wins.** §9 lists the layer order as
+`backdrop → tint → scene`, but `--z-tint` is `40` — above the scene (`10`) and the actors
+(`30`). Since every layer is positioned with a `z-index`, DOM order does nothing and the
+wash lands on top of everything below the UI.
 
-`assets/refs/jingwen-ref.png` and `junnie-ref.png` are **reference sheets on flat magenta**,
-not sprites. They still need the magenta keyed out and export to transparent PNG under
-60 KB. Do not drop a reference sheet into a scene as a sprite.
+That is what makes the tint reach the bakery, which is its stated job, so it is right for
+now. The cost: it also covers the backdrop. Harmless today because the placeholder exterior
+is opaque — but **once the transparent cutout lands, this puts a night tint over an
+already-night Griffith and renders it black**, the exact failure both PRD §9 and design.md
+warn about.
+
+A full-frame overlay cannot tint the bakery without also tinting the backdrop. The fix is
+probably to drop the overlay for the foreground entirely and carry the whole time-of-day
+treatment in `--scene-filter`, which respects alpha and so can never touch the layer behind.
+Decide this when the cutout lands; do not let it ship unresolved.
 
 ## Run it
 

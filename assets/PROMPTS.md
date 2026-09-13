@@ -238,10 +238,11 @@ Extensions are `.jpg`/`.png`, not the `.webp` this document specifies — see it
 
 ## Outstanding asset work
 
-1. **`sprites/` is empty.** `refs/jingwen-ref.png` and `refs/junnie-ref.png` are still on
-   flat magenta. They need the magenta keyed out and export to transparent PNG under 60 KB,
-   landing at `sprites/jingwen.png` and `sprites/junnie.png`. Fix edge fringing with a 1px
-   erode rather than regenerating (PRD §8.5).
+1. ~~`sprites/` is empty.~~ **Done.** `sprites/jingwen.png` (111x360, 51 KB) and
+   `sprites/junnie.png` (147x260, 57 KB) were keyed from the refs, 1px-eroded to kill the
+   fringe, cropped to the subject and downscaled. Both are under the 60 KB budget. The
+   two sheets use slightly different magentas — (230,74,214) and (254,65,246) — so the key
+   colour is sampled from each image's own corner rather than assumed to be #FF00FF.
 2. **Nothing is WebP yet, and `scenes/exterior.jpg` is 375 KB — over the 250 KB budget.**
    The four backdrops are 123–178 KB and already pass. `sips` on this machine reads WebP but
    cannot write it, and there is no ImageMagick or Pillow:
@@ -252,19 +253,42 @@ Extensions are `.jpg`/`.png`, not the `.webp` this document specifies — see it
    Convert from `source/`, not from the `.jpg` — recompressing a JPEG compounds the loss.
 3. **No interior scene exists.** Phase 5 needs one, and there is no prompt for it above.
 
-## Two problems the generated art has, and the prompt changes that fix them
+## Exterior v2 — regenerate before Phase 3
 
-Both are in the exterior. Worth fixing before Phase 3 rather than after.
+The exterior shipped in Phase 0 has two faults, both traceable to the §2 prompt, and both
+resolved by decision on 2026-09-13. **Regenerate it once, fixing both at the same time.**
 
-**The exterior leaves no room for the backdrop layer.** §2's prompt asks for "open sky
-above" and a "wide landscape composition," and that is what came back: a complete, opaque
-landscape with its own sky, hills, and treeline, edge to edge. But PRD §9 layers the
-landmark backdrop *behind* it. As generated, the backdrop cannot be seen at all. The
-exterior needs to be a foreground cutout — ground, bakery, garden, and **transparent above
-the horizon**, on flat magenta like the sprites — not a finished scene.
+**Fault 1 — it leaves no room for the backdrop layer.** §2 asked for "open sky above" and a
+"wide landscape composition," and that is exactly what came back: a complete opaque
+landscape with its own sky, hills, and treeline. PRD §9 layers the landmark backdrop
+*behind* the bakery, so as generated the backdrop can never be seen. The exterior has to be
+a **foreground cutout** — ground, bakery, garden, and flat magenta everywhere above the
+rooftops.
 
-**The bakery reads as an English village, not Southern California.** Half-timbered gables,
-slate roof, dense green hedgerows. The prompt never named a locale, so the generator
-defaulted to a European storybook cottage, and it now has to sit in front of the Hollywood
-Sign. If the LA setting matters, the prompt needs to say so: stucco rather than timber,
-terracotta or tile, and dry planting — bougainvillea, succulents, a palm or citrus tree.
+**Fault 2 — it reads as an English village.** Half-timbered gables, slate roof, dense
+hedgerows. §2 never named a locale, so the generator defaulted to a European storybook
+cottage, which then has to sit in front of the Hollywood Sign. Decision: **make it Southern
+California.**
+
+### The replacement prompt
+
+> A small two-story Southern California bakery with pastel cream-white stucco walls, a
+> powder blue tile roof, and a dusty rose awning over the front door. Terracotta planters
+> with bougainvillea and succulents, a young citrus tree, and a garden path in front. A
+> stone fountain to one side. Empty ground in the foreground with room for characters to
+> stand. Neutral midday light, soft shadows, no dramatic sunset. Wide landscape composition,
+> the bakery left of center. **No sky, no clouds, no distant hills, no horizon line — the
+> entire area above the rooftops and beyond the ground is flat solid magenta.**
+> [SHARED STYLE LINE]
+
+Then key the magenta out and export as PNG with transparency, exactly as for the sprites.
+
+Two things to check before locking it:
+
+- **Stucco, not timber.** If half-timbering survives the prompt, say "no half-timbering, no
+  exposed wooden beams" explicitly. Generators are stubborn about storybook cottages.
+- **The ground must end.** You need a clean lower edge to the grass or paving, with magenta
+  beyond it, or the cutout will not sit correctly over the backdrop.
+
+Keep `source/exterior-bakery.jpeg` regardless. It is the style anchor every other asset was
+generated against, so it stays the img2img reference even once it is no longer the scene.

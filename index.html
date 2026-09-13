@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Copy lives in src/data/content.js (PRD R31). <title> is set from there on boot;
+     this value is only what shows before the module runs. -->
+<title>Jingwen Bakery</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Nunito:wght@400;600;700&display=swap">
+
+<!-- No leading slashes anywhere. A leading slash resolves to the domain root and
+     404s on a GitHub Pages project site (PRD §10.3). -->
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/scenes.css">
+</head>
+
+<!-- data-time is replaced on boot from the visitor's clock. The value here only
+     prevents a flash of untinted scene before the module runs. -->
+<body data-time="noon">
+
+<!-- Layer order is fixed by PRD §9 and design.md. Stacking comes from the --z-* tokens
+     in tokens.css; never add a bare z-index. The elements are static, the contents are
+     filled in by src/engine/renderer.js from src/data/. -->
+<div class="stage" id="stage">
+  <div class="layer layer--sky"      id="sky"      aria-hidden="true"></div>
+  <img class="layer layer--backdrop" id="backdrop" alt="" decoding="async">
+  <div class="layer layer--tint"     id="tint"     aria-hidden="true"></div>
+  <img class="layer layer--scene"    id="scene"    alt="" decoding="async">
+  <div class="layer layer--props"    id="props"></div>
+  <div class="layer layer--actors"   id="actors"></div>
+</div>
+
+<script type="module" src="src/engine/main.js"></script>
+</body>
+</html>
