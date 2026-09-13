@@ -206,23 +206,36 @@ at tolerance 60 instead. **If you regenerate anything, check the margin before k
 the script takes tolerance as its fourth argument. Bright magenta is still the better
 background precisely because nothing on her comes close to it.
 
-⚠️ **Her hair also came back a different colour**, which is §8.5's colour-drift failure
-mode arriving exactly as predicted:
+⚠️ **Both her hair AND her skin came back different colours**, which is §8.5's colour-drift
+failure mode arriving exactly as predicted. The hair was obvious immediately; the skin was
+subtler and only showed once she was standing in profile next to the front view:
 
-| view | hair, as generated |
-|---|---|
-| front (anchor) | `(91, 63, 57)` — dark, cool brown |
-| back | `(132, 82, 66)` — lighter, warmer |
-| side | `(128, 78, 67)` — lighter, warmer |
+| view | hair, as generated | skin, as generated |
+|---|---|---|
+| front (anchor) | `(91, 63, 57)` dark cool brown | `(248, 223, 204)` |
+| back | `(132, 82, 66)` lighter, warmer | `(244, 206, 191)` warmer |
+| side | `(128, 78, 67)` lighter, warmer | `(247, 210, 190)` warmer |
 
-The back and side were corrected to the front, because the front sheet is the anchor every
-other asset in the project was generated against. `source/recolour-hair.py` did it: a
-per-channel statistical transfer that shifts the mean and rescales the spread, so the base
-tone, shadow, highlight and outline stay distinct instead of flattening to one colour. All
-three now sit within ~6 units of each other.
+Both were corrected to the front, because that sheet is the anchor every other asset in the
+project was generated against. `source/recolour.py` does it — a per-channel statistical
+transfer that shifts the mean and rescales the spread, so base tone, shadow, highlight and
+outline stay distinct instead of flattening to one colour:
 
-**This will happen again on any regeneration.** Naming a hex value in the prompt does not
-reliably hold it. Generate, then measure and correct — it is faster and it actually works.
+```bash
+python3 assets/source/recolour.py <sprite> <out> assets/sprites/jingwen.png hair
+python3 assets/source/recolour.py <sprite> <out> assets/sprites/jingwen.png skin
+python3 assets/source/recolour.py despill <sprite> <out>
+```
+
+All three views now agree to within ~6 units on both.
+
+The despill pass is the third thing that went wrong: dusty-rose background got **trapped in
+pockets inside the hair silhouette**, where hair meets the shoulder. A flood fill from the
+border cannot reach an enclosed pocket, so 182 bright pink pixels survived on the back view
+and were plainly visible. `despill` inpaints them from their surroundings.
+
+**Expect all three on any regeneration.** Naming a hex value in the prompt does not reliably
+hold a colour. Generate, then measure and correct — it is faster and it actually works.
 
 **Both must use `refs/jingwen-ref.png` as an img2img reference**, not the text alone, or
 the hair, the navy and the proportions will drift. Match her height in frame as closely as

@@ -209,11 +209,12 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   normalised to the same height so she does not jump when she turns. Only `aspect` differs
   per pose — a profile is narrower — and the renderer updates the actor box with it.
 
-  ⚠️ **The back and side sheets came back with lighter, warmer hair than the front** and
-  were corrected to the anchor with `assets/source/recolour-hair.py`. Expect this on every
-  regeneration — PRD §8.5 lists colour drift as an expected failure, and naming a hex in the
-  prompt does not reliably hold it. Measure and correct after generating rather than trying
-  to prompt around it.
+  ⚠️ **The back and side sheets drifted in both hair AND skin colour** from the front, and
+  had dusty-rose background trapped in pockets inside the hair. All three were corrected
+  with `assets/source/recolour.py` (`hair`, `skin` and `despill` modes; usage in
+  `assets/PROMPTS.md`). Expect all of it on every regeneration — PRD §8.5 lists colour drift
+  as an expected failure, and naming a hex in the prompt does not reliably hold it. Measure
+  against the front anchor and correct afterwards rather than trying to prompt around it.
 
   **Head-on and profile need opposite motion, which is the whole trap here.** Front and back
   lift the foot with `scaleY` about the hip; rotating instead would swing the feet sideways,
