@@ -96,30 +96,83 @@
 .stage { cursor: pointer; }
 
 /* --- actors ----------------------------------------------------------------
-   Positioned from the stage floor, sized as a percentage of stage height, and
-   centred on their own x with translateX(-50%).
+   Positioned from the artwork box, sized as a percentage of its height, and
+   centred on their own x with translate(-50%, -100%) so y is where the feet are.
 
-   Direction is scaleX(-1) and nothing else: one sprite per character, no
-   walk-cycle frames, no sprite sheet (PRD §8.3). */
+   .actor carries the walking lean; .actor__flip carries the direction mirror.
+   They are deliberately on separate elements: transform is a single property, so
+   combining them would mirror the lean as well and she would lean backwards
+   whenever she walked left. */
 .actor {
   position: absolute;
-  width: auto;
   transform-origin: 50% 100%;
-  will-change: transform;        /* movement is transform-only, so keep it composited */
   filter: var(--scene-filter) drop-shadow(0 var(--space-1) var(--space-2) var(--shadow-cast));
-  transition: filter var(--dur-timeshift) var(--ease-soft);
+  transition: filter var(--dur-timeshift) var(--ease-soft), rotate var(--dur-scene) var(--ease-soft);
+  will-change: transform;
 }
 
-/* Phase 2 replaces this with real movement. The bob is here now because it is the
-   thing that makes a single static sprite read as alive, and it is pure CSS. */
-@media (prefers-reduced-motion: no-preference) {
-  .actor { animation: bob var(--dur-bob) var(--ease-soft) infinite alternate; }
+.actor__flip {
+  position: absolute;
+  inset: 0;
+}
 
-  /* Animates `translate`, not `transform`. The renderer sets scaleX on `transform`
-     inline, and transform is a single property — animating it here would overwrite
-     the flip. `translate` is an independent property, so the two compose cleanly. */
+/* Jingwen is three images: two legs, then the body painted over the hip seam.
+   Junnie is one image using the same .actor__body slot. */
+.actor__body,
+.actor__leg {
+  position: absolute;
+  width: 100%;
+  height: auto;
+}
+
+.actor__body {
+  left: 0;
+  top: 0;
+}
+
+/* Each leg is half the sprite wide and hinges at the hip, which is its top edge. */
+.actor__leg {
+  top: var(--leg-top);
+  height: var(--leg-height);
+  width: 50%;
+  transform-origin: 50% 0;
+}
+
+.actor__leg--left  { left: 0; }
+.actor__leg--right { left: 50%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Idle: a slow breathing bob. Walking: a quicker one, plus the legs.
+     Animating `translate` rather than `transform` leaves the inline transform
+     (which carries the lean) alone -- they are independent properties. */
+  .actor { animation: breathe 2s var(--ease-soft) infinite alternate; }
+
+  .actor[data-walking='true'] {
+    animation: bob var(--dur-bob) var(--ease-soft) infinite alternate;
+  }
+
+  /* The legs swing in opposite phase, which is the whole trick. One stride is
+     --dur-step; each leg takes half of it forward and half back. */
+  .actor[data-walking='true'] .actor__leg--left {
+    animation: step var(--dur-step) var(--ease-soft) infinite;
+  }
+  .actor[data-walking='true'] .actor__leg--right {
+    animation: step var(--dur-step) var(--ease-soft) infinite reverse;
+  }
+
+  @keyframes breathe {
+    from { translate: 0 0; }
+    to   { translate: 0 -1px; }
+  }
+
   @keyframes bob {
     from { translate: 0 0; }
     to   { translate: 0 -2px; }
+  }
+
+  @keyframes step {
+    0%   { rotate: -7deg; }
+    50%  { rotate:  7deg; }
+    100% { rotate: -7deg; }
   }
 }

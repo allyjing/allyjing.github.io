@@ -2,8 +2,6 @@
  *
  * Everything that writes to the DOM for a scene. The layer elements themselves are
  * fixed and live in index.html; this file only fills them in from data.
- *
- * Phase 1 renders a static scene. No movement — that is Phase 2.
  */
 
 import { getScene } from '../data/scenes.js';
@@ -32,21 +30,51 @@ export function renderBackdrop(time) {
   return landmark;
 }
 
-function renderActors(actors) {
-  const layer = el('actors');
-  layer.replaceChildren();                 // clear without touching innerHTML
+/* Builds one actor. Jingwen is assembled from three images so her legs can swing;
+ * Junnie is a single image. Both end up as a .actor box positioned the same way, so
+ * nothing downstream needs to know which is which.
+ *
+ * Pieces are stacked legs-first so the body paints over the hip seam. */
+function buildActor(actor) {
+  const node = document.createElement('div');
+  node.className = 'actor';
+  node.id = `actor-${actor.id}`;
+  node.style.height = `${actor.height}%`;
+  node.style.aspectRatio = String(actor.aspect);
 
-  for (const actor of actors) {
+  /* The flip lives on an inner element, not on .actor. .actor carries the walking
+   * lean, and if both sat on one transform the mirror would flip the lean too and
+   * she would lean backwards half the time. */
+  const flip = document.createElement('div');
+  flip.className = 'actor__flip';
+
+  if (actor.parts) {
+    node.style.setProperty('--leg-top', `${actor.legTop}%`);
+    node.style.setProperty('--leg-height', `${actor.legHeight}%`);
+    node.style.setProperty('--body-height', `${actor.bodyHeight}%`);
+
+    for (const [side, src] of [['left', actor.parts.legLeft], ['right', actor.parts.legRight]]) {
+      const leg = document.createElement('img');
+      leg.className = `actor__leg actor__leg--${side}`;
+      leg.src = src;
+      leg.alt = '';                    // the body image carries the alt text
+      flip.append(leg);
+    }
+    const body = document.createElement('img');
+    body.className = 'actor__body';
+    body.src = actor.parts.body;
+    body.alt = actor.alt;
+    flip.append(body);
+  } else {
     const img = document.createElement('img');
-    img.className = 'actor';
-    img.id = `actor-${actor.id}`;
+    img.className = 'actor__body';
     img.src = actor.image;
     img.alt = actor.alt;
-
-    img.style.height = `${actor.height}%`;
-    placeActor(img, actor, actor.facing);
-    layer.append(img);
+    flip.append(img);
   }
+
+  node.append(flip);
+  return node;
 }
 
 /* Positions one actor in image coordinates. x/y are percentages of the ARTWORK, not
@@ -54,12 +82,33 @@ function renderActors(actors) {
  * stay pinned to the painted ground at any window shape.
  *
  * y is where the feet are, hence translate(-50%, -100%): centred on x, sitting on y.
- * Direction is a horizontal flip and nothing more — one sprite per character, no
- * walk-cycle frames (PRD §8.3). */
-export function placeActor(img, position, facing) {
-  img.style.left = `${position.x}%`;
-  img.style.top = `${position.y}%`;
-  img.style.transform = `translate(-50%, -100%) scaleX(${facing})`;
+ *
+ * `walking` drives the leg animation and a small lean into the direction of travel.
+ * The lean is doing real work: the sprite is a straight-on front view and about 92%
+ * symmetric, so scaleX(-1) on its own is nearly invisible. */
+const LEAN_DEGREES = 3;
+
+export function placeActor(node, position, facing, walking) {
+  node.style.left = `${position.x}%`;
+  node.style.top = `${position.y}%`;
+  const lean = walking ? facing * LEAN_DEGREES : 0;
+  node.style.transform = `translate(-50%, -100%) rotate(${lean}deg)`;
+  node.dataset.walking = String(Boolean(walking));
+
+  // Direction is a horizontal flip and nothing more (PRD §8.3).
+  const flip = node.firstElementChild;
+  if (flip) flip.style.transform = `scaleX(${facing})`;
+}
+
+function renderActors(actors) {
+  const layer = el('actors');
+  layer.replaceChildren();               // clear without touching innerHTML
+
+  for (const actor of actors) {
+    const node = buildActor(actor);
+    placeActor(node, actor, actor.facing, false);
+    layer.append(node);
+  }
 }
 
 export function renderScene(sceneId, time) {
@@ -75,7 +124,7 @@ export function renderScene(sceneId, time) {
     sceneImg.alt = scene.alt;
     sceneImg.hidden = false;
   } else {
-    sceneImg.hidden = true;                // interior has no art yet (Phase 5)
+    sceneImg.hidden = true;              // interior has no art yet (Phase 5)
   }
 
   stage.dataset.backdrop = String(scene.hasBackdrop);

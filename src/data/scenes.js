@@ -18,24 +18,53 @@ export const scenes = {
     aspect: 1408 / 768,            // the artwork's shape; see engine/layout.js
     hasBackdrop: true,             // the landmark layer only appears outdoors
 
-    /* Walkable ground, as a ring of [x, y] image coordinates (R4). This is the lawn
-     * and the garden path: it stops short of the bakery front, keeps out of the deep
-     * flower beds in the bottom-left, and does not reach the fountain.
+    /* Walkable ground, as a ring of [x, y] image coordinates (R4).
      *
-     * Tuning it is a visual job — walk to each corner in the browser and check she
-     * stays on painted ground. */
+     * Traced against the artwork rather than approximated, because a rectangle puts
+     * her ankle-deep in the roses. What it deliberately excludes:
+     *   - the rose and lavender bed filling the bottom-left corner   (x below ~25)
+     *   - the stone-edged raised bed across the bakery front         (y above ~88)
+     *   - the fountain and its base                                  (y above ~83)
+     *   - the pink flowering bushes right of the fountain            (y above ~86)
+     *   - the lavender along the bottom-right                        (x beyond ~84)
+     * leaving the garden path, the doorstep, and the open lawn.
+     *
+     * To retune: run the grid overlay described in CLAUDE.md, or just walk her to
+     * each corner in the browser and check her feet stay on painted ground. */
     walkable: [
-      [30, 79],
-      [92, 79],
-      [97, 96],
-      [24, 96],
+      [37, 83],   // the doorstep -- the Phase 5 way in
+      [48, 83],
+      [57, 86],   // clear of the potted plant and the bread basket
+      [70, 84],   // under the fountain base
+      [80, 86],
+      [84, 91],   // stop short of the bottom-right lavender
+      [70, 95],
+      [40, 97],   // bottom of the garden path
+      [28, 95],
+      [26, 91],   // clear of the roses
+      [31, 88],   // below the raised bed
+      [34, 85],
     ],
 
     actors: [
-      { id: 'jingwen', image: 'assets/sprites/jingwen.png', alt: actorAlt.jingwen,
-        x: 46, y: 92, height: 30, facing: 1, walks: true },
-      { id: 'junnie',  image: 'assets/sprites/junnie.png',  alt: actorAlt.junnie,
-        x: 57, y: 93, height: 15, facing: -1, walks: false },
+      /* Jingwen is drawn in three pieces so her legs can actually swing. The numbers
+       * are where the sprite was cut, as percentages of the whole sprite box — they
+       * must match the cut or the hip seam shows. See assets/PROMPTS.md. */
+      {
+        id: 'jingwen', alt: actorAlt.jingwen,
+        x: 46, y: 92, height: 30, facing: 1, walks: true,
+        aspect: 222 / 720,
+        parts: {
+          body: 'assets/sprites/jingwen-body.png',
+          legLeft: 'assets/sprites/jingwen-leg-left.png',
+          legRight: 'assets/sprites/jingwen-leg-right.png',
+        },
+        bodyHeight: 63.194,
+        legTop: 61.806,
+        legHeight: 38.194,
+      },
+      { id: 'junnie', image: 'assets/sprites/junnie.png', alt: actorAlt.junnie,
+        x: 57, y: 93, height: 15, facing: -1, walks: false, aspect: 237 / 420 },
     ],
   },
 

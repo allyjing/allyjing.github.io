@@ -269,6 +269,17 @@ Extensions are `.jpg`/`.png`, not the `.webp` this document specifies — see it
    Convert from `source/`, not from the `.jpg` — recompressing a JPEG compounds the loss.
 3. **No interior scene exists.** Phase 5 needs one, and there is no prompt for it above.
 
+4. **Jingwen is now also cut into three pieces** — `sprites/jingwen-body.png` (59 KB) and
+   `sprites/jingwen-leg-left/right.png` (11 KB each) — so her legs can swing while walking.
+   The whole `sprites/jingwen.png` is kept as the source of the cut. The cut lines live in
+   `src/data/scenes.js` as percentages of the sprite box and must be re-derived if the
+   sprite is ever regenerated: the hip is where the legs first separate cleanly below the
+   hair, and the parting is the horizontal centre.
+
+   If you regenerate her in a 3/4 or side-facing pose, revisit this: a front-facing sprite
+   is ~92% symmetric, so `scaleX(-1)` is nearly invisible and the code leans her into the
+   direction of travel to compensate.
+
 ## Exterior v2 — regenerate before Phase 3
 
 The exterior shipped in Phase 0 has two faults, both traceable to the §2 prompt, and both

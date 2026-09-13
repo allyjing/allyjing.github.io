@@ -184,10 +184,25 @@ thirty files to check instead of three hundred.
 
 Assets are AI-generated. Two constraints that are easy to violate by accident:
 
-- **There are no walk-cycle frames.** Each character has exactly one sprite. Walking is a
-  2–3px vertical bob plus a small rotation, in CSS. Never write code that expects a sprite
-  sheet or frame index.
-- **Direction is `transform: scaleX(-1)`.** There is no back-facing or front-facing sprite.
+- **There are no walk-cycle frames.** Never write code that expects a sprite sheet or a
+  frame index. Still true — but how walking is done has moved on from PRD §8.3, twice, and
+  both changes came from watching it rather than reading it:
+
+  **Jingwen is cut into three images** — `jingwen-body.png` and two legs — so her legs
+  hinge at the hip and swing in opposite phase in CSS. §8.3 specifies a bob plus a 1–2°
+  rotation of the whole sprite, and that reads as gliding, not walking. This is still one
+  generated pose with no frames; the cut is done in software from the single sprite. The
+  cut lines are recorded in `scenes.js` as percentages and must match the images.
+
+  **`scaleX(-1)` alone is not visible on this art.** The sprite is a straight-on front view
+  and measures ~92% symmetric, so mirroring it changes almost nothing on screen. The flip is
+  still applied, but what actually reads as direction is a 3° lean into the travel
+  direction. The lean sits on `.actor` and the mirror on `.actor__flip` — deliberately
+  separate elements, because one combined transform would mirror the lean too and she would
+  lean backwards whenever she walked left.
+
+  A 3/4 or side-facing pose would fix this properly at the art level. Worth considering when
+  the exterior is regenerated.
 
 `assets/PROMPTS.md` is the asset bible: the shared style line to paste into **every**
 prompt verbatim, the exact prompt for each of the seven existing assets, the generation

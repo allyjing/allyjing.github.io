@@ -71,6 +71,7 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
   let facing = 1;
   let last = null;
   let frame = null;
+  let moving = false;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -80,7 +81,15 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
     const dx = clamped.x - position.x;
     if (Math.abs(dx) > 0.01) facing = dx > 0 ? 1 : -1;
     position = clamped;
-    onMove(position, facing);
+    onMove(position, facing, moving);
+  }
+
+  /* Walking vs standing still drives the leg animation and the lean, so the change
+   * has to be published even on the frame where nothing else moved. */
+  function setMoving(next) {
+    if (next === moving) return;
+    moving = next;
+    onMove(position, facing, moving);
   }
 
   function step(now) {
@@ -92,17 +101,19 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
     const keyed = keyVector(held);
     if (keyed) {
       target = null;                       // a key press cancels a click destination
+      setMoving(true);
       commit({ x: position.x + keyed.x * speed * dt, y: position.y + keyed.y * speed * dt });
       return;
     }
 
-    if (!target) return;
+    if (!target) { setMoving(false); return; }
+    setMoving(true);
     const dx = target.x - position.x;
     const dy = target.y - position.y;
     const remaining = Math.hypot(dx, dy);
     const travel = speed * dt;
 
-    if (remaining <= travel) { commit(target); target = null; return; }
+    if (remaining <= travel) { commit(target); target = null; setMoving(false); return; }
     commit({ x: position.x + (dx / remaining) * travel, y: position.y + (dy / remaining) * travel });
   }
 
@@ -113,7 +124,7 @@ export function createWalker({ start, polygon, speed = 22, onMove }) {
     moveTo(point) {
       const destination = clampToPolygon(point, polygon);
       // Reduced motion means no travel animation at all: arrive immediately.
-      if (reducedMotion) { commit(destination); return; }
+      if (reducedMotion) { commit(destination); return; }   // arrive at once, no walk
       target = destination;
     },
 

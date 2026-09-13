@@ -37,7 +37,7 @@ function enterScene(sceneId) {
   const walker = createWalker({
     start: { x: player.x, y: player.y },
     polygon: scene.walkable,
-    onMove: (position, facing) => placeActor(sprite, position, facing),
+    onMove: (position, facing, moving) => placeActor(sprite, position, facing, moving),
   });
 
   walker.start();
