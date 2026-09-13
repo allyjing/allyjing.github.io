@@ -1,25 +1,41 @@
 /* Repo path: src/engine/main.js
  *
- * Boot. Wires the router, the renderer and movement together, and nothing else.
+ * Boot. Wires the router, the renderer, movement and the chrome together.
  *
- * Phase 2 scope: click-to-move and keyboard movement inside a walkable polygon.
- * Still to come: the clock and location label (Phase 3), and panels (Phase 5).
+ * Phase 3 scope: the exterior is complete — signs, clock, location label, resume
+ * link, all four time states. Still to come: panels and the interior (Phase 5).
  */
 
 import { site } from '../data/content.js';
 import { getScene } from '../data/scenes.js';
-import { timeStateNow } from '../data/theme.js';
+import { timeStateNow, nextTimeState } from '../data/theme.js';
 import { startRouter } from './router.js';
-import { applyTimeState, renderScene, watchResize, actorElement, placeActor, setActorPose } from './renderer.js';
+import {
+  applyTimeState, renderScene, renderBackdrop, watchResize,
+  actorElement, placeActor, setActorPose,
+} from './renderer.js';
 import { createWalker } from './movement.js';
 import { bindInput } from './input.js';
+import { buildChrome } from './chrome.js';
 
 // The title is copy, so it comes from content.js rather than being typed into <title>.
 document.title = site.title;
 
-// First load derives time of day from the visitor's own clock (PRD R27).
-const time = timeStateNow();
+/* Time of day is derived from the visitor's clock on first load (R27) and then only
+ * ever changed by clicking the clock or the location label (R28). Holding it here
+ * rather than in the scene is what makes it persist across scene changes (R29). */
+let time = timeStateNow();
 applyTimeState(time);
+
+const updateChrome = buildChrome({
+  onCycle() {
+    time = nextTimeState(time);
+    applyTimeState(time);          // tokens re-theme, and CSS cross-fades them
+    renderBackdrop(time);          // the landmark changes with the time (R18)
+    updateChrome(time);
+  },
+});
+updateChrome(time);
 
 let teardown = [];
 

@@ -21,13 +21,98 @@ export function applyTimeState(time) {
   document.body.dataset.time = time;
 }
 
-export function renderBackdrop(time) {
-  const img = el('backdrop');
+/* Two stacked backdrop images, swapped by fading rather than by changing src on a
+ * single element. A src swap hard-cuts, and R30 says a time change must never do
+ * that. The outgoing image stays in place underneath until the incoming one has
+ * faded in over it, so there is never a frame showing neither. */
+let frontBackdrop = 'a';
+
+export async function renderBackdrop(time, { immediate = false } = {}) {
   const landmark = landmarkForTime(time);
   if (!landmark) throw new Error(`renderer: no landmark for time "${time}"`);
-  img.src = backdropImage(landmark);
-  img.alt = backdropAlt;
+
+  const showing = el(`backdrop-${frontBackdrop}`);
+  const incoming = el(`backdrop-${frontBackdrop === 'a' ? 'b' : 'a'}`);
+  const src = backdropImage(landmark);
+
+  if (immediate || !showing.getAttribute('src')) {
+    showing.src = src;
+    showing.alt = backdropAlt;
+    showing.hidden = false;
+    showing.style.opacity = '1';
+    return landmark;
+  }
+  if (showing.getAttribute('src') === src) return landmark;
+
+  incoming.src = src;
+  incoming.alt = backdropAlt;
+  incoming.hidden = false;
+  incoming.style.opacity = '0';
+
+  /* Wait for the image to actually decode before fading it in. Without this the
+   * fade starts against a blank element and the first part of it shows nothing. */
+  try { await incoming.decode(); } catch { /* a cached or failed image: carry on */ }
+
+  /* Read a layout property to flush the opacity:0 above into the browser's style
+   * state. Without the flush, setting 0 and 1 in the same task collapses into a
+   * single change and there is nothing to transition from — which hard-cuts, and
+   * R30 says a time change must never do that. */
+  void incoming.offsetWidth;
+
+  incoming.style.opacity = '1';
+  showing.style.opacity = '0';
+
+  frontBackdrop = frontBackdrop === 'a' ? 'b' : 'a';
   return landmark;
+}
+
+/* The two garden signs. Real <a> elements, so they are focusable, work with the
+ * keyboard, and open in a new tab honestly (R20/R21). */
+function renderSigns(signs) {
+  const layer = el('props');
+  layer.replaceChildren();
+  if (!signs) return;
+
+  for (const sign of signs) {
+    const post = document.createElement('div');
+    post.className = 'sign';
+    post.style.left = `${sign.x}%`;
+    post.style.top = `${sign.y}%`;
+
+    const link = document.createElement('a');
+    link.className = 'sign__board';
+    link.href = sign.href;
+    link.textContent = sign.label;
+    link.setAttribute('aria-label', sign.ariaLabel);
+    if (sign.href.startsWith('http')) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';   // required with target=_blank
+    }
+    post.append(link);
+
+    /* The email sign also gets a copy button, because making a recruiter retype an
+     * address is the thing we are actually trying to avoid (R21). */
+    if (sign.copy) {
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'sign__copy';
+      copy.textContent = sign.copy;
+      copy.setAttribute('aria-label', sign.copyAriaLabel);
+      copy.addEventListener('click', async () => {
+        const address = sign.href.replace(/^mailto:/, '');
+        try {
+          await navigator.clipboard.writeText(address);
+          copy.textContent = sign.copied;
+          setTimeout(() => { copy.textContent = sign.copy; }, 1600);
+        } catch {
+          // Clipboard can be blocked; the mailto link above still works.
+        }
+      });
+      post.append(copy);
+    }
+
+    layer.append(post);
+  }
 }
 
 /* Builds one actor. Jingwen is assembled from three images so her legs can swing;
@@ -150,8 +235,9 @@ export function renderScene(sceneId, time) {
   }
 
   stage.dataset.backdrop = String(scene.hasBackdrop);
-  if (scene.hasBackdrop) renderBackdrop(time);
+  if (scene.hasBackdrop) renderBackdrop(time, { immediate: true });
 
+  renderSigns(scene.signs);
   renderActors(scene.actors);
   applyCoverBox(stage, scene.aspect);
   return scene;

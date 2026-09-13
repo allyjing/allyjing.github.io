@@ -20,13 +20,16 @@ comment.
 
 ## Current state
 
-**Phases 0, 1 and 2 are done. Next is Phase 3 — the exterior completed**: the two signs,
-the clock, all four time states wired to clicking, the location label. Then Phase 4 is the
-resume page, which is where this first deploys.
+**Phases 0-3 are done. Next is Phase 4 — `resume.html`, and the first deploy.** That page
+does not exist yet, so the Resume link in the top-right currently 404s. Phase 4 is
+deliberately early (PRD §12): it makes the site useful to a recruiter before the interior
+exists, and it surfaces the three deploy-only bugs in §10.3 while there are thirty files to
+check rather than three hundred.
 
 Phase 1 built the layer stack, the hash router and a static scene. Phase 2 added
-click-to-move and WASD/arrow movement inside a walkable polygon, with the character
-flipping to face travel. Verified in a browser at desktop and 390x844 portrait.
+click-to-move and keyboard movement inside a walkable polygon. Phase 3 completed the
+exterior: both garden signs, the clock, the location label, and all four time states
+cycling. Verified in a browser at desktop and 390x844 portrait.
 
 ### Coordinates: everything is in image space
 
@@ -42,6 +45,12 @@ as `--scene-x/y/w/h`. The props and actor layers are sized to that box, so a per
 
 `layout.js` mirrors the `object-fit`/`object-position` values in `scenes.css` by hand. If
 you change either, change both.
+
+**The crop is why the signs move on a phone.** At 390x844 only about x 37-63 of the artwork
+is on screen — the signs' garden positions fall outside it entirely, and that band is
+already occupied by Jingwen and Junnie. So below an 8:5 aspect ratio `ui.css` docks the
+signs into the bottom-right corner as chrome instead. Anything else positioned near the
+edges of the scene will hit the same problem; check it in portrait.
 
 `src/engine/main.js` is the entry point. It is not in the PRD §7.3 file list — that layout
 names the modules but no boot file, and `index.html` needs exactly one `<script type=module>`
@@ -100,8 +109,15 @@ Decide this when the cutout lands; do not let it ship unresolved.
 ## Run it
 
 ```bash
-python3 -m http.server 8000   # then open http://localhost:8000
+python3 serve.py              # then open http://localhost:8000
 ```
+
+`serve.py` is `http.server` plus `Cache-Control: no-store`. **Use it rather than
+`python3 -m http.server`.** Without the no-cache header the browser will happily keep
+serving a stale copy of an ES module after you have edited it, and you end up debugging
+code that is not running — the failure is silent and it cost real time here. If the page
+ever seems to ignore an edit, that is the first thing to suspect; a hard reload
+(Cmd+Shift+R) clears it.
 
 No build step, no bundler, no npm dependencies in v1. `file://` will not work — ES modules
 are blocked by CORS on the file protocol.

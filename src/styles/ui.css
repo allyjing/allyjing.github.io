@@ -1,0 +1,185 @@
+/* Repo path: src/styles/ui.css
+ *
+ * The persistent chrome (clock, location label, resume link) and the garden signs.
+ *
+ * Everything here uses --chrome-bg / --chrome-ink rather than the surface tokens.
+ * Those two flip with the theme, which is what keeps this readable at night without
+ * the time-of-day tint dimming it — the tint sits below --z-ui deliberately.
+ */
+
+.layer--ui {
+  z-index: var(--z-ui);
+  pointer-events: none;          /* the layer is a frame; only its children take clicks */
+}
+
+.chrome {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: var(--tap-min);    /* 44px: designed portrait-mobile-first */
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-full);
+
+  background: var(--chrome-bg);
+  color: var(--chrome-ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  text-decoration: none;
+  cursor: pointer;
+
+  backdrop-filter: blur(6px);
+  box-shadow: 0 var(--space-1) var(--space-3) var(--shadow-cast);
+  transition:
+    background-color var(--dur-timeshift) var(--ease-soft),
+    color var(--dur-timeshift) var(--ease-soft);
+}
+
+/* Top-left is WHEN, bottom-left is WHERE, top-right is the way out. */
+.chrome--clock    { top: var(--space-4);    left: var(--space-4); }
+.chrome--location { bottom: var(--space-4); left: var(--space-4); }
+.chrome--resume {
+  top: var(--space-4);
+  right: var(--space-4);
+  background: var(--accent-berry);
+  color: var(--on-accent);       /* never plain white: at night that measures 2.42:1 */
+  font-weight: 700;
+}
+
+.clock__time {
+  font-variant-numeric: tabular-nums;   /* so the width does not jitter as digits change */
+  font-weight: 700;
+}
+
+.clock__name {
+  font-family: var(--font-display);
+  opacity: 0.8;
+}
+
+.chrome--location {
+  font-variant-numeric: tabular-nums;   /* the coordinates are numbers too */
+  max-width: calc(100% - var(--space-8));
+}
+
+/* --- the two garden signs --------------------------------------------------
+   Positioned in image coordinates inside the props layer, which layout.js sizes
+   to the artwork — so they stay planted on the same patch of grass at any window
+   shape, exactly like the actors. */
+.sign {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  pointer-events: auto;
+  filter: var(--scene-filter);   /* signs are IN the scene, so they take its light */
+  transition: filter var(--dur-timeshift) var(--ease-soft);
+}
+
+/* A stake into the grass. Without it the boards float and read as interface
+   pasted over the painting rather than as objects standing in the garden.
+   --ink is the same dark the artwork outlines everything with. */
+.sign::after {
+  content: '';
+  width: 4px;
+  height: var(--space-6);
+  margin-top: calc(var(--space-1) * -1);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  opacity: 0.72;
+}
+
+.sign__board,
+.sign__copy {
+  /* --tap-min is 44px and is not negotiable: this is designed portrait-mobile-first,
+     and a 28px target is a miss on a phone even when it looks fine on a laptop. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-md);
+  background: var(--surface-trim);
+  color: var(--ink);             /* ink on trim measures 8.30:1 */
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 var(--space-1) var(--space-2) var(--shadow-cast);
+}
+
+.sign__copy {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface-wall);
+}
+
+/* The scene is cropped to fill, so a tall window shows only a narrow band of the
+   artwork. At 390x844 that band is about x 37-63 — the signs' garden positions fall
+   outside it entirely, and the contact details become unreachable, which breaks both
+   G4 and R20/R21.
+   
+   That band is also too narrow to re-place them in: it is already occupied by
+   Jingwen and Junnie, and anything dropped there lands on top of them. So on a tall
+   screen the signs stop being garden objects and dock into the bottom-right corner
+   as chrome, opposite the location label. The stake is dropped with them, since a
+   sign stuck into the corner of a phone screen is not standing in any grass.
+   
+   `position: static` is what makes this work without fighting the inline left/top
+   the renderer sets for the wide layout — static simply ignores them. */
+@media (max-aspect-ratio: 8 / 5) {
+  .layer--props {
+    /* Docked signs are chrome, so they belong above the actors — otherwise Junnie
+       stands in front of the Email sign and clips it. */
+    z-index: var(--z-ui);
+    inset: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    /* Clear the location label, which occupies the full bottom-left and is painted
+       above this layer. Without this the Email sign hides behind it. */
+    padding-bottom: calc(var(--tap-min) + var(--space-8));
+  }
+
+  .sign {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    /* Chrome is not lit by the scene, and must not be dimmed by the night wash. */
+    filter: none;
+  }
+
+  .sign::after { display: none; }
+}
+
+/* R5: a gentle scale-up and a soft glow on hover AND focus, so the affordance is
+   there for a keyboard too. Hover alone is invisible on a touch screen. */
+@media (prefers-reduced-motion: no-preference) {
+  .chrome, .sign__board, .sign__copy {
+    transition: transform var(--dur-scene) var(--ease-soft),
+                box-shadow var(--dur-scene) var(--ease-soft),
+                background-color var(--dur-timeshift) var(--ease-soft),
+                color var(--dur-timeshift) var(--ease-soft);
+  }
+  .chrome:hover, .chrome:focus-visible,
+  .sign__board:hover, .sign__board:focus-visible,
+  .sign__copy:hover, .sign__copy:focus-visible {
+    transform: scale(1.04);
+    box-shadow: 0 var(--space-1) var(--space-4) var(--accent-berry);
+  }
+}

@@ -8,7 +8,7 @@
  * ground actually behaves when the stage changes height.
  */
 
-import { sceneAlt, actorAlt } from './content.js';
+import { sceneAlt, actorAlt, signs } from './content.js';
 
 /* Jingwen's three views. Each is cut into a body and two legs so the legs can move,
  * and all three are cut at the SAME percentages (see bodyHeight/legTop below) so the
@@ -66,6 +66,19 @@ export const scenes = {
       [34, 85],
     ],
 
+    /* The two signs, in image coordinates. On a wide screen they sit just OUTSIDE
+     * the walkable polygon, on the grass beyond its left and right edges, so she
+     * never stands on one.
+     *
+     * On a tall screen these positions are off-screen entirely — the scene is
+     * cropped to fill and only a narrow band through the middle survives — so
+     * ui.css docks the signs into a corner instead. See the aspect-ratio query
+     * there; this data is only used on wide viewports. */
+    signs: [
+      { id: 'linkedin', ...signs.linkedin, x: 21, y: 90 },
+      { id: 'email', ...signs.email, x: 88, y: 89 },
+    ],
+
     actors: [
       /* Jingwen is drawn in three pieces so her legs can actually swing. The numbers
        * are where the sprite was cut, as percentages of the whole sprite box — they
@@ -99,6 +112,19 @@ export const scenes = {
     aspect: 1408 / 768,
     hasBackdrop: false,
     walkable: [],
+    /* The two signs, in image coordinates. On a wide screen they sit just OUTSIDE
+     * the walkable polygon, on the grass beyond its left and right edges, so she
+     * never stands on one.
+     *
+     * On a tall screen these positions are off-screen entirely — the scene is
+     * cropped to fill and only a narrow band through the middle survives — so
+     * ui.css docks the signs into a corner instead. See the aspect-ratio query
+     * there; this data is only used on wide viewports. */
+    signs: [
+      { id: 'linkedin', ...signs.linkedin, x: 21, y: 90 },
+      { id: 'email', ...signs.email, x: 88, y: 89 },
+    ],
+
     actors: [],
   },
 };

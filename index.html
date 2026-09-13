@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="src/styles/tokens.css">
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/scenes.css">
+<link rel="stylesheet" href="src/styles/ui.css">
 </head>
 
 <!-- data-time is replaced on boot from the visitor's clock. The value here only
@@ -28,11 +29,20 @@
      filled in by src/engine/renderer.js from src/data/. -->
 <div class="stage" id="stage">
   <div class="layer layer--sky"      id="sky"      aria-hidden="true"></div>
-  <img class="layer layer--backdrop" id="backdrop" alt="" decoding="async">
+
+  <!-- Two backdrops so a time change can cross-fade instead of hard-cutting (R30).
+       The renderer alternates which one is on top. -->
+  <img class="layer layer--backdrop" id="backdrop-a" alt="" decoding="async">
+  <img class="layer layer--backdrop" id="backdrop-b" alt="" decoding="async" hidden>
+
   <div class="layer layer--tint"     id="tint"     aria-hidden="true"></div>
   <img class="layer layer--scene"    id="scene"    alt="" decoding="async">
   <div class="layer layer--props"    id="props"></div>
   <div class="layer layer--actors"   id="actors"></div>
+
+  <!-- Chrome. Sits above the time-of-day tint, so it is never dimmed by the night
+       wash — that would be a bug, not a mood. -->
+  <div class="layer layer--ui" id="ui"></div>
 </div>
 
 <script type="module" src="src/engine/main.js"></script>

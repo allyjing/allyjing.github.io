@@ -44,6 +44,8 @@
    renders black. */
 .layer--backdrop {
   z-index: var(--z-backdrop);
+  opacity: 1;
+  /* 600ms cross-fade on a time change. It must never hard-cut (R30). */
   transition: opacity var(--dur-timeshift) var(--ease-soft);
 }
 
@@ -82,6 +84,7 @@
 .layer--props,
 .layer--actors {
   inset: auto;
+  pointer-events: none;
   left: var(--scene-x, 0px);
   top: var(--scene-y, 0px);
   width: var(--scene-w, 100%);
@@ -90,6 +93,9 @@
 }
 
 .layer--props  { z-index: var(--z-props); }
+/* The signs live in the props layer and DO take clicks, even though the layer
+   itself does not — otherwise the layer would swallow clicks meant for the ground. */
+.layer--props .sign { pointer-events: auto; }
 .layer--actors { z-index: var(--z-actors); }
 
 /* The stage takes the clicks, because the actors layer must not intercept them. */
