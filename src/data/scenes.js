@@ -51,14 +51,12 @@ export const scenes = {
     id: 'exterior',
     image: 'assets/scenes/exterior.jpg',
 
-    /* The painting is opaque edge to edge, which would hide the landmark backdrop
-     * behind it completely. This mask punches the sky out so the backdrop shows
-     * through — the same result as a transparent cutout, but the artwork stays a
-     * 375 KB JPEG and the mask is ~13 KB of almost-flat alpha. The equivalent RGBA
-     * PNG was 996 KB, which would have blown the page budget on its own.
+    /* Generated as a proper cutout: everything above the ground is flat magenta in
+     * the source, so this mask is a straight key rather than the guesswork the
+     * previous painting needed. Built by assets/source/make-cutout-mask.py.
      *
-     * Built by assets/source/make-sky-mask.py. The exterior regeneration replaces
-     * both this and the mask. */
+     * Still a mask paired with a JPEG rather than an RGBA PNG — same reason as
+     * before, the PNG of the same picture is several times the size. */
     mask: 'assets/scenes/exterior-mask.png',
 
     alt: sceneAlt.exterior,
@@ -78,86 +76,97 @@ export const scenes = {
      * sits at about 72% down its own image, so it lands at ~47% here, just above the
      * treeline and still in view.
      *
-     * 55 rather than 66: at 66 the fitted image is wide enough that the landmark
-     * cannot be shifted clear of the bakery — the geometry runs out before the
-     * subject escapes the roofline. Smaller reads as further away anyway, which is
-     * the point. */
-    horizon: 55,
+     * With the cutout exterior the cut reaches much further down — the ground line
+     * sits around 72% — so the vista can be bigger than it was against the old
+     * painting and still tuck behind the ground. */
+    horizon: 66,
 
     /* Walkable ground (R4). Traced against the artwork rather than approximated,
      * because a rectangle puts her ankle-deep in the roses. It excludes the
      * bottom-left rose bed, the raised bed across the bakery front, the fountain,
      * the flowering bushes right of it, and the bottom-right lavender. */
+    /* The open sandy ground in front of the bakery. The planting, the pots and the
+     * fountain all sit above it, so the polygon starts below their bases. */
     walkable: [
-      [37, 83],   // the doorstep
-      [48, 83],
-      [57, 86],   // clear of the potted plant and the bread basket
-      [70, 84],   // under the fountain base
-      [80, 86],
-      [84, 91],   // stop short of the bottom-right lavender
-      [70, 95],
-      [40, 97],   // bottom of the garden path
-      [28, 95],
-      [26, 91],   // clear of the roses
-      [31, 88],   // below the raised bed
-      [34, 85],
+      [30, 79],   // beside the stone path, clear of the pots
+      [60, 77],
+      [80, 76],   // in front of the fountain
+      [95, 78],
+      [97, 97],
+      [8, 97],
+      [10, 90],
+      [20, 84],
     ],
 
     /* Walking onto the doorstep goes inside (R9). The radius is in image units, so
      * it is the same patch of doorstep at any window size. */
-    door: { x: 41, y: 83, radius: 4.5, to: 'interior' },
+    door: { x: 33, y: 80, radius: 5, to: 'interior' },
 
     /* On a wide screen the contact signs sit just OUTSIDE the walkable polygon, on
      * the grass beyond its edges, so she never stands on one. On a tall screen those
      * positions are off-screen entirely — the scene is cropped to fill and only a
      * narrow band survives — so ui.css docks them into a corner instead. */
     signs: [
-      { id: 'linkedin', ...signs.linkedin, x: 21, y: 90 },
-      { id: 'email', ...signs.email, x: 88, y: 89 },
-      { id: 'enter', ...doors.enter, x: 33, y: 86 },
+      { id: 'linkedin', ...signs.linkedin, x: 14, y: 95 },
+      { id: 'email', ...signs.email, x: 88, y: 92 },
+      { id: 'enter', ...doors.enter, x: 30, y: 86 },
     ],
 
     decor: [],
 
     actors: [
-      { ...jingwen, x: 46, y: 92, height: 30, facing: 1 },
+      { ...jingwen, x: 48, y: 93, height: 27, facing: 1 },
       { id: 'junnie', image: 'assets/sprites/junnie.png', alt: actorAlt.junnie,
-        x: 57, y: 93, height: 15, facing: -1, walks: false, aspect: 237 / 420 },
+        x: 60, y: 95, height: 13, facing: -1, walks: false, aspect: 237 / 420 },
     ],
   },
 
   /* The hub. One room, five tables, each of which will open an overlay PANEL rather
    * than lead to another scene — there is no third scene, ever (PRD R7/R11).
    *
-   * There is no interior painting yet, so the room is drawn in CSS from the tokens.
-   * `image: null` is the signal for that; see .stage[data-scene='interior'] in
-   * scenes.css, and the prompt in assets/PROMPTS.md. */
+   * The tables are PAINTED now, so nothing draws them. The only things placed here
+   * are the floating bubbles that sit above each one; Phase 5 turns those into the
+   * panel triggers. Their coordinates are read off the artwork. */
   interior: {
     id: 'interior',
-    image: null,
+    image: 'assets/scenes/interior.jpg',
     alt: sceneAlt.interior,
-    aspect: 1408 / 768,
+    aspect: 1376 / 768,
     hasBackdrop: false,            // no landmark layer indoors
 
+    /* The clear wooden floor: off the counter on the left, off the chairs on the
+     * right, and reaching up the middle to the doorway so she can actually walk out
+     * of it. Without that reach the exit is visible but unreachable. */
     walkable: [
-      [10, 88], [90, 88], [95, 98], [5, 98],
+      [34, 50],   // the doorway threshold
+      [45, 49],
+      [50, 60],
+      [70, 63],
+      [87, 71],
+      [94, 95],
+      [9, 95],
+      [21, 79],
+      [28, 60],
     ],
+
+    // The doorway back out to the street, left of centre in the painting.
+    door: { x: 39, y: 51, radius: 4.5, to: 'exterior' },
 
     signs: [
-      { id: 'outside', ...doors.exit, x: 87, y: 95 },
+      { id: 'outside', ...doors.exit, x: 39, y: 47 },
     ],
 
-    // Five tables along the room. Phase 5 turns these into panel triggers.
+    // One bubble above each painted table.
     decor: tables.map((table, i) => ({
       ...table,
       id: `table-${table.id}`,
-      kind: 'table',
-      x: 14 + i * 18,
-      y: 80 + (i % 2) * 7,         // staggered, so the row does not read as a wall
+      kind: 'bubble',
+      ...[{ x: 44, y: 55 }, { x: 53, y: 43 }, { x: 68, y: 40 },
+          { x: 78, y: 47 }, { x: 89, y: 57 }][i],
     })),
 
     actors: [
-      { ...jingwen, x: 50, y: 95, height: 24, facing: 1 },
+      { ...jingwen, x: 50, y: 88, height: 27, facing: 1 },
     ],
   },
 };

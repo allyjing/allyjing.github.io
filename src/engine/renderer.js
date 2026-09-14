@@ -144,26 +144,14 @@ function renderDecor(items) {
 
   for (const item of items) {
     const node = document.createElement('div');
-    node.className = item.kind === 'table' ? 'table' : 'sign sign--decor';
+    node.className = item.kind === 'bubble' ? 'bubble' : 'sign sign--decor';
     node.style.left = `${item.x}%`;
     node.style.top = `${item.y}%`;
 
-    if (item.kind === 'table') {
-      /* A table is a top, a dessert on it, and a floating bubble with the room name.
-       * Phase 5 turns the bubble into the panel trigger; for now it is scenery, so
-       * the room reads correctly before the panels exist. */
-      const bubble = document.createElement('div');
-      bubble.className = 'table__bubble';
-      bubble.textContent = item.label;
-
-      const dessert = document.createElement('div');
-      dessert.className = 'table__dessert';
-      dessert.textContent = item.dessert;
-
-      const top = document.createElement('div');
-      top.className = 'table__top';
-
-      node.append(bubble, dessert, top);
+    if (item.kind === 'bubble') {
+      /* The tables are painted into the scene, so nothing is drawn for them — only
+       * the floating label above each. Phase 5 turns these into panel triggers. */
+      node.textContent = item.label;
     } else {
       const board = document.createElement('div');
       board.className = 'sign__board';

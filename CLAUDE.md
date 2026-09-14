@@ -82,72 +82,29 @@ derive the path from the landmark. Extensions become `.webp` once the images are
 `assets/source/` holds untouched generation masters — never reference these from code.
 See `assets/PROMPTS.md` for folder roles and outstanding asset work.
 
-### Decisions taken 2026-09-13
+### The art is in
 
-- **The exterior gets regenerated as a transparent foreground cutout**, and **relocated to
-  Southern California** (stucco, tile, bougainvillea — not the English cottage it came back
-  as). One regeneration fixes both. The replacement prompt is at the end of
-  `assets/PROMPTS.md`.
+Both regenerated pieces landed on 2026-09-13 and are wired up:
 
-  **Interim: the sky is masked out instead.** `assets/scenes/exterior-mask.png` is an alpha
-  mask built by `assets/source/make-sky-mask.py`, applied with CSS `mask-image`. The backdrop
-  shows through it, so the time-of-day change is actually visible.
+- **`scenes/exterior.jpg`** — the Southern California bakery, generated as a proper
+  cutout with everything above the ground painted flat magenta. `exterior-mask.png` is a
+  straight key of that, built by `assets/source/make-cutout-mask.py`. It is still a mask
+  paired with a JPEG rather than an RGBA PNG, for the same size reason as before.
+- **`scenes/interior.jpg`** — the room, with the five tables painted in. Nothing draws
+  furniture any more; the only things placed are the bubbles above each table, positioned
+  from the artwork.
 
-  The test is **cool and light**, flood-filled from the top edge — not "near the sky
-  colour". Three earlier attempts failed and each failure is worth knowing, because the
-  regenerated cutout will face the same questions:
-  - RGB distance from the sky does not separate anything: the bakery wall is 56 away, the
-    fountain water 45, the fountain stone 57 — all nearer than the clouds. It cut the
-    fountain.
-  - Testing colour globally, without connectivity, cuts the dormer window glass, which is
-    genuinely sky-coloured and simply is not the sky.
-  - Cutting the sky but not the clouds leaves their outlines floating as empty strokes,
-    because an outline is darker than the body it encloses.
+The keying used a border flood fill rather than a global colour test because **the
+bougainvillea is pink and sits within ~30 of the key colour**. Connectivity is what keeps
+it. The background itself is remarkably flat — (192, 93, 142) with a variance of about 2 —
+so a tolerance of 38 is safe.
 
-  Cool-and-light matches sky, cloud and pale cloud outline while excluding everything warm,
-  and connectivity fences off the slate roof and the window glass behind the artwork's own
-  dark outlines. A final pass removes leftover islands above the horizon. Nothing below the
-  horizon is ever cut, which is what protects the fountain structurally rather than by luck.
+The old English-cottage painting is kept as `source/exterior-cottage-original.jpeg`: every
+sprite was generated against it, so it stays the style reference even though it is no
+longer the scene.
 
-  The cut is feathered over a four-pixel ramp measured inward from the boundary, not one
-  pixel. A single pixel is still a hard line at any real display size, and the join read as
-  cut-out paper laid over the backdrop.
-
-  **The backdrop is placed as a distant vista, not stretched across the stage.** It is
-  fitted with `contain` into a band whose height is `scene.horizon`, so the whole image
-  lands at roughly half width and the landmark reads as miles away. Three things make that
-  work, and all three are load-bearing:
-
-  - **`horizon` sets the size as well as the band**, because `contain` fits to the band's
-    height. Bigger looks closer, and past about 66 the image gets too wide to shift clear
-    of the bakery at all.
-  - **`align` per landmark** shifts each image sideways. Every one of these images has its
-    subject near the middle, and so does the bakery — centred, the landmark sits behind the
-    building and is never seen. Measured subject positions: HOLLYWOOD letters 61-68% down
-    their image, Laguna's sun and cliffs 52-80%, the observatory 46-76%.
-  - **A blurred copy of the same image fills the band behind it**, because the fitted image
-    does not span the width and the CSS sky gradient does not match the painted sky. Filling
-    with the image itself matches by construction for every landmark, with no extra
-    download. The edges fade left, right and bottom so nothing ends on a visible rectangle.
-
-  ⚠️ **The backdrop image element is sized to the picture, not to the band, and that is what
-  makes the fade work.** With `object-fit` the element still spans the whole band while the
-  picture sits somewhere inside it, so a mask on the element is measured against the BAND —
-  and the picture's own edges land in the opaque middle of the mask and stay knife-sharp.
-  Giving the element the picture's own dimensions (`height: 100%; width: auto`) and placing
-  it with `left` + a matching negative `translateX` puts the fade exactly where the picture
-  ends. That `left`/`translateX` pair is the standard way to reproduce `background-position`
-  semantics on a positioned element.
-
-  Re-check `horizon` and `align` against the regenerated exterior — they are tuned to where
-  this particular bakery stands.
-
-  The mask exists rather than a transparent PNG because the RGBA version of the same image
-  was **996 KB against a 250 KB budget**. JPEG plus a 13 KB alpha mask is 388 KB. Worth
-  remembering for the regenerated cutout: export it the same way, or as WebP with alpha.
-- **The repo is named `allyjing.github.io` on GitHub** (PRD §10.3), for a user site at the
-  domain root. Note the *local folder* name is irrelevant to Pages — only the GitHub repo
-  name matters, so there is nothing to rename locally.
+`scenes/exterior.jpg` is 276 KB and `interior.jpg` 299 KB, both a little over the 250 KB
+budget. WebP would bring them under.
 
 ### The time-of-day tint is unresolved
 

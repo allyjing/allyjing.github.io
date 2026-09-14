@@ -65,7 +65,11 @@
   left: var(--scene-x, 0px);
   top: var(--scene-y, 0px);
   width: var(--scene-w, 100%);
-  height: calc(var(--scene-h, 100%) * var(--horizon, 100%) / 100%);
+  /* Full height on purpose. The cut in the exterior reaches well below the vista, so
+     a band that stopped at the horizon left bare stage underneath it — the sky ran
+     out before the screen did. The container covers everything and the blurred fill
+     covers the container; only the sharp vista is confined to the top. */
+  height: var(--scene-h, 100%);
   opacity: 1;
   overflow: hidden;
 
@@ -115,10 +119,12 @@
    N% point up with the container's N% point, whatever the element's width. */
 .backdrop__image {
   position: absolute;
-  bottom: 0;
+  /* Sat on the horizon line rather than the bottom of the container, now that the
+     container runs the full height of the scene. */
+  bottom: calc(100% - var(--horizon, 100%));
   left: var(--backdrop-align, 50%);
   transform: translateX(calc(var(--backdrop-align, 50%) * -1));
-  height: 100%;
+  height: var(--horizon, 100%);
   width: auto;
   max-width: none;
 
@@ -306,90 +312,32 @@
 }
 
 /* =========================================================================
- * INTERIOR — drawn in CSS, because the painting does not exist yet
- *
- * PRD §9 budgets one interior background. Until it is generated, the room is
- * built from the tokens: a wall, a floor, and five tables. The moment
- * assets/scenes/interior.* exists, set `image` on the scene in scenes.js and
- * this whole block stops applying — it is keyed off the scene having no image.
+ * INTERIOR
+ * The room is painted, so nothing here draws furniture. Interiors take a
+ * subtler version of the time tint than the exterior: a room showing a
+ * dramatic sunset on its walls looks wrong (PRD §9).
  * ========================================================================= */
 
-.stage[data-scene='interior'] .layer--sky {
-  /* Wall, a picture rail, wainscot, skirting, then floor. The bands are doing the
-     work a painted room would: without them a single flat colour reads as a void
-     rather than as a wall behind the tables. */
-  background:
-    linear-gradient(to bottom,
-      var(--surface-trim) 0%,
-      var(--surface-trim) 26%,
-      var(--ink) 26%, var(--ink) 26.6%,
-      var(--surface-wall) 26.6%,
-      var(--surface-wall) 66%,
-      var(--ink) 66%, var(--ink) 67%,
-      var(--surface-sunken) 67%,
-      var(--surface-sunken) 100%);
-  filter: var(--scene-filter);
-  transition: filter var(--dur-timeshift) var(--ease-soft);
-}
+.stage[data-scene='interior'] .layer--tint { opacity: 0.35; }
 
-/* A little depth on the floor, so the tables sit on a surface rather than on a band. */
-.stage[data-scene='interior'] .layer--tint::after {
-  content: '';
-  position: absolute;
-  inset: 67% 0 0 0;
-  background: linear-gradient(to bottom, var(--shadow-cast), transparent 40%);
-  pointer-events: none;
+/* A room with its lights on does not go as dark as the garden outside it. The actors
+   take the same light as the room they are standing in, or she ends up noticeably
+   darker than the floor she is on. */
+.stage[data-scene='interior'] .layer--scene { filter: var(--interior-filter); }
+
+.stage[data-scene='interior'] .actor {
+  filter: var(--interior-filter) drop-shadow(0 var(--space-1) var(--space-2) var(--shadow-cast));
 }
 
 /* Indoors there is no landmark to report, so the WHERE readout goes away. The clock
-   stays: time of day still applies, just more subtly (PRD §9). */
+   stays: time of day still applies, just more subtly. */
 .stage[data-scene='interior'] .chrome--location { display: none; }
 
-/* Interiors take a subtler version of the time tint than the exterior: a room with
-   no windows showing a dramatic sunset looks wrong (PRD §9). */
-.stage[data-scene='interior'] .layer--tint { opacity: 0.45; }
-
-/* --- tables --------------------------------------------------------------- */
-.table {
+/* The floating label above each painted table. Phase 5 makes these the panel
+   triggers; for now they are labels, so the room reads before the panels exist. */
+.bubble {
   position: absolute;
   transform: translate(-50%, -100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  width: 15%;
-}
-
-.table__top {
-  width: 100%;
-  height: 0.8em;
-  border: 2px solid var(--ink);
-  border-radius: var(--radius-full);
-  background: var(--surface-roof);
-}
-
-/* A pedestal, so each table reads as furniture standing on the floor rather than as
-   a bar floating in front of the wall. */
-.table::after {
-  content: '';
-  width: 26%;
-  height: var(--space-6);
-  background: var(--surface-roof);
-  border: 2px solid var(--ink);
-  border-top: none;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
-  margin-top: -2px;
-}
-
-.table__dessert {
-  font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  color: var(--ink-soft);
-}
-
-/* The floating bubble that will become the panel trigger in Phase 5. */
-.table__bubble {
   font-family: var(--font-display);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -403,7 +351,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .table__bubble { animation: float 3s var(--ease-soft) infinite alternate; }
+  .bubble { animation: float 3s var(--ease-soft) infinite alternate; }
   @keyframes float {
     from { translate: 0 0; }
     to   { translate: 0 -4px; }
