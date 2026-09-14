@@ -106,23 +106,20 @@ longer the scene.
 `scenes/exterior.jpg` is 276 KB and `interior.jpg` 299 KB, both a little over the 250 KB
 budget. WebP would bring them under.
 
-### The time-of-day tint is unresolved
+### The time-of-day tint, resolved
 
-**PRD §9 and `tokens.css` disagree, and the token wins.** §9 lists the layer order as
-`backdrop → tint → scene`, but `--z-tint` is `40` — above the scene (`10`) and the actors
-(`30`). Since every layer is positioned with a `z-index`, DOM order does nothing and the
-wash lands on top of everything below the UI.
+A full-frame wash sits at `--z-tint` (40), above the scene and the actors, which is what
+made it reach the bakery — but it necessarily reached the backdrop too, and the backdrops
+have their time of day painted in already. With an opaque exterior there was no way to have
+one without the other, and PRD §9's ordering could not be satisfied.
 
-That is what makes the tint reach the bakery, which is its stated job, so it is right for
-now. The cost: it also covers the backdrop. Harmless today because the placeholder exterior
-is opaque — but **once the transparent cutout lands, this puts a night tint over an
-already-night Griffith and renders it black**, the exact failure both PRD §9 and design.md
-warn about.
+The cutout settles it. **Outdoors there is no overlay at all.** The whole treatment is
+carried by `--scene-filter`, which is applied to the scene image and so respects its alpha:
+it tints the painted bakery and cannot touch the layer behind it. The overlay survives
+indoors, where the room is opaque, there is no backdrop to protect, and a soft wash across
+the frame is exactly what is wanted.
 
-A full-frame overlay cannot tint the bakery without also tinting the backdrop. The fix is
-probably to drop the overlay for the foreground entirely and carry the whole time-of-day
-treatment in `--scene-filter`, which respects alpha and so can never touch the layer behind.
-Decide this when the cutout lands; do not let it ship unresolved.
+If you add a new outdoor layer, tint it with a filter, not an overlay.
 
 ## Run it
 

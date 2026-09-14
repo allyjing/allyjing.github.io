@@ -71,18 +71,21 @@
 }
 
 /* --- tint ------------------------------------------------------------------
-   ⚠️ PRD §9 and tokens.css disagree about where this belongs, and the token wins:
-   --z-tint is 40, above the scene (10) and the actors (30), so DOM order here is
-   irrelevant. That is what makes the wash actually reach the bakery, which is its
-   stated job.
+   A full-frame wash sits at --z-tint (40), above the scene and the actors, so it
+   reaches the bakery — but it necessarily reaches the backdrop too, and the
+   backdrops already have their time of day painted in. PRD §9 and design.md both
+   warn that tinting an already-night Griffith is wrong.
 
-   The cost is that it also covers the backdrop. Harmless today, because the
-   placeholder exterior is opaque — but once the transparent cutout lands, this will
-   lay a night tint over an already-night Griffith and render it black, the exact
-   failure both PRD §9 and design.md warn about. Unresolved; see CLAUDE.md. */
+   With an opaque exterior there was no way to have one without the other. The cutout
+   settles it: OUTDOORS THERE IS NO OVERLAY. The whole treatment is carried by
+   --scene-filter, which is applied to the scene image and therefore respects its
+   alpha — it tints the painted bakery and cannot touch the layer behind it.
+
+   The overlay survives indoors, where the room is opaque and there is no backdrop to
+   protect, and where a soft wash across the whole frame is exactly what is wanted. */
 .layer--tint {
   z-index: var(--z-tint);
-  background: var(--light-tint);
+  background: none;
   pointer-events: none;
   transition: background-color var(--dur-timeshift) var(--ease-soft);
 }
@@ -250,7 +253,10 @@
  * dramatic sunset on its walls looks wrong (PRD §9).
  * ========================================================================= */
 
-.stage[data-scene='interior'] .layer--tint { opacity: 0.35; }
+.stage[data-scene='interior'] .layer--tint {
+  background: var(--light-tint);
+  opacity: 0.35;
+}
 
 /* A room with its lights on does not go as dark as the garden outside it. The actors
    take the same light as the room they are standing in, or she ends up noticeably

@@ -151,7 +151,9 @@
   --sky-top:      #1E2547;
   --sky-bottom:   #46436E;
   --light-tint:   rgba(42, 52, 112, 0.30);
-  --scene-filter: brightness(0.58) saturate(0.62) hue-rotate(12deg);
+  /* Carries the whole night treatment outdoors now that there is no overlay: a
+   * little darker and bluer than before to make up for the wash that was removed. */
+  --scene-filter: brightness(0.54) saturate(0.58) hue-rotate(16deg);
   /* Indoors the lights are on. Applying the outdoor night filter to a lit room made
    * it read as an abandoned bakery rather than an open one. */
   --interior-filter: brightness(0.86) saturate(0.92) hue-rotate(6deg);
