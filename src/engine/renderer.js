@@ -190,6 +190,7 @@ function buildActor(actor) {
   node.id = `actor-${actor.id}`;
   node.style.height = `${actor.height}%`;
   node.style.aspectRatio = String(actor.aspect);
+  if (actor.fishes) node.dataset.fishes = 'true';
 
   /* The flip lives on an inner element, not on .actor. .actor carries the walking
    * lean, and if both sat on one transform the mirror would flip the lean too and

@@ -120,8 +120,12 @@ export const scenes = {
 
     actors: [
       { ...jingwen, x: 52, y: 94, height: 26, facing: 1 },
+      /* Junnie sits at the fountain's edge, facing the water, trying to catch
+       * something in it. `fishes` turns on the idle in scenes.css. He faces right
+       * (facing: 1) because the fountain is to his right. */
       { id: 'junnie', image: 'assets/sprites/junnie.png', alt: actorAlt.junnie,
-        x: 64, y: 96, height: 12, facing: -1, walks: false, aspect: 237 / 420 },
+        x: 67, y: 86, height: 11, facing: 1, walks: false, fishes: true,
+        aspect: 237 / 420 },
     ],
   },
 

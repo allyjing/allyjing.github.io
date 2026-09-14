@@ -100,8 +100,17 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   straight key of that, built by `assets/source/make-cutout-mask.py`. It is still a mask
   paired with a JPEG rather than an RGBA PNG, for the same size reason as before.
 - **`scenes/interior.jpg`** — the room, with the five tables painted in. Nothing draws
-  furniture any more; the only things placed are the bubbles above each table, positioned
-  from the artwork.
+  furniture; the only things placed are a dessert on each table and the bubble above it.
+
+  The interior has to hold its own against the exterior, which gets a changing sky and a
+  landmark for free. Three things do that work: the bubbles use the **same board as the
+  garden signs** so the two rooms read as one shop; each dessert sits on a **plate**, so it
+  reads as served rather than as a shape pasted on; and **daylight from the window** spills
+  the current `--sky-top` across the floor, so the room knows what time it is.
+
+  ⚠️ Objects in a scene need their own colour tokens — `--dessert-bake`, `--dessert-glaze`,
+  `--dessert-plate`. Every `--surface-*` flips to a dark UI colour after dark, and a plate
+  that turns navy at night reads as broken rather than as dim.
 
 Keying takes two passes, and both are load-bearing:
 

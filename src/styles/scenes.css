@@ -212,7 +212,58 @@
 .actor__leg--left  { left: 0; }
 .actor__leg--right { left: 50%; }
 
+/* --- Junnie at the fountain ------------------------------------------------
+   He is one sprite and always will be — no frames, no sheet (PRD §8.3) — so the
+   fishing is done entirely with timing. He watches the water, leans in, takes a
+   swipe, misses, and settles back. The miss is the point: a cat that caught it
+   would have to stop.
+
+   A ripple rises in the fountain just before each swipe, which is what makes the
+   lunge read as aimed at something rather than as a twitch. */
+/* The ripple sits in the fountain's lower basin, up and to his right — worked out
+   from his box rather than guessed: his box is 11% of the scene's height and about
+   3.5% of its width, so these percentages put the ring at roughly (71, 75) in image
+   coordinates, which is the water. It is deliberately outside his box; a ripple at
+   his feet would be on the sand and the lunge would read as aimed at nothing. */
+.actor[data-fishes]::after {
+  content: '';
+  position: absolute;
+  left: 190%;
+  bottom: 115%;
+  width: 95%;
+  aspect-ratio: 2.6;
+  border: 2px solid var(--surface-roof);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  .actor[data-fishes] {
+    /* Overrides the breathing idle below: same job, longer story. */
+    animation: fish 7s var(--ease-soft) infinite;
+    transform-origin: 50% 100%;
+  }
+
+  .actor[data-fishes]::after { animation: ripple 7s var(--ease-soft) infinite; }
+
+  /* Percentages chosen so the lunge lands while the ripple is at its widest. */
+  @keyframes fish {
+    0%, 54%   { rotate: 0deg;    translate: 0 0; }
+    60%       { rotate: -5deg;   translate: 0 0; }      /* notices it */
+    66%       { rotate: -11deg;  translate: 6% 2%; }    /* leans in  */
+    70%       { rotate: -15deg;  translate: 11% 4%; }   /* swipes    */
+    76%       { rotate: -6deg;   translate: 3% 0; }     /* misses    */
+    84%, 100% { rotate: 0deg;    translate: 0 0; }      /* sits back */
+  }
+
+  @keyframes ripple {
+    0%, 52%  { opacity: 0; scale: 0.4; }
+    62%      { opacity: 0.9; scale: 1; }
+    72%      { opacity: 0.5; scale: 1.5; }
+    80%, 100% { opacity: 0; scale: 1.9; }
+  }
+
   /* Idle: a slow breathing bob. */
   .actor { animation: breathe 2s var(--ease-soft) infinite alternate; }
 
@@ -286,6 +337,35 @@
   opacity: 0.35;
 }
 
+/* Daylight through the arched window at the back.
+ *
+ * Outside, time of day is obvious — the sky and the landmark both change. Inside,
+ * the room was identical at every hour, which is what made it feel flat next to the
+ * exterior. This spills the CURRENT SKY COLOUR through the window and across the
+ * floor below it, so the room knows what time it is: pale and cool at noon, warm at
+ * sunset, deep blue at night. --sky-top is already per-state, so it costs no new
+ * tokens and can never drift out of step with outside.
+ *
+ * soft-light rather than a flat overlay: it tints what is underneath instead of
+ * washing it, so the painted floorboards keep their grain. */
+.stage[data-scene='interior'] .layer--decor::before {
+  content: '';
+  position: absolute;
+  /* Anchored to the window itself and spilling DOWN onto the floor. The first
+     attempt started above the window and put a dark smudge across the ceiling,
+     which reads as dirt rather than as light. */
+  left: 47%;
+  top: 20%;
+  width: 28%;
+  height: 56%;
+  background: radial-gradient(ellipse 70% 52% at 50% 0%,
+    var(--sky-top) 0%, transparent 76%);
+  mix-blend-mode: soft-light;
+  opacity: 0.45;
+  pointer-events: none;
+  transition: background var(--dur-timeshift) var(--ease-soft);
+}
+
 /* A room with its lights on does not go as dark as the garden outside it. The actors
    take the same light as the room they are standing in, or she ends up noticeably
    darker than the floor she is on. */
@@ -319,10 +399,28 @@
    PRD D2 fixes which dessert belongs to which table. */
 .dessert {
   position: relative;
-  width: 46%;
+  width: 54%;
   height: 0;
-  padding-bottom: 30%;
+  padding-bottom: 36%;
   filter: drop-shadow(0 1px 1px var(--shadow-cast));
+}
+
+/* A plate under each one. Without it the dessert reads as a shape pasted onto the
+   table; with it, it reads as something served. Same outline weight as the artwork. */
+.dessert::marker { content: none; }
+
+.table-marker::after {
+  content: '';
+  position: absolute;
+  bottom: -2%;
+  left: 50%;
+  translate: -50% 0;
+  width: 62%;
+  aspect-ratio: 3.4;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--dessert-plate);
+  z-index: -1;
 }
 
 .dessert::before,

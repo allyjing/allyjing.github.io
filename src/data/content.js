@@ -24,7 +24,7 @@ export const contact = {
 
 export const actorAlt = {
   jingwen: 'Jingwen, standing outside the bakery',
-  junnie: 'Junnie, an orange tabby cat, sitting beside her',
+  junnie: 'Junnie, an orange tabby cat, sitting at the fountain trying to catch a fish',
 };
 
 export const sceneAlt = {

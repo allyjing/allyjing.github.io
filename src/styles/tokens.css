@@ -20,6 +20,7 @@
   --cat-ginger:     #E08A4B;  /* Junnie. Reserved. */
   --dessert-bake:   #E8C489;  /* baked pastry: croissant, bao, souffle */
   --dessert-glaze:  #E9A7B4;  /* icing and macaron shells */
+  --dessert-plate:  #F6F0E8;  /* the plate under them */
   --on-accent:      #FFFFFF;  /* text/icons ON --accent-berry. Flips at night. */
 
   /* ---- Derived surfaces -------------------------------------------------- */
@@ -180,9 +181,13 @@
   --chrome-bg:      rgba(42, 36, 54, 0.88);
   --chrome-ink:     #F3ECEF;
 
-  /* The room's lights are on after dark, so the desserts warm rather than dim. */
+  /* The room's lights are on after dark, so the desserts warm rather than dim.
+   * These are OBJECTS in the scene, not interface, which is why they get their own
+   * tokens: every --surface-* flips to a dark UI colour after dark, and a plate that
+   * turns navy reads as broken rather than as dim. */
   --dessert-bake:   #C9A876;
   --dessert-glaze:  #C98F9C;
+  --dessert-plate:  #CFC5B8;
 
   --accent-berry:   #E88BA8;  /* lightened for the dark surface: 6.19:1.
                                  The daytime #B84A6E measures 3.20:1 here. */
