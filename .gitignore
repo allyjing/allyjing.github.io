@@ -4,3 +4,7 @@
 .playwright-mcp/
 Resume.zip
 .superpowers/
+
+# Watermarked stock reference — never commit
+bakery interior reference.png
+new interior.jpeg

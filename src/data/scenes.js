@@ -137,39 +137,45 @@ export const scenes = {
    * panel triggers. Their coordinates are read off the artwork. */
   interior: {
     id: 'interior',
-    image: 'assets/scenes/interior.jpg',
+    image: 'assets/scenes/interior.webp',
     alt: sceneAlt.interior,
     aspect: 1376 / 768,
     hasBackdrop: false,            // no landmark layer indoors
 
     /* The clear wooden floor, traced against the painting so she cannot walk over
-     * the furniture. It threads between the tables rather than across them: down the
-     * middle from the doorway, around the right-hand row, and out along the open
-     * foreground. It keeps off the counter on the left and every chair on the right.
+     * the furniture. Re-traced 2026-09-14 for the new artwork.
      *
-     * Perspective matters here — a table's chairs reach well below its top, so each
-     * boundary sits below the chair feet, not the table edge. */
+     * This room is furnished much lower in the frame than the old one, so the clear
+     * floor is a band across the FOREGROUND rather than a path threading between the
+     * tables. That is enough: the tables are buttons, so she never needs to walk to
+     * one. The polygon only has to let her move about and reach the way out.
+     *
+     * Perspective matters — each boundary sits below the FEET of the furniture in
+     * front of it, not its top edge. The y-90 spans clear both front tables'
+     * pedestal bases, which end around y 89; the alcove up to y 82 is the gap
+     * between the two front table groups. The left edge clears the display case and
+     * the right clears the cabinet and the sleeping cat. */
     walkable: [
-      [55, 66],   // right of the front-left table's chairs
-      [64, 71],
-      [73, 79],   // below the right-hand row
-      [83, 86],
-      [92, 92],
-      [95, 97],
-      [5, 97],
-      [9, 86],
-      [26, 81],   // clear of the counter front
-      [42, 77],
+      [49, 82],   // the alcove between the two front tables
+      [58, 82],
+      [62, 90],   // below the front-right table's pedestal
+      [86, 90],
+      [93, 98],
+      [7, 98],
+      [14, 90],   // clear of the display case
+      [46, 90],   // below the front-left table's pedestal
     ],
 
-    /* No walk-in trigger here, unlike the exterior. The doorway sits behind the
-     * front-left table and its chairs, so there is no route to it across the floor —
-     * anything that let her reach it would also let her stand on the furniture. The
-     * "Back outside" sign is the affordance instead (R9), and it sits on the doorway
-     * itself so it reads as the way out rather than as a button. */
+    /* No walk-in trigger here, unlike the exterior. The way out is the front EDGE of
+     * the room — see `exit` below. The "Back outside" sign stays as well (R9): it is
+     * the only focusable, keyboard-operable exit, and walking is the nice way rather
+     * than the only way. */
 
+    /* On the door itself, so it reads as the way out rather than as a button
+     * floating in the room. Re-placed 2026-09-14: the old x38 sat on the window
+     * pane left of the door in the new artwork. The double door spans x 44-58. */
     signs: [
-      { id: 'outside', ...doors.exit, x: 38, y: 50 },
+      { id: 'outside', ...doors.exit, x: 51, y: 47 },
     ],
 
     /* One marker per painted table. x/y is the TABLE SURFACE — the dessert sits
@@ -178,8 +184,10 @@ export const scenes = {
       ...table,
       id: `table-${table.id}`,
       kind: 'table',
-      ...[{ x: 44, y: 57 }, { x: 55, y: 47 }, { x: 67, y: 44 },
-          { x: 78, y: 50 }, { x: 90, y: 61 }][i],
+      /* Read off the new artwork 2026-09-14, in the table order in content.js:
+       * experience, projects, photography, life, arts. */
+      ...[{ x: 37, y: 54 }, { x: 52, y: 60 }, { x: 67, y: 54 },
+          { x: 40, y: 70 }, { x: 73, y: 70 }][i],
     })),
 
     actors: [

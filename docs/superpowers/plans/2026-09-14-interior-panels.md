@@ -34,6 +34,34 @@ The discipline is kept in the only form the project supports: **every task ends 
 
 ---
 
+## Task 0: Install the new interior artwork — ✅ DONE 2026-09-14
+
+Completed before the other tasks, because every coordinate below depends on it.
+
+- `assets/source/interior.jpeg` — the new master. The previous one is kept as
+  `assets/source/interior-original.jpeg`, the way the old exterior is kept.
+- `assets/scenes/interior.webp` — **176 KB**, against a 250 KB budget. The source
+  JPEG was 887 KB and even quality 60 only reached 275 KB, so WebP was the only way
+  under; CLAUDE.md already anticipated the extension change. Encoded with
+  `cwebp -q 82`, the quality `PROMPTS.md:341` specifies.
+- `assets/scenes/interior.jpg` is **deleted**. `scenes.interior.image` now points at
+  the `.webp`.
+- Dimensions are unchanged at 1376 × 768, so `aspect: 1376 / 768` still holds.
+- `walkable`, the five table coordinates and the "Back outside" sign position were
+  all re-traced against the new painting by overlaying a percentage grid and drawing
+  candidates onto the art until they sat on clear floor and on real tabletops.
+
+**Do not re-derive these numbers.** They are measured, not guessed.
+
+⚠️ The new artwork paints a ginger cat asleep at the bottom right. Junnie is an actor
+in the *exterior* only, so there is no conflict today — but do not also place Junnie
+as an actor indoors, or there will be two cats.
+
+⚠️ `bakery interior reference.png` at the repo root is watermarked stock and is
+gitignored. Never commit it and never use it as an img2img source.
+
+---
+
 ## File Structure
 
 | File | Status | Responsibility |
@@ -234,7 +262,7 @@ git commit -m "Add panel copy as data, with placeholder text"
 
 - [ ] **Step 1: In `src/data/scenes.js`, rename the interior's `decor` to `tables` and drop the id prefix**
 
-Replace this block (currently at `src/data/scenes.js:184-190`):
+Replace the `decor:` block in the `interior` object (find it with `grep -n "decor: tables.map" src/data/scenes.js`):
 
 ```js
     /* One marker per painted table. x/y is the TABLE SURFACE — the dessert sits
@@ -243,8 +271,10 @@ Replace this block (currently at `src/data/scenes.js:184-190`):
       ...table,
       id: `table-${table.id}`,
       kind: 'table',
-      ...[{ x: 44, y: 57 }, { x: 55, y: 47 }, { x: 67, y: 44 },
-          { x: 78, y: 50 }, { x: 90, y: 61 }][i],
+      /* Read off the new artwork 2026-09-14, in the table order in content.js:
+       * experience, projects, photography, life, arts. */
+      ...[{ x: 37, y: 54 }, { x: 52, y: 60 }, { x: 67, y: 54 },
+          { x: 40, y: 70 }, { x: 73, y: 70 }][i],
     })),
 ```
 
@@ -262,8 +292,10 @@ with:
      * key and the URL segment; the DOM id gets the `table-` prefix at render. */
     tables: tables.map((table, i) => ({
       ...table,
-      ...[{ x: 44, y: 57 }, { x: 55, y: 47 }, { x: 67, y: 44 },
-          { x: 78, y: 50 }, { x: 90, y: 61 }][i],
+      /* Read off the new artwork 2026-09-14, in the table order in content.js:
+       * experience, projects, photography, life, arts. */
+      ...[{ x: 37, y: 54 }, { x: 52, y: 60 }, { x: 67, y: 54 },
+          { x: 40, y: 70 }, { x: 73, y: 70 }][i],
     })),
 ```
 
@@ -1013,11 +1045,11 @@ git commit -m "Make panels deep-linkable through the hash router"
 - Consumes: `scene.door` (exterior, existing) and `scene.exit` (interior, new).
 - Produces: `scenes.interior.exit` — `{ edge: 'bottom', at: number, to: string }`.
 
-⚠️ **This task is tuned against the CURRENT interior painting.** The artwork is being regenerated without a door and with a full-width band of foreground floor. When it lands, `walkable` and `exit.at` both need re-tracing. Wiring it now is correct; treat the numbers as provisional.
+✅ **The new artwork has landed and the coordinates are already re-traced** (Task 0, done 2026-09-14). `walkable`, the five table positions and the "Back outside" sign position in `src/data/scenes.js` are all measured against `assets/scenes/interior.webp`. Do not re-derive them; this task only adds `exit`.
 
 - [ ] **Step 1: Add `exit` to the interior scene in `src/data/scenes.js`**
 
-Directly below the `walkable` array in the `interior` object, replacing the comment block that currently begins "No walk-in trigger here, unlike the exterior":
+Directly below the comment block that begins "No walk-in trigger here, unlike the exterior" and above `signs:`, add:
 
 ```js
     /* Walking down across the front of the room leaves it. There is no painted door
@@ -1028,10 +1060,9 @@ Directly below the `walkable` array in the `interior` object, replacing the comm
      * just inside the polygon's bottom edge (y 97), not on it, so she reaches the
      * trigger while still on painted floor.
      *
-     * ⚠️ Provisional. Re-trace this and `walkable` together when the regenerated
-     * interior artwork lands — the polygon above is traced against the current
-     * painting and the new one has a different floor. */
-    exit: { edge: 'bottom', at: 94, to: 'exterior' },
+     * 95 sits between the polygon's foreground edge (y 98) and the y-90 spans, so
+     * she reaches it while still on painted floor. */
+    exit: { edge: 'bottom', at: 95, to: 'exterior' },
 ```
 
 The "Back outside" sign in `signs` stays exactly as it is. It is the only focusable, keyboard-operable way out, and removing it would be an accessibility regression.
