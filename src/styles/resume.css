@@ -1,0 +1,116 @@
+/* Repo path: src/styles/resume.css
+ *
+ * The resume page. Plain document styling — no stage, no layers, no scripts.
+ *
+ * This is the page that gets Jingwen the interview (PRD G1), so it is built to be
+ * read rather than explored: one column, generous measure, and it prints cleanly.
+ * It shares tokens.css with the game so the two feel related without this page
+ * having to load anything from it.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-12);
+  max-width: 46rem;                /* ~75 characters: comfortable for reading prose */
+  background: var(--surface-wall);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+/* Visible only once focused — the first thing a keyboard user reaches. */
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: var(--space-4);
+  top: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--accent-berry);
+  color: var(--on-accent);
+  border-radius: var(--radius-md);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+h1 { font-size: var(--text-2xl); }
+
+.subtitle {
+  margin: var(--space-1) 0 var(--space-4);
+  color: var(--ink-soft);
+  font-size: var(--text-lg);
+}
+
+.sheet__head { border-bottom: 2px solid var(--hairline); padding-bottom: var(--space-4); }
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+a { color: var(--accent-berry); }          /* 4.65:1 on --surface-wall */
+
+:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+}
+
+section { margin-top: var(--space-8); }
+
+h2 {
+  font-size: var(--text-xl);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.entry { margin-top: var(--space-6); }
+.entry h3 { font-size: var(--text-lg); }
+
+.entry__meta {
+  margin: var(--space-1) 0 var(--space-2);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.entry ul { margin: 0; padding-left: var(--space-6); }
+.entry li { margin-bottom: var(--space-2); }
+
+.skills { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); margin: 0; }
+.skills dt { font-weight: 700; }
+.skills dd { margin: 0; }
+
+/* Unfilled sections, marked so they are impossible to publish by accident. */
+.todo {
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--accent-berry);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.sheet__foot {
+  margin-top: var(--space-12);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+@media print {
+  body { max-width: none; padding: 0; background: #fff; }
+  .skip, .sheet__foot, .todo { display: none; }
+  a { color: inherit; text-decoration: none; }
+}

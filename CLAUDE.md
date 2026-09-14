@@ -27,7 +27,14 @@ CSS from the tokens — it reads correctly and you can walk around it, but it pl
 painted. Dropping `scenes/interior.*` in and setting `image` on `scenes.interior` replaces
 it with no other code change.
 
-**Next code phase is Phase 4 — `resume.html`, and the first deploy.** That page
+**Phase 4 is underway.** `resume.html` exists as structure with the real contact details
+and marked gaps; it needs Jingwen's actual education, experience, projects and skills before
+it can deploy. **Do not invent any of it.** The gaps are `.todo` blocks, styled to be
+impossible to publish by accident.
+
+⚠️ `resume.html` holds its copy INLINE, not in `content.js`. R31 puts all copy in data, but
+R24 says this page loads with no JavaScript, and it cannot do both. R24 wins: this is the
+fast path for a recruiter and it has to work when every script fails. That page
 does not exist yet, so the Resume link in the top-right currently 404s. Phase 4 is
 deliberately early (PRD §12): it makes the site useful to a recruiter before the interior
 exists, and it surfaces the three deploy-only bugs in §10.3 while there are thirty files to

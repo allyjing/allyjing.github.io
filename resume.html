@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jingwen Huang — Resume</title>
+<meta name="description" content="Jingwen Huang: mechanical engineering student at Northeastern University. Resume, projects and contact details.">
+
+<!-- No leading slashes: they resolve to the domain root and 404 on a project site. -->
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/resume.css">
+</head>
+
+<!-- data-time is fixed rather than derived. This page has no JavaScript by design
+     (PRD R24): it is the fast path for a recruiter, and it has to work if every
+     script fails. The time-of-day system does not apply here. -->
+<body data-time="noon">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="sheet__head">
+  <h1>Jingwen Huang</h1>
+  <p class="subtitle">Mechanical engineering student, Northeastern University</p>
+
+  <ul class="contact">
+    <li><a href="mailto:huang.jingwen@northeastern.edu">huang.jingwen@northeastern.edu</a></li>
+    <li><a href="https://www.linkedin.com/in/allyjing/" rel="noopener noreferrer">linkedin.com/in/allyjing</a></li>
+    <li><a href="index.html">Visit the bakery &rarr;</a></li>
+  </ul>
+</header>
+
+<main id="main">
+
+  <section>
+    <h2>Education</h2>
+    <article class="entry">
+      <h3>Northeastern University</h3>
+      <p class="entry__meta"><!-- TODO: degree, expected graduation, GPA if you want it --></p>
+      <p class="todo">Degree, dates and any coursework worth listing go here.</p>
+    </article>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+    <article class="entry">
+      <h3><!-- TODO: role --></h3>
+      <p class="entry__meta"><!-- TODO: employer, location, dates --></p>
+      <ul>
+        <li class="todo">One bullet per thing you actually did, with the outcome where there is one.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+
+    <article class="entry">
+      <h3>Peachy Sweets Bakery</h3>
+      <p class="entry__meta">Personal site &middot; HTML, CSS, JavaScript &middot; 2026</p>
+      <ul>
+        <li>An interactive portfolio built as a small browser game: a walkable
+          exterior, a time-of-day system tied to four Los Angeles landmarks, and an
+          interior hub. No framework, no build step.</li>
+        <li>Rendered with DOM elements and CSS transforms rather than canvas, so links,
+          focus order and screen readers keep working.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <h3><!-- TODO: another project --></h3>
+      <p class="entry__meta"><!-- TODO: context, tools, date --></p>
+      <ul>
+        <li class="todo">Mechanical projects belong here too — this does not have to be software.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
+    <dl class="skills">
+      <dt>Engineering</dt>
+      <dd class="todo">CAD, analysis, manufacturing, whatever you actually use.</dd>
+      <dt>Software</dt>
+      <dd class="todo">Languages and tools.</dd>
+    </dl>
+  </section>
+
+</main>
+
+<footer class="sheet__foot">
+  <p>Artwork on <a href="index.html">the bakery</a> is AI-generated.</p>
+</footer>
+
+</body>
+</html>
