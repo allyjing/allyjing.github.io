@@ -82,18 +82,39 @@ def build(src, dst):
         if not bg[i] and not keep[i]:
             bg[i] = 1
 
-    edge = bytearray(w * h)
-    for y in range(1, h - 1):
-        for x in range(1, w - 1):
-            i = y * w + x
-            if not bg[i] and (bg[i - 1] or bg[i + 1] or bg[i - w] or bg[i + w]):
-                edge[i] = 1
+    # A feathered ramp inward from the cut, rather than one soft pixel. One pixel is
+    # still a hard line at any real display size, and the join between the painting
+    # and the backdrop behind it was reading as cut-out paper. Measured in from the
+    # boundary so the silhouette keeps its shape and only the last few pixels soften.
+    RAMP = (70, 130, 185, 225)       # alpha at 1, 2, 3, 4 px in from the cut
+    dist = bytearray(w * h)
+    frontier = [i for i in range(w * h) if not bg[i] and (
+        (i % w and bg[i - 1]) or (i % w < w - 1 and bg[i + 1]) or
+        (i >= w and bg[i - w]) or (i < w * (h - 1) and bg[i + w]))]
+    for i in frontier:
+        dist[i] = 1
+    cur = frontier
+    for d in range(2, len(RAMP) + 1):
+        nxt = []
+        for i in cur:
+            x, y = i % w, i // w
+            for j in ((i - 1 if x else -1), (i + 1 if x < w - 1 else -1),
+                      (i - w if y else -1), (i + w if y < h - 1 else -1)):
+                if j >= 0 and not bg[j] and not dist[j]:
+                    dist[j] = d
+                    nxt.append(j)
+        cur = nxt
 
     out = bytearray(w * h * 4)
     for i in range(w * h):
         o = i * 4
         out[o] = out[o + 1] = out[o + 2] = 255     # only alpha carries the mask
-        out[o + 3] = 0 if bg[i] else (150 if edge[i] else 255)
+        if bg[i]:
+            out[o + 3] = 0
+        elif dist[i]:
+            out[o + 3] = RAMP[dist[i] - 1]
+        else:
+            out[o + 3] = 255
     write_rgba(dst, w, h, out)
     return sum(bg), w * h
 

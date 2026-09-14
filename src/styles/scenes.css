@@ -74,7 +74,8 @@
      as a straight horizontal seam. Fading the last stretch means there is no edge to
      catch, whatever the treeline does. Applied to the container so the blurred fill
      and the sharp image fade together. */
-  --backdrop-floor: linear-gradient(to bottom, black 62%, transparent 100%);
+  --backdrop-floor: linear-gradient(to bottom,
+    black 0%, black 55%, rgba(0, 0, 0, 0.55) 78%, transparent 100%);
   mask-image: var(--backdrop-floor);
   -webkit-mask-image: var(--backdrop-floor);
 
@@ -95,26 +96,35 @@
   background-image: var(--backdrop-src);
   background-size: cover;
   background-position: center top;  /* bias to the image's own sky */
-  filter: blur(40px) saturate(1.05);
+  filter: blur(46px) saturate(1.05);
 }
 
+/* Sized to the image itself rather than to the band, which matters for the fade.
+   With object-fit the element still spans the whole band while the picture sits
+   somewhere inside it, so a mask on the element is positioned against the BAND —
+   and the picture's own edges land in the opaque middle of that mask and stay
+   knife-sharp. Giving the element the picture's dimensions puts the fade exactly
+   where the picture ends.
+
+   Height fills the band and width follows the aspect ratio, so the whole image is
+   visible at roughly half width: small and far away, nothing cropped, which is what
+   keeps the Hollywood Sign and the Laguna cliffs whole.
+
+   left + translateX of the same percentage is the standard way to reproduce
+   background-position semantics on a positioned element: it lines the element's own
+   N% point up with the container's N% point, whatever the element's width. */
 .backdrop__image {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  bottom: 0;
+  left: var(--backdrop-align, 50%);
+  transform: translateX(calc(var(--backdrop-align, 50%) * -1));
   height: 100%;
-  /* `contain` rather than `cover` is what makes it read as DISTANT. Cover fills the
-     band's width and the landmark looms over the bakery like a hill in the next
-     field. Contain fits the whole image in, so it lands around 58% width, the subject
-     sits small and low, and nothing is cropped — the Hollywood Sign and the Laguna
-     cliffs stay whole. Anchored to the bottom so the backdrop's own foreground tucks
-     behind the painted treeline. */
-  object-fit: contain;
-  object-position: var(--backdrop-align, 50%) bottom;
+  width: auto;
+  max-width: none;
 
   /* Dissolve into the blurred fill rather than ending on an edge. */
   --backdrop-fade: linear-gradient(to right,
-    transparent 0%, black 20%, black 80%, transparent 100%);
+    transparent 0%, black 11%, black 89%, transparent 100%);
   mask-image: var(--backdrop-fade);
   -webkit-mask-image: var(--backdrop-fade);
 }

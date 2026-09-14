@@ -109,6 +109,10 @@ See `assets/PROMPTS.md` for folder roles and outstanding asset work.
   dark outlines. A final pass removes leftover islands above the horizon. Nothing below the
   horizon is ever cut, which is what protects the fountain structurally rather than by luck.
 
+  The cut is feathered over a four-pixel ramp measured inward from the boundary, not one
+  pixel. A single pixel is still a hard line at any real display size, and the join read as
+  cut-out paper laid over the backdrop.
+
   **The backdrop is placed as a distant vista, not stretched across the stage.** It is
   fitted with `contain` into a band whose height is `scene.horizon`, so the whole image
   lands at roughly half width and the landmark reads as miles away. Three things make that
@@ -125,6 +129,15 @@ See `assets/PROMPTS.md` for folder roles and outstanding asset work.
     does not span the width and the CSS sky gradient does not match the painted sky. Filling
     with the image itself matches by construction for every landmark, with no extra
     download. The edges fade left, right and bottom so nothing ends on a visible rectangle.
+
+  ⚠️ **The backdrop image element is sized to the picture, not to the band, and that is what
+  makes the fade work.** With `object-fit` the element still spans the whole band while the
+  picture sits somewhere inside it, so a mask on the element is measured against the BAND —
+  and the picture's own edges land in the opaque middle of the mask and stay knife-sharp.
+  Giving the element the picture's own dimensions (`height: 100%; width: auto`) and placing
+  it with `left` + a matching negative `translateX` puts the fade exactly where the picture
+  ends. That `left`/`translateX` pair is the standard way to reproduce `background-position`
+  semantics on a positioned element.
 
   Re-check `horizon` and `align` against the regenerated exterior — they are tuned to where
   this particular bakery stands.
