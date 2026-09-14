@@ -41,14 +41,22 @@
 /* --- backdrop --------------------------------------------------------------
    The distant landmark. Each image has its own time of day BAKED IN, which is why
    the tint must never reach it: a night tint over an already-night Griffith renders
-   black.
+   black. Outdoors there is no tint overlay at all — see below.
 
-   Full bleed. The backdrop and the scene artwork share the same aspect ratio, so
-   `cover` sizes it to exactly the same box as the painting in front of it — it runs
-   off all four edges of the screen with nothing fading out and no blurred filler
-   needed. That only became possible once the exterior was regenerated as a real
-   cutout; against the old painting the backdrop had to be shrunk into the band of
-   sky above the treeline, and shrinking it is what forced the fades. */
+   Drawn SMALLER than the scene, so the landmark reads as miles away rather than as
+   a hill in the next field. Its height is --horizon and its bottom sits on the
+   painting's ground line, so none of it is left exposed underneath.
+
+   Drawing it smaller means it does not span the width, and the earlier fix for that
+   — fading the edges out — read as a cut-off. So instead the strip carries a
+   MIRRORED copy of the same image on each side. The mirror is seamless at the join
+   by construction and carries the sky and the distant land right off both edges.
+
+   The mirrors are deliberately NARROW SLICES rather than whole copies. A full
+   mirrored copy brings the landmark itself back into view on the other side — a
+   second, backwards HOLLYWOOD sign appeared at the left edge. Cropping each mirror
+   to a slice of the image's own edge means it can only ever carry edge content:
+   sky and distant land, never the subject. Same URL three times, one download. */
 .layer--backdrop {
   z-index: var(--z-backdrop);
   inset: auto;
@@ -57,17 +65,37 @@
   width: var(--scene-w, 100%);
   height: var(--scene-h, 100%);
   opacity: 1;
+  overflow: hidden;
   /* 600ms cross-fade on a time change. It must never hard-cut (R30). */
   transition: opacity var(--dur-timeshift) var(--ease-soft);
 }
 
-.backdrop__image {
+.backdrop__strip {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  bottom: calc(100% - var(--horizon, 100%));
+  height: var(--horizon, 100%);
+  display: flex;
+
+  /* Centres the STRIP on the align point, which centres its middle copy — the one
+     holding the landmark — while the mirrors run off both sides. */
+  left: var(--backdrop-align, 50%);
+  transform: translateX(-50%);
+}
+
+.backdrop__image {
+  display: block;
   height: 100%;
+  width: auto;
+  max-width: none;
+}
+
+.backdrop__image--mirror {
+  transform: scaleX(-1);
+  /* A narrow slice of the image's edge, not the whole picture. */
+  width: auto;
+  aspect-ratio: 0.75;
   object-fit: cover;
-  object-position: var(--backdrop-align, 50%) bottom;
+  object-position: left center;   /* mirrored, so this is the edge nearest the join */
 }
 
 /* --- tint ------------------------------------------------------------------

@@ -79,7 +79,7 @@ export const scenes = {
      * With the cutout exterior the cut reaches much further down — the ground line
      * sits around 72% — so the vista can be bigger than it was against the old
      * painting and still tuck behind the ground. */
-    horizon: 66,
+    horizon: 78,
 
     /* Walkable ground (R4). Traced against the artwork rather than approximated,
      * because a rectangle puts her ankle-deep in the roses. It excludes the
@@ -111,9 +111,9 @@ export const scenes = {
      * positions are off-screen entirely — the scene is cropped to fill and only a
      * narrow band survives — so ui.css docks them into a corner instead. */
     signs: [
-      { id: 'linkedin', ...signs.linkedin, x: 17, y: 91 },   // clear of the location label
-      { id: 'email', ...signs.email, x: 88, y: 94 },
-      { id: 'enter', ...doors.enter, x: 38, y: 89 },
+      { id: 'linkedin', ...signs.linkedin, x: 8, y: 87 },   // left of the potted plants
+      { id: 'email', ...signs.email, x: 88, y: 91 },
+      { id: 'enter', ...doors.enter, x: 32, y: 84 },        // right at the door
     ],
 
     decor: [],

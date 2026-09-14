@@ -17,13 +17,17 @@
  * All of them land behind the bakery roof if the backdrop is centred.
  *
  * Pushing them right puts the subject in the open sky beside the building, which is
- * the only clear window in this composition. The regenerated exterior may change
- * that, so re-check these against it. */
+ * the only clear window in this composition.
+ *
+ * ⚠️ The value centres the STRIP, and therefore its middle copy, on this point. It
+ * is not an object-position — it was, before the mirrored strip replaced the fitted
+ * image, and the numbers had to be retuned when that changed. Roughly: this is where
+ * the landmark itself lands, as a percentage across the scene. */
 export const landmarks = [
-  { id: 'hollywood-sign', name: 'Hollywood Sign',       lat: 34.1341, lon: -118.3216, time: 'morning', align: 97 },
-  { id: 'smpier',         name: 'Santa Monica Pier',    lat: 34.0086, lon: -118.4986, time: 'noon',    align: 88 },
-  { id: 'laguna',         name: 'Laguna Beach',         lat: 33.5314, lon: -117.7692, time: 'sunset',  align: 84 },
-  { id: 'griffith',       name: 'Griffith Observatory', lat: 34.1183, lon: -118.3003, time: 'night',   align: 90 },
+  { id: 'hollywood-sign', name: 'Hollywood Sign',       lat: 34.1341, lon: -118.3216, time: 'morning', align: 70 },
+  { id: 'smpier',         name: 'Santa Monica Pier',    lat: 34.0086, lon: -118.4986, time: 'noon',    align: 68 },
+  { id: 'laguna',         name: 'Laguna Beach',         lat: 33.5314, lon: -117.7692, time: 'sunset',  align: 67 },
+  { id: 'griffith',       name: 'Griffith Observatory', lat: 34.1183, lon: -118.3003, time: 'night',   align: 69 },
 ];
 
 /* Filenames follow `<id>-<time>` — the convention set in assets/PROMPTS.md. Because

@@ -36,11 +36,22 @@
        Each is a slot rather than a bare <img>: the image is fitted small, to read as
        distant, and a blurred copy of itself fills the space around it so it does not
        end on a visible rectangle. See scenes.css. -->
+  <!-- Three copies of the same file, side by side, with the outer two mirrored. The
+       middle one is the landmark; the mirrors exist only to carry the sky and the
+       distant land out past the edges of the screen. Same URL, so one download. -->
   <div class="layer layer--backdrop" id="backdrop-a" aria-hidden="true">
-    <img class="backdrop__image" alt="" decoding="async">
+    <div class="backdrop__strip">
+      <img class="backdrop__image backdrop__image--mirror" alt="" decoding="async">
+      <img class="backdrop__image" alt="" decoding="async">
+      <img class="backdrop__image backdrop__image--mirror" alt="" decoding="async">
+    </div>
   </div>
   <div class="layer layer--backdrop" id="backdrop-b" aria-hidden="true" hidden>
-    <img class="backdrop__image" alt="" decoding="async">
+    <div class="backdrop__strip">
+      <img class="backdrop__image backdrop__image--mirror" alt="" decoding="async">
+      <img class="backdrop__image" alt="" decoding="async">
+      <img class="backdrop__image backdrop__image--mirror" alt="" decoding="async">
+    </div>
   </div>
 
   <div class="layer layer--tint"     id="tint"     aria-hidden="true"></div>

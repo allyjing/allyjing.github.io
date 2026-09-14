@@ -72,7 +72,6 @@
 /* Scenery signs: the same board, minus everything interactive. */
 .sign--decor .sign__board {
   cursor: default;
-  background: var(--surface-wall);
   font-size: var(--text-xs);
   min-height: 0;                 /* not a tap target, so the 44px floor does not apply */
   padding: var(--space-1) var(--space-2);
@@ -111,8 +110,7 @@
   transition: filter var(--dur-timeshift) var(--ease-soft);
 }
 
-.sign__board,
-.sign__copy {
+.sign__board {
   /* --tap-min is 44px and is not negotiable: this is designed portrait-mobile-first,
      and a 28px target is a miss on a phone even when it looks fine on a laptop. */
   display: inline-flex;
@@ -126,26 +124,18 @@
   padding: var(--space-2) var(--space-4);
   border: 2px solid var(--ink);
   border-radius: var(--radius-lg);
-  background: var(--surface-trim);
-  color: var(--ink);             /* ink on trim measures 8.30:1 day, 9.35:1 night */
+
+  /* Matched to the painted PEACHY SWEETS board above the door: a cream face, a rose
+     keyline set in from the edge, a dark outline, and serif lettering. The previous
+     version had it the other way round — a rose face — which read as a web button
+     dropped onto a painting rather than as another sign from the same shop. */
+  background: var(--surface-wall);
+  color: var(--ink);             /* ink on wall measures 11.70:1 */
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  font-family: var(--font-display);
 
-  /* The painted bakery sign in the artwork is a rounded board with an inner keyline
-     inside its outer edge. Copying that is what stops these reading as web buttons
-     dropped onto a painting: an inset ring for the keyline, and a soft drop shadow
-     so the board sits above the grass rather than printed on it. */
-  box-shadow:
-    inset 0 0 0 2px var(--surface-wall),
-    0 var(--space-1) var(--space-2) var(--shadow-cast);
-}
-
-.sign__copy {
-  font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  padding: var(--space-1) var(--space-3);
-  background: var(--surface-wall);
   box-shadow:
     inset 0 0 0 2px var(--surface-trim),
     0 var(--space-1) var(--space-2) var(--shadow-cast);
@@ -199,14 +189,13 @@
 /* R5: a gentle scale-up and a soft glow on hover AND focus, so the affordance is
    there for a keyboard too. Hover alone is invisible on a touch screen. */
 @media (prefers-reduced-motion: no-preference) {
-  .chrome, .sign__board, .sign__copy {
+  .chrome, .sign__board {
     transition: transform var(--dur-scene) var(--ease-soft),
                 box-shadow var(--dur-scene) var(--ease-soft),
                 background-color var(--dur-timeshift) var(--ease-soft),
                 color var(--dur-timeshift) var(--ease-soft);
   }
   .sign__board:hover, .sign__board:focus-visible,
-  .sign__copy:hover, .sign__copy:focus-visible,
   .chrome--resume:hover, .chrome--resume:focus-visible {
     transform: scale(1.04);
     box-shadow: 0 var(--space-1) var(--space-4) var(--accent-berry);

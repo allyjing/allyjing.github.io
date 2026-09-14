@@ -42,13 +42,18 @@ export const signs = {
     href: contact.linkedin,
     ariaLabel: 'Jingwen on LinkedIn, opens in a new tab',
   },
+  /* One button that copies, rather than a mailto link with a Copy button beside it.
+   *
+   * ⚠️ This is a deliberate departure from PRD R21, which specifies both. Asked for
+   * directly. The cost is that a recruiter can no longer click to open their mail
+   * client — they get the address on the clipboard and have to paste it. The address
+   * is still in the accessible name, so it is readable rather than hidden, which is
+   * the part R21 actually cares about. */
   email: {
     label: 'Email',
-    href: `mailto:${contact.email}`,
-    ariaLabel: `Email Jingwen at ${contact.email}`,
-    copy: 'Copy',
-    copyAriaLabel: 'Copy email address to clipboard',
-    copied: 'Copied',
+    copyText: contact.email,
+    ariaLabel: `Copy Jingwen's email address, ${contact.email}`,
+    copied: 'Copied!',
   },
 };
 

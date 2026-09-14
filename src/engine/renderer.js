@@ -39,14 +39,17 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
   // Where this landmark's subject has to sit to clear the bakery; see landmarks.js.
   el('stage').style.setProperty('--backdrop-align', `${landmark.align ?? 50}%`);
 
+  // Every copy in the strip gets the same URL: the browser fetches it once.
   function fill(slot, url) {
-    const img = slot.querySelector('.backdrop__image');
-    img.src = url;
-    img.alt = backdropAlt;
-    return img;
+    const images = slot.querySelectorAll('.backdrop__image');
+    for (const img of images) {
+      img.src = url;
+      img.alt = backdropAlt;
+    }
+    return images[1];          // the middle copy is the one that matters
   }
 
-  const showingImg = showing.querySelector('.backdrop__image');
+  const showingImg = showing.querySelectorAll('.backdrop__image')[1];
 
   if (immediate || !showingImg.getAttribute('src')) {
     fill(showing, src);
@@ -90,38 +93,38 @@ function renderSigns(signs) {
     post.style.left = `${sign.x}%`;
     post.style.top = `${sign.y}%`;
 
-    const link = document.createElement('a');
-    link.className = 'sign__board';
-    link.href = sign.href;
-    link.textContent = sign.label;
-    link.setAttribute('aria-label', sign.ariaLabel);
-    if (sign.href.startsWith('http')) {
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';   // required with target=_blank
-    }
-    post.append(link);
+    /* A sign with copyText is a button that copies; everything else is a link. */
+    const isCopy = Boolean(sign.copyText);
+    const control = document.createElement(isCopy ? 'button' : 'a');
+    control.className = 'sign__board';
+    control.textContent = sign.label;
+    control.setAttribute('aria-label', sign.ariaLabel);
 
-    /* The email sign also gets a copy button, because making a recruiter retype an
-     * address is the thing we are actually trying to avoid (R21). */
-    if (sign.copy) {
-      const copy = document.createElement('button');
-      copy.type = 'button';
-      copy.className = 'sign__copy';
-      copy.textContent = sign.copy;
-      copy.setAttribute('aria-label', sign.copyAriaLabel);
-      copy.addEventListener('click', async () => {
-        const address = sign.href.replace(/^mailto:/, '');
+    if (isCopy) {
+      control.type = 'button';
+      /* aria-live so the confirmation is announced, not just shown. A silent state
+       * change is invisible to anyone not watching the button. */
+      control.setAttribute('aria-live', 'polite');
+      control.addEventListener('click', async () => {
         try {
-          await navigator.clipboard.writeText(address);
-          copy.textContent = sign.copied;
-          setTimeout(() => { copy.textContent = sign.copy; }, 1600);
+          await navigator.clipboard.writeText(sign.copyText);
+          control.textContent = sign.copied;
         } catch {
-          // Clipboard can be blocked; the mailto link above still works.
+          /* Clipboard access can be refused. Showing the address is better than
+           * failing silently — it can still be read and typed. */
+          control.textContent = sign.copyText;
         }
+        setTimeout(() => { control.textContent = sign.label; }, 2000);
       });
-      post.append(copy);
+    } else {
+      control.href = sign.href;
+      if (sign.href.startsWith('http')) {
+        control.target = '_blank';
+        control.rel = 'noopener noreferrer';   // required with target=_blank
+      }
     }
 
+    post.append(control);
     layer.append(post);
   }
 }

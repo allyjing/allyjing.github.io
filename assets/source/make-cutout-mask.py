@@ -5,11 +5,20 @@ so the landmark backdrop shows through. This turns that into a mask, which is pa
 with the artwork as a JPEG: the mask is a few KB of almost-flat alpha, where the
 equivalent RGBA PNG of the same picture runs close to a megabyte.
 
-Flood fill from the borders rather than a global colour test, because the
-bougainvillea is pink and lands within ~30 of the key colour. Only background that is
-actually connected to the edge of the frame is ever cut, so enclosed pink stays.
+Two passes, because neither alone is right.
 
-    python3 make-cutout-mask.py <source.png> <mask.png> [tolerance]
+A border flood fill at a generous tolerance catches the background and the blended
+pixels along every edge, and its connectivity is what protects the bougainvillea —
+which is pink and lands within ~30 of the key colour.
+
+But the fill cannot reach background that is ENCLOSED by the subject: the gaps
+between the fountain's tiers and its water streams, and the slot between the
+downspout and the wall. Those were left as bright magenta patches. So a second pass
+cuts key colour anywhere, at a much tighter tolerance, and is kept independent of the
+fill so it cannot seed further spreading. Measured on this art: the pure background
+spans distance 0-7, so 10 is safe. Re-measure before reusing this.
+
+    python3 make-cutout-mask.py <source.png> <mask.png> [tolerance] [tight]
 """
 import sys
 sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
@@ -19,14 +28,17 @@ from collections import deque
 RAMP = (70, 130, 185, 225)      # alpha at 1..4 px in from the cut, so the edge is
                                 # a ramp rather than a staircase
 
-def build(src, dst, tol=38):
+def build(src, dst, tol=38, tight=10, min_pocket=120):
     w, h, n, px = read_png(src)
     kr, kg, kb = px[0], px[1], px[2]
-    t2 = tol * tol
+    t2, tight2 = tol * tol, tight * tight
+
+    def dist2(i):
+        o = i * n
+        return (px[o]-kr)**2 + (px[o+1]-kg)**2 + (px[o+2]-kb)**2
 
     def is_key(i):
-        o = i * n
-        return ((px[o]-kr)**2 + (px[o+1]-kg)**2 + (px[o+2]-kb)**2) < t2
+        return dist2(i) < t2
 
     bg = bytearray(w * h)
     q = deque()
@@ -45,6 +57,42 @@ def build(src, dst, tol=38):
                   (i-w if y else -1), (i+w if y < h-1 else -1)):
             if j >= 0 and not bg[j] and is_key(j):
                 bg[j] = 1; q.append(j)
+
+    # Second pass: the pockets of background the fill cannot reach, because they are
+    # enclosed by the subject -- between the fountain's tiers and its water streams,
+    # and in the slot behind the downspout.
+    #
+    # Colour alone cannot find these. The bougainvillea's blossoms are shaded with
+    # LITERALLY the background colour, so any tolerance that catches a pocket also
+    # punches holes through the flowers. What separates them is size: a pocket is a
+    # contiguous region of a few hundred pixels, the speckles inside a blossom are a
+    # handful each.
+    #
+    # So: mark key-coloured pixels at a tight tolerance, group them, and cut only the
+    # groups big enough to be real gaps. Kept strictly INDEPENDENT of the flood fill
+    # above -- seeding the fill from these let it spread outward at the looser
+    # tolerance and eat the blossoms wholesale.
+    seed = bytearray(w * h)
+    for i in range(w * h):
+        if not bg[i] and dist2(i) < tight2:
+            seed[i] = 1
+
+    seen = bytearray(w * h)
+    for start in range(w * h):
+        if not seed[start] or seen[start]:
+            continue
+        blob, stack, seen[start] = [], [start], 1
+        while stack:
+            i = stack.pop()
+            blob.append(i)
+            x, y = i % w, i // w
+            for j in ((i-1 if x else -1), (i+1 if x < w-1 else -1),
+                      (i-w if y else -1), (i+w if y < h-1 else -1)):
+                if j >= 0 and seed[j] and not seen[j]:
+                    seen[j] = 1; stack.append(j)
+        if len(blob) >= min_pocket:
+            for i in blob:
+                bg[i] = 1
 
     dist = bytearray(w * h)
     frontier = [i for i in range(w*h) if not bg[i] and (
@@ -73,5 +121,6 @@ def build(src, dst, tol=38):
 
 if __name__ == '__main__':
     tol = int(sys.argv[3]) if len(sys.argv) > 3 else 38
-    cut, total = build(sys.argv[1], sys.argv[2], tol)
+    tight = int(sys.argv[4]) if len(sys.argv) > 4 else 10
+    cut, total = build(sys.argv[1], sys.argv[2], tol, tight)
     print(f'{sys.argv[2]}: {cut} px transparent ({100*cut/total:.1f}%)')
