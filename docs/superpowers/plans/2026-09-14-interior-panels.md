@@ -1076,7 +1076,9 @@ The "Back outside" sign in `signs` stays exactly as it is. It is the only focusa
 
 - [ ] **Step 2: Generalise the transition check in `src/engine/main.js`**
 
-Replace `src/engine/main.js:56-72` in full — the `entered` declaration through the closing `});` of `createWalker` — with:
+Find the block in `enterScene` that starts with `let entered = false;` and ends with the closing `});` of the `createWalker(` call, and replace **all** of it with the code below.
+
+⚠️ **Do not go by line number.** Tasks 2 and 5 both edit `main.js` before this task, so the block has moved. Anchor on `let entered = false;`.
 
 ```js
   /* `left` latches so arriving at the way out does not re-fire the transition on
