@@ -125,6 +125,13 @@ copies. The mirrors are narrow slices (~42% of the image) deliberately — a ful
 copy brings the subject back into view, and a second backwards HOLLYWOOD sign appeared at
 the left edge.
 
+⚠️ **`align` belongs on the backdrop LAYER, not on the stage.** Each landmark needs its own
+— the HOLLYWOOD letters sit at 44% across their image while Laguna's sun and cliffs sit far
+right — so no single value frames them all. Held on the stage, both layers shared it, and
+changing the time moved the layer still on screen: the backdrop visibly jumped sideways
+before the cross-fade started. Per layer, the outgoing strip stays put and the incoming one
+arrives already in place, so a time change is a pure dissolve with nothing moving.
+
 ⚠️ **`horizon` and `align` constrain each other.** The strip is 1.84 image widths across,
 centred on `align`, and must reach past both edges of the frame:
 

@@ -36,11 +36,19 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
   const incoming = el(`backdrop-${frontBackdrop === 'a' ? 'b' : 'a'}`);
   const src = backdropImage(landmark);
 
-  // Where this landmark's subject has to sit to clear the bakery; see landmarks.js.
-  el('stage').style.setProperty('--backdrop-align', `${landmark.align ?? 50}%`);
 
-  // Every copy in the strip gets the same URL: the browser fetches it once.
-  function fill(slot, url) {
+
+  /* Every copy in the strip gets the same URL: the browser fetches it once.
+   *
+   * `align` is set on the SLOT, not on the stage. Each landmark needs its own — the
+   * HOLLYWOOD letters sit at 44% across their image while Laguna's sun sits at 98%,
+   * so no single position frames them all. Held on the stage, changing it moved BOTH
+   * strips, including the one still on screen, so the visible backdrop jumped
+   * sideways before the cross-fade had even started. Per slot, the outgoing strip
+   * stays exactly where it is and the incoming one arrives already in place: the
+   * change is a pure dissolve with nothing moving. */
+  function fill(slot, url, align) {
+    slot.style.setProperty('--backdrop-align', `${align}%`);
     const images = slot.querySelectorAll('.backdrop__image');
     for (const img of images) {
       img.src = url;
@@ -51,15 +59,17 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
 
   const showingImg = showing.querySelectorAll('.backdrop__image')[1];
 
+  const align = landmark.align ?? 50;
+
   if (immediate || !showingImg.getAttribute('src')) {
-    fill(showing, src);
+    fill(showing, src, align);
     showing.hidden = false;
     showing.style.opacity = '1';
     return landmark;
   }
   if (showingImg.getAttribute('src') === src) return landmark;
 
-  const incomingImg = fill(incoming, src);
+  const incomingImg = fill(incoming, src, align);
   incoming.hidden = false;
   incoming.style.opacity = '0';
 
