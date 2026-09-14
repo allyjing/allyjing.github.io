@@ -20,11 +20,11 @@
   gap: var(--space-2);
 
   min-height: var(--tap-min);    /* 44px: designed portrait-mobile-first */
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);   /* rounded square, not a pill */
 
-  background: none;              /* no pill, no box: these sit ON the scene */
+  background: var(--chrome-bg);
   color: var(--chrome-ink);
   font-family: var(--font-ui);
   font-size: var(--text-sm);
@@ -34,21 +34,12 @@
 
   font-weight: 600;
 
-  /* With no plate behind it the text has to survive whatever it happens to be over
-     -- pale sky at noon, a dark hillside at night, busy flowers at the bottom-left.
-     --chrome-ink flips with the theme and this halo carries the rest.
-
-     The same shadow is repeated rather than widened: stacking builds up opacity, so
-     the halo reads as solid backing close to the glyphs and fades out with no edge.
-     One wide soft shadow just looks blurry and does not lift the contrast. */
-  text-shadow:
-    0 0 2px var(--chrome-bg),
-    0 0 2px var(--chrome-bg),
-    0 0 4px var(--chrome-bg),
-    0 0 4px var(--chrome-bg),
-    0 0 8px var(--chrome-bg),
-    0 1px 3px var(--chrome-bg);
-  transition: color var(--dur-timeshift) var(--ease-soft);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 var(--space-1) var(--space-3) var(--shadow-cast);
+  transition:
+    background-color var(--dur-timeshift) var(--ease-soft),
+    border-color var(--dur-timeshift) var(--ease-soft),
+    color var(--dur-timeshift) var(--ease-soft);
 }
 
 /* Top-left is WHEN, bottom-left is WHERE, top-right is the way out. */
@@ -57,12 +48,10 @@
 .chrome--resume {
   top: var(--space-4);
   right: var(--space-4);
-  padding: var(--space-2) var(--space-4);
   background: var(--accent-berry);
+  border-color: var(--accent-berry);
   color: var(--on-accent);       /* never plain white: at night that measures 2.42:1 */
   font-weight: 700;
-  text-shadow: none;             /* it has its own plate, so it needs no halo */
-  box-shadow: 0 var(--space-1) var(--space-3) var(--shadow-cast);
 }
 
 .clock__time {
@@ -103,17 +92,18 @@
   pointer-events: auto;
 }
 
-/* A stake into the grass. Without it the boards float and read as interface
-   pasted over the painting rather than as objects standing in the garden.
-   --ink is the same dark the artwork outlines everything with. */
+/* A stake into the grass. Without it the boards float and read as interface pasted
+   over the painting rather than as objects standing in the garden. Tapered, because
+   a plain bar reads as a rectangle and a taper reads as something driven into the
+   ground. --ink is the same dark the artwork outlines everything with. */
 .sign::after {
   content: '';
-  width: 4px;
+  width: 7px;
   height: var(--space-6);
-  margin-top: calc(var(--space-1) * -1);
-  border-radius: var(--radius-sm);
+  margin-top: -2px;
   background: var(--ink);
-  opacity: 0.72;
+  opacity: 0.78;
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 28% 100%);
   /* Only the stake takes the scene's light. The boards deliberately do not: at
      night brightness(0.58) made "Email" almost unreadable, and these carry the
      contact details. */
@@ -131,15 +121,24 @@
   min-height: var(--tap-min);
   font-family: var(--font-display);
   font-size: var(--text-sm);
-  padding: var(--space-2) var(--space-3);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: var(--space-2) var(--space-4);
   border: 2px solid var(--ink);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--surface-trim);
-  color: var(--ink);             /* ink on trim measures 8.30:1 */
+  color: var(--ink);             /* ink on trim measures 8.30:1 day, 9.35:1 night */
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 var(--space-1) var(--space-2) var(--shadow-cast);
+
+  /* The painted bakery sign in the artwork is a rounded board with an inner keyline
+     inside its outer edge. Copying that is what stops these reading as web buttons
+     dropped onto a painting: an inset ring for the keyline, and a soft drop shadow
+     so the board sits above the grass rather than printed on it. */
+  box-shadow:
+    inset 0 0 0 2px var(--surface-wall),
+    0 var(--space-1) var(--space-2) var(--shadow-cast);
 }
 
 .sign__copy {
@@ -147,6 +146,9 @@
   font-size: var(--text-xs);
   padding: var(--space-1) var(--space-3);
   background: var(--surface-wall);
+  box-shadow:
+    inset 0 0 0 2px var(--surface-trim),
+    0 var(--space-1) var(--space-2) var(--shadow-cast);
 }
 
 /* The scene is cropped to fill, so a tall window shows only a narrow band of the
@@ -210,10 +212,9 @@
     box-shadow: 0 var(--space-1) var(--space-4) var(--accent-berry);
   }
 
-  /* The plateless readouts have no box to glow, so they brighten instead. */
   .chrome--clock:hover, .chrome--clock:focus-visible,
   .chrome--location:hover, .chrome--location:focus-visible {
     transform: scale(1.04);
-    color: var(--accent-berry);
+    border-color: var(--accent-berry);
   }
 }

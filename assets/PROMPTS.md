@@ -341,7 +341,33 @@ Extensions are `.jpg`/`.png`, not the `.webp` this document specifies — see it
    cwebp -q 82 assets/source/exterior-bakery.jpeg -o assets/scenes/exterior.webp
    ```
    Convert from `source/`, not from the `.jpg` — recompressing a JPEG compounds the loss.
-3. **No interior scene exists.** Phase 5 needs one, and there is no prompt for it above.
+3. **No interior scene exists, and this is now the main thing blocking progress.** The room
+   is currently drawn in CSS from the tokens — a wall, a rail, a wainscot, a floor, and five
+   tables — which is legible but obviously not painted. It is keyed off the scene having no
+   image, so dropping the artwork in and setting `image` on `scenes.interior` replaces it
+   with no other code change.
+
+   ### `scenes/interior.webp`
+
+   > The inside of a small cosy bakery, seen straight on. Pastel cream-white walls with a
+   > wooden picture rail, a warm wooden floor. Five small round cafe tables spread across
+   > the room in a gentle arc, each bare and waiting, with room between them to walk. A
+   > glass display counter with pastries along one side. A window at the back with soft
+   > daylight coming through. Empty floor in the foreground with room for a character to
+   > stand. Neutral midday light, soft shadows, no dramatic sunset. Wide landscape
+   > composition. [SHARED STYLE LINE]
+
+   Three things it has to have, all of which the code depends on:
+   - **Five tables, clearly separated**, spread across the width. Their positions go into
+     `scenes.interior.decor` as image coordinates, and each one carries a panel.
+   - **Neutral light.** Interiors take a subtler version of the same CSS tint, so a baked-in
+     sunset will fight it (PRD §9).
+   - **Walkable floor across the foreground**, or there is nowhere for the walkable polygon
+     to go.
+
+   Generate it from `refs/` or `source/exterior-bakery.jpeg` as a style reference, and
+   expect the same colour drift — measure the cream and the wood against the exterior and
+   correct with `source/recolour.py` rather than re-prompting.
 
 4. **Jingwen is now also cut into three pieces** — `sprites/jingwen-body.png` (59 KB) and
    `sprites/jingwen-leg-left/right.png` (11 KB each) — so her legs can swing while walking.

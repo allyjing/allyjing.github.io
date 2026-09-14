@@ -125,16 +125,34 @@ function renderDecor(items) {
   if (!items) return;
 
   for (const item of items) {
-    const post = document.createElement('div');
-    post.className = 'sign sign--decor';
-    post.style.left = `${item.x}%`;
-    post.style.top = `${item.y}%`;
+    const node = document.createElement('div');
+    node.className = item.kind === 'table' ? 'table' : 'sign sign--decor';
+    node.style.left = `${item.x}%`;
+    node.style.top = `${item.y}%`;
 
-    const board = document.createElement('div');
-    board.className = 'sign__board';
-    board.textContent = item.label;
-    post.append(board);
-    layer.append(post);
+    if (item.kind === 'table') {
+      /* A table is a top, a dessert on it, and a floating bubble with the room name.
+       * Phase 5 turns the bubble into the panel trigger; for now it is scenery, so
+       * the room reads correctly before the panels exist. */
+      const bubble = document.createElement('div');
+      bubble.className = 'table__bubble';
+      bubble.textContent = item.label;
+
+      const dessert = document.createElement('div');
+      dessert.className = 'table__dessert';
+      dessert.textContent = item.dessert;
+
+      const top = document.createElement('div');
+      top.className = 'table__top';
+
+      node.append(bubble, dessert, top);
+    } else {
+      const board = document.createElement('div');
+      board.className = 'sign__board';
+      board.textContent = item.label;
+      node.append(board);
+    }
+    layer.append(node);
   }
 }
 

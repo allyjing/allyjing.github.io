@@ -20,7 +20,14 @@ comment.
 
 ## Current state
 
-**Phases 0-3 are done. Next is Phase 4 — `resume.html`, and the first deploy.** That page
+**Phases 0-3 are done, and the interior now exists as a working placeholder. The two
+things actually blocking progress are both art**: the regenerated SoCal exterior cutout,
+and an interior painting (prompt in `assets/PROMPTS.md`). The room is currently drawn in
+CSS from the tokens — it reads correctly and you can walk around it, but it plainly is not
+painted. Dropping `scenes/interior.*` in and setting `image` on `scenes.interior` replaces
+it with no other code change.
+
+**Next code phase is Phase 4 — `resume.html`, and the first deploy.** That page
 does not exist yet, so the Resume link in the top-right currently 404s. Phase 4 is
 deliberately early (PRD §12): it makes the site useful to a recruiter before the interior
 exists, and it surfaces the three deploy-only bugs in §10.3 while there are thirty files to

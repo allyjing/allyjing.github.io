@@ -76,8 +76,18 @@ export const chrome = {
   cycleHint: 'Change the time of day and the view',
 };
 
-/* Signs that are part of the scenery rather than links. This one points at the door;
- * it becomes the way into the interior in Phase 5. */
-export const decor = {
-  enter: { label: 'Please enter' },
+/* The bakery door, and the way back out (R9). */
+export const doors = {
+  enter: { label: 'Please enter', href: '#/interior', ariaLabel: 'Go inside the bakery' },
+  exit: { label: 'Back outside', href: '#/exterior', ariaLabel: 'Go back outside' },
 };
+
+/* The five tables (PRD D2). Each will open an overlay panel in Phase 5; for now they
+ * are scenery with labels, so the room reads correctly before the panels exist. */
+export const tables = [
+  { id: 'experience', label: 'Experience', dessert: 'Croissant' },
+  { id: 'projects', label: 'Projects', dessert: 'Souffle' },
+  { id: 'photography', label: 'Photography', dessert: 'Macarons' },
+  { id: 'life', label: 'Life', dessert: 'Bolo bao' },
+  { id: 'arts', label: 'Arts', dessert: 'Layer cake' },
+];

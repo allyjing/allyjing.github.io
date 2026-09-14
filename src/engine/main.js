@@ -9,7 +9,7 @@
 import { site } from '../data/content.js';
 import { getScene } from '../data/scenes.js';
 import { timeStateNow, nextTimeState } from '../data/theme.js';
-import { startRouter } from './router.js';
+import { startRouter, navigate } from './router.js';
 import {
   applyTimeState, renderScene, renderBackdrop, watchResize,
   actorElement, placeActor, setActorPose,
@@ -50,12 +50,24 @@ function enterScene(sceneId) {
   if (!player) return;
 
   const sprite = actorElement(player.id);
+
+  /* Walking onto the doorstep goes inside (R9). `entered` latches so arriving does
+   * not fire the transition on every frame while she stands there. */
+  let entered = false;
+
   const walker = createWalker({
     start: { x: player.x, y: player.y },
     polygon: scene.walkable,
     onMove: (position, facing, moving, heading) => {
       setActorPose(sprite, player, heading);
       placeActor(sprite, position, facing, moving);
+
+      const door = scene.door;
+      if (!door || entered) return;
+      if (Math.hypot(position.x - door.x, position.y - door.y) <= door.radius) {
+        entered = true;
+        navigate(door.to);
+      }
     },
   });
 
