@@ -36,7 +36,13 @@ RADIUS = 6
 # The defects are in two known places in one painting, so the honest fix is to say
 # where. Re-derive this box if the exterior is ever regenerated — or drop the script
 # entirely, since a cleaner generation would not need it.
-REGION = (0.56, 0.84, 0.36, 0.78)   # the fountain and the downspout, no planting
+REGIONS = [
+    (0.56, 0.84, 0.36, 0.78),   # the fountain and the right-hand downspout
+    (0.11, 0.21, 0.19, 0.35),   # the gutter elbow at the left roof corner
+]
+
+# Both boxes sit clear of the bougainvillea, which is what makes them safe: the
+# planting starts below y=0.40, so nothing here can reach a blossom.
 
 def despill(src, maskpath, dst):
     w, h, n, px = read_png(src)
@@ -58,8 +64,10 @@ def despill(src, maskpath, dst):
         o, s = i*4, i*n
         out[o], out[o+1], out[o+2], out[o+3] = px[s], px[s+1], px[s+2], 255
 
-    rx0, rx1 = int(REGION[0]*w), int(REGION[1]*w)
-    ry0, ry1 = int(REGION[2]*h), int(REGION[3]*h)
+    boxes = [(int(a*w), int(b*w), int(c*h), int(d*h)) for a, b, c, d in REGIONS]
+
+    def inside(x, y):
+        return any(x0 <= x < x1 and y0 <= y < y1 for x0, x1, y0, y1 in boxes)
 
     seen = bytearray(w * h)
     fixed = 0
@@ -67,7 +75,7 @@ def despill(src, maskpath, dst):
         if not near[start] or seen[start]:
             continue
         sx, sy = start % w, start // w
-        if not (rx0 <= sx < rx1 and ry0 <= sy < ry1):
+        if not inside(sx, sy):
             continue
         blob, stack, seen[start] = [], [start], 1
         while stack:

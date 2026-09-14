@@ -6,8 +6,12 @@
  * Alt text counts as copy and belongs here too — every image needs a meaningful one.
  */
 
+/* The name comes from the painted sign above the door. The PRD and this repo still
+ * call the project "Jingwen Bakery"; the shop in the artwork is Peachy Sweets, and
+ * the shop wins — a visitor reads the sign, not the spec. */
 export const site = {
-  title: 'Jingwen Bakery',
+  name: 'Jingwen Huang',
+  title: 'Peachy Sweets Bakery',
   tagline: 'A small bakery, and everything I have been working on.',
 };
 
