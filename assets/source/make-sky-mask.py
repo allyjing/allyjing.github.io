@@ -4,86 +4,99 @@ The painting is opaque edge to edge, so without this the landmark backdrop behin
 is never visible. Regenerating the exterior as a real transparent cutout replaces
 this entirely -- see assets/PROMPTS.md.
 
-Two constraints make this fiddly, and both were learned by getting it wrong:
+WHAT MAKES THIS FIDDLY, learned by getting it wrong three times:
 
-  * The bakery wall (56 from sky), the fountain water (45) and the fountain stone
-    (57) are all CLOSE to the sky colour. A generous tolerance removes them, which
-    is how the fountain ended up showing the sunset through it. Tolerance 40 keeps
-    every one of them and still covers the sky's own variation (~25).
+  * A plain RGB distance from the sky colour does not work. The bakery wall sits 56
+    away, the fountain water 45, the fountain stone 57 -- all closer than the clouds.
+    Cutting by distance alone removed the fountain.
 
-  * Sky trapped between the trees is not reachable by a flood fill from the border,
-    so a fill alone leaves blue pockets that do not change with the backdrop. Above
-    the horizon the tight tolerance makes an unconditional colour test safe, so the
-    pockets go too.
+  * Testing colour GLOBALLY, without connectivity, removes the dormer window glass:
+    it is genuinely sky-coloured, it is just not the sky.
 
-Nothing below the horizon is ever removed. That is what protects the fountain.
+  * Cutting the sky but not the clouds leaves their outlines floating as empty
+    strokes, because the outline is darker than the cloud body.
+
+So: the test is COOL AND LIGHT rather than near-some-colour, and it is applied by
+flood fill from the top edge. Cool-and-light matches the sky, the clouds and the pale
+cloud outlines, and excludes everything warm -- the cream wall, the fountain, the
+stonework, the path. Connectivity then protects anything cool that is not the sky:
+the slate roof and the window glass are both fenced off by the artwork's dark
+outlines, which the fill cannot cross.
+
+Nothing below the horizon is ever cut, which protects the fountain structurally.
 """
 import sys
 sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
 from png import read_png, write_rgba
 from collections import deque
 
-SKY = (195, 223, 233)
-TOL = 40
-HORIZON = 0.52          # fraction of height; the fountain starts just below this
+LIGHT = 150     # a sky pixel is light; the dark outlines that fence things off are not
+COOL = 8        # blue above red. The sky is cool, the bakery and its stone are warm.
+HORIZON = 0.56  # fraction of height; the fountain's bowl starts below this
 
 def build(src, dst):
     w, h, n, px = read_png(src)
     limit = int(h * HORIZON)
-    t2 = TOL * TOL
     bg = bytearray(w * h)
 
-    def near_sky(i):
+    def skyish(i):
         o = i * n
-        return ((px[o]-SKY[0])**2 + (px[o+1]-SKY[1])**2 + (px[o+2]-SKY[2])**2) < t2
+        r, g, b = px[o], px[o + 1], px[o + 2]
+        return min(r, g, b) > LIGHT and b > r + COOL
 
-    # Pass A -- sky by colour, anywhere above the horizon, pockets included.
+    # Flood fill inward from the top edge. Only sky reachable from above is cut.
     q = deque()
-    for y in range(limit):
-        for x in range(w):
-            i = y*w + x
-            if near_sky(i):
-                bg[i] = 1
-                q.append(i)
-
-    # Pass B -- grow into the clouds. Cloud cores are too bright for the sky
-    # tolerance, but they touch the sky, so reach them by connectivity instead.
-    #
-    # The test has to be tight. A first attempt at "light and near-neutral" also
-    # matched the bakery's cream wall (246,244,222) and dissolved it -- the dark
-    # outlines did NOT stop it, because the white gable trim touches the sky. Clouds
-    # are almost perfectly neutral (spread ~5) while the cream wall is visibly warm
-    # (spread 24), so the channel spread is the discriminator, not brightness.
-    def cloudish(i):
-        o = i * n
-        r, g, b = px[o], px[o+1], px[o+2]
-        return min(r, g, b) > 200 and (max(r, g, b) - min(r, g, b)) < 15
-
+    for x in range(w):
+        if skyish(x):
+            bg[x] = 1
+            q.append(x)
     while q:
         i = q.popleft()
         x, y = i % w, i // w
-        for j in ((i-1 if x else -1), (i+1 if x < w-1 else -1),
-                  (i-w if y else -1), (i+w if y < limit-1 else -1)):
-            if j >= 0 and not bg[j] and cloudish(j):
+        for j in ((i - 1 if x else -1), (i + 1 if x < w - 1 else -1),
+                  (i - w if y else -1), (i + w if y < limit - 1 else -1)):
+            if j >= 0 and not bg[j] and skyish(j):
                 bg[j] = 1
                 q.append(j)
 
-    # One feathered pixel so the cut is not a hard staircase.
-    edge = bytearray(w*h)
-    for y in range(1, h-1):
-        for x in range(1, w-1):
-            i = y*w + x
-            if not bg[i] and (bg[i-1] or bg[i+1] or bg[i-w] or bg[i+w]):
+
+    # Remove leftover islands: cloud outlines and highlights now surrounded by cut
+    # sky. Anything above the horizon that is not connected DOWNWARD to the rest of
+    # the painting is sky furniture and should go with it.
+    keep = bytearray(w * h)
+    q = deque()
+    for x in range(w):                       # seed from the horizon line itself
+        i = limit * w + x
+        if not bg[i]:
+            keep[i] = 1
+            q.append(i)
+    while q:
+        i = q.popleft()
+        x, y = i % w, i // w
+        for j in ((i - 1 if x else -1), (i + 1 if x < w - 1 else -1),
+                  (i - w if y else -1), (i + w if y < h - 1 else -1)):
+            if j >= 0 and not bg[j] and not keep[j]:
+                keep[j] = 1
+                q.append(j)
+    for i in range(limit * w):
+        if not bg[i] and not keep[i]:
+            bg[i] = 1
+
+    edge = bytearray(w * h)
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            i = y * w + x
+            if not bg[i] and (bg[i - 1] or bg[i + 1] or bg[i - w] or bg[i + w]):
                 edge[i] = 1
 
-    out = bytearray(w*h*4)
-    for i in range(w*h):
-        o = i*4
-        out[o] = out[o+1] = out[o+2] = 255      # only alpha carries the mask
-        out[o+3] = 0 if bg[i] else (150 if edge[i] else 255)
+    out = bytearray(w * h * 4)
+    for i in range(w * h):
+        o = i * 4
+        out[o] = out[o + 1] = out[o + 2] = 255     # only alpha carries the mask
+        out[o + 3] = 0 if bg[i] else (150 if edge[i] else 255)
     write_rgba(dst, w, h, out)
-    return sum(bg), w*h
+    return sum(bg), w * h
 
 if __name__ == '__main__':
     cut, total = build(sys.argv[1], sys.argv[2])
-    print(f'{sys.argv[2]}: {cut} px transparent ({100*cut/total:.1f}%)')
+    print(f'{sys.argv[2]}: {cut} px transparent ({100 * cut / total:.1f}%)')

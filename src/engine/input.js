@@ -16,6 +16,12 @@ export function bindInput({ stage, walker, aspect }) {
   // on the bakery roof walks to the nearest ground instead of doing nothing.
   function onPointerDown(event) {
     if (event.button !== undefined && event.button !== 0) return;   // left click only
+
+    /* Clicks that land on something interactive are for that control, not for the
+     * ground. Without this she walks toward the clock every time you change the time
+     * of day, because the event bubbles up to the stage. */
+    if (event.target.closest('a, button, .chrome, .sign, .table')) return;
+
     walker.moveTo(toImageCoords(event.clientX, event.clientY, stage, aspect));
   }
 
