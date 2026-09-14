@@ -94,10 +94,46 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   furniture any more; the only things placed are the bubbles above each table, positioned
   from the artwork.
 
-The keying used a border flood fill rather than a global colour test because **the
-bougainvillea is pink and sits within ~30 of the key colour**. Connectivity is what keeps
-it. The background itself is remarkably flat — (192, 93, 142) with a variance of about 2 —
-so a tolerance of 38 is safe.
+Keying takes two passes, and both are load-bearing:
+
+1. **A border flood fill** at tolerance 38. Connectivity is what protects the
+   bougainvillea, which is pink and sits within ~30 of the key colour. The background
+   itself is remarkably flat — (192, 93, 142), variance about 2.
+2. **A pocket pass** for background the fill cannot reach because the subject encloses it:
+   between the fountain's tiers and its water streams, and the slot behind the downspout.
+   Those showed as magenta patches.
+
+Colour cannot separate the second case — **the blossoms are shaded with literally the
+background colour**, so any tolerance that catches a pocket punches holes through the
+flowers. Size separates them: a pocket is a few hundred contiguous pixels, a blossom
+speckle is a handful. So the pocket pass marks key colour at a tight tolerance, groups it,
+and cuts only groups above ~120px.
+
+⚠️ The pocket pass must stay **independent of the flood fill**. Seeding the fill from it let
+the fill spread outward at the looser tolerance and eat the blossoms wholesale.
+
+### Placing the backdrop
+
+The backdrop is drawn **smaller than the scene** — its height is `scene.horizon`, its bottom
+below the painting's ground line so none of it is exposed. Small is what makes the landmark
+read as miles away rather than as a hill in the next field.
+
+Because it is small it does not span the width. Fading its edges was tried and read as a
+cut-off, so instead the strip carries a **mirrored slice of the same image on each side**:
+seamless at the join by construction, carried off both edges, one download for all three
+copies. The mirrors are narrow slices (~42% of the image) deliberately — a full mirrored
+copy brings the subject back into view, and a second backwards HOLLYWOOD sign appeared at
+the left edge.
+
+⚠️ **`horizon` and `align` constrain each other.** The strip is 1.84 image widths across,
+centred on `align`, and must reach past both edges of the frame:
+
+    align − 0.92 × horizon ≤ 0
+
+Smaller `horizon` looks further away but stops covering the frame. 78 with `align` ~70 is
+about the smallest that still covers while keeping the landmark clear of the bakery roof.
+Solve this rather than guessing if either value changes — guessing produces either a gap at
+one edge or a landmark buried behind the building.
 
 The old English-cottage painting is kept as `source/exterior-cottage-original.jpeg`: every
 sprite was generated against it, so it stays the style reference even though it is no
