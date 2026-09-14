@@ -381,7 +381,15 @@ backdrop — an already-night Griffith image with a night tint on top renders bl
 
 ## Deploying — GitHub Pages
 
-Repo is `allyjing.github.io`, a user site served at the domain root. Three rules whose
+Repo is `allyjing.github.io`, a user site served at the domain root.
+
+⚠️ **A user-site repo name must match the GitHub USERNAME exactly**, or it is a project
+site. The account was originally `JingleWhen`, which would have made `allyjing.github.io` a
+project served at `jinglewhen.github.io/allyjing.github.io/` — the base-path problem below,
+arriving through the repo name rather than through a path. The account was renamed to
+`allyjing`, which also matches the LinkedIn handle the site already links to.
+
+Three rules whose
 violations are **invisible locally and only break after deploying**:
 
 - **No leading slash in any path.** Write `src/styles/tokens.css`, never
