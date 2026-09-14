@@ -261,9 +261,10 @@ of carrying it during pure logic work. Left out for now.)
 - LinkedIn: `https://www.linkedin.com/in/allyjing/`
 - Email: `huang.jingwen@northeastern.edu`
 
-⚠️ The brief originally supplied `northeatern.edu`, which is a typo. The corrected spelling
-above is used everywhere. **Jingwen must confirm this address works before launch.** If she
-says the original was correct, update this file and ask before changing it back.
+The brief originally supplied `northeatern.edu`, which is a typo. The corrected spelling
+above is used everywhere, and **Jingwen confirmed on 2026-09-13 that the address on the
+live site is correct.** That question is closed — do not reopen it or change the address
+back.
 
 ## Current scope
 
