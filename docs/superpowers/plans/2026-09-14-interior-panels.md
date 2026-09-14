@@ -53,9 +53,16 @@ Completed before the other tasks, because every coordinate below depends on it.
 
 **Do not re-derive these numbers.** They are measured, not guessed.
 
-⚠️ The new artwork paints a ginger cat asleep at the bottom right. Junnie is an actor
-in the *exterior* only, so there is no conflict today — but do not also place Junnie
-as an actor indoors, or there will be two cats.
+⚠️ The new artwork paints a ginger cat asleep at the bottom right.
+
+Jingwen's intent (2026-09-14) is that **Junnie eventually appears in BOTH rooms, as
+though he is following her**. That is wanted, not a bug — but it collides with the
+painted cat, because both would be on screen at once. Resolve that when the feature
+is built: either paint him out of the artwork, or treat the painted cat as his
+napping spot and only show the sprite when he is actually following.
+
+**Not in scope for this plan.** The exterior Junnie stays exactly as he is — Jingwen
+has her own plan for what he should do, and it is hers to specify.
 
 ⚠️ `bakery interior reference.png` at the repo root is watermarked stock and is
 gitignored. Never commit it and never use it as an img2img source.
