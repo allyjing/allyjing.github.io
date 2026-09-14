@@ -27,10 +27,12 @@ CSS from the tokens — it reads correctly and you can walk around it, but it pl
 painted. Dropping `scenes/interior.*` in and setting `image` on `scenes.interior` replaces
 it with no other code change.
 
-**Phase 4 is underway.** `resume.html` exists as structure with the real contact details
-and marked gaps; it needs Jingwen's actual education, experience, projects and skills before
-it can deploy. **Do not invent any of it.** The gaps are `.todo` blocks, styled to be
-impossible to publish by accident.
+**Phase 4: `resume.html` is complete and the deploy is the remaining step.**
+
+⚠️ **The source resume contains a phone number and this page deliberately omits it.** PRD
+§10.3 says never to commit a phone number to this repo, which is public. Email and LinkedIn
+are enough to reach her. `Resume.zip` is gitignored for the same reason — do not commit it,
+and do not add the number back.
 
 ⚠️ `resume.html` holds its copy INLINE, not in `content.js`. R31 puts all copy in data, but
 R24 says this page loads with no JavaScript, and it cannot do both. R24 wins: this is the

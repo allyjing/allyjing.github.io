@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jingwen Huang — Resume</title>
-<meta name="description" content="Jingwen Huang: mechanical engineering student at Northeastern University. Resume, projects and contact details.">
+<meta name="description" content="Jingwen Huang: mechanical engineering student at Northeastern University. Projects in thermoelectric cooling, CNC fabrication and embedded control.">
 
 <!-- No leading slashes: they resolve to the domain root and 404 on a project site. -->
 <link rel="stylesheet" href="src/styles/tokens.css">
@@ -13,18 +13,23 @@
 
 <!-- data-time is fixed rather than derived. This page has no JavaScript by design
      (PRD R24): it is the fast path for a recruiter, and it has to work if every
-     script fails. The time-of-day system does not apply here. -->
+     script fails. The time-of-day system does not apply here.
+
+     ⚠️ The phone number from the source resume is deliberately NOT here. This repo is
+     public (PRD §10.3). Email and LinkedIn are enough to reach her. -->
 <body data-time="noon">
 
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="sheet__head">
   <h1>Jingwen Huang</h1>
-  <p class="subtitle">Mechanical engineering student, Northeastern University</p>
+  <p class="subtitle">Candidate for BS in Mechanical Engineering, Northeastern University</p>
 
   <ul class="contact">
+    <li>Los Angeles, CA</li>
     <li><a href="mailto:huang.jingwen@northeastern.edu">huang.jingwen@northeastern.edu</a></li>
     <li><a href="https://www.linkedin.com/in/allyjing/" rel="noopener noreferrer">linkedin.com/in/allyjing</a></li>
+    <li><a href="https://jingwen.lovable.app/" rel="noopener noreferrer">jingwen.lovable.app</a></li>
     <li><a href="index.html">Visit the bakery &rarr;</a></li>
   </ul>
 </header>
@@ -35,18 +40,67 @@
     <h2>Education</h2>
     <article class="entry">
       <h3>Northeastern University</h3>
-      <p class="entry__meta"><!-- TODO: degree, expected graduation, GPA if you want it --></p>
-      <p class="todo">Degree, dates and any coursework worth listing go here.</p>
+      <p class="entry__meta">
+        Candidate for Bachelor of Science in Mechanical Engineering
+        &middot; Boston, MA &middot; Expected Dec. 2028
+      </p>
+      <ul>
+        <li>Cumulative GPA: 3.833</li>
+        <li>Dean&rsquo;s List — Fall 2025</li>
+        <li>Relevant coursework: Cornerstone of Engineering I–II, Linear Algebra &amp;
+          Differential Equations, Physics I–II, Calculus I–III, Statics, Dynamics,
+          Mechanics of Materials, Thermodynamics</li>
+      </ul>
     </article>
   </section>
 
   <section>
+    <h2>Technical Skills</h2>
+    <dl class="skills">
+      <dt>Applications</dt>
+      <dd>Fusion, REVIT, MAYA, AutoCAD, Lumion, SolidWorks, Adobe Photoshop,
+        Adobe Illustrator, Microsoft Word, Microsoft Excel</dd>
+
+      <dt>Hardware &amp; prototyping</dt>
+      <dd>Arduino, ESP32, Raspberry Pi, 3D printing, laser cutting, CNC routing</dd>
+
+      <dt>Programming</dt>
+      <dd>Python, Java, MATLAB</dd>
+
+      <dt>Languages</dt>
+      <dd>English, Mandarin, Cantonese, Hakka</dd>
+
+      <dt>Soft skills</dt>
+      <dd>Leadership, collaboration, public speaking</dd>
+    </dl>
+  </section>
+
+  <section>
     <h2>Experience</h2>
+
     <article class="entry">
-      <h3><!-- TODO: role --></h3>
-      <p class="entry__meta"><!-- TODO: employer, location, dates --></p>
+      <h3>Student Helper — Red Vest</h3>
+      <p class="entry__meta">
+        Northeastern College of Engineering, Makerspace
+        &middot; Boston, MA &middot; Jun. 2026 – Present
+      </p>
       <ul>
-        <li class="todo">One bullet per thing you actually did, with the outcome where there is one.</li>
+        <li>Mentored first-year engineering students on course projects and guided
+          Makerspace users on fabrication equipment, including 3D printers, hand tools,
+          and prototyping materials.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <h3>Ambassador — Northeastern Oakland</h3>
+      <p class="entry__meta">
+        Northeastern College of Science
+        &middot; Oakland, CA &middot; Jan. 2026 – Apr. 2026
+      </p>
+      <ul>
+        <li>Proctored missed assessments and evaluated student benefit programs,
+          including tutoring services, to strengthen academic support across the
+          College of Science.</li>
       </ul>
     </article>
   </section>
@@ -55,34 +109,102 @@
     <h2>Projects</h2>
 
     <article class="entry">
-      <h3>Peachy Sweets Bakery</h3>
-      <p class="entry__meta">Personal site &middot; HTML, CSS, JavaScript &middot; 2026</p>
+      <h3>Thermoelectric Mini Fridge</h3>
+      <p class="entry__meta">
+        Arduino, Fusion, Peltier TEC module, 3D printing
+        &middot; Aug. 2026 – Present
+      </p>
       <ul>
-        <li>An interactive portfolio built as a small browser game: a walkable
-          exterior, a time-of-day system tied to four Los Angeles landmarks, and an
-          interior hub. No framework, no build step.</li>
-        <li>Rendered with DOM elements and CSS transforms rather than canvas, so links,
-          focus order and screen readers keep working.</li>
+        <li>Engineered a thermoelectric cooling system around a TEC1-12706 Peltier
+          module (127 couples, 12&nbsp;V / 5.8&nbsp;A, &Delta;T<sub>max</sub> &gt;
+          60&nbsp;°C), pairing an oversized CPU-tower hot-side heat sink with a compact
+          cold-side sink to manage the module&rsquo;s primary thermal bottleneck.</li>
+        <li>CAD-designed and fabricated an insulated plywood/acrylic enclosure with XPS
+          foam insulation, sealing the TEC mounting plate with a foam gasket to
+          eliminate thermal bridging and air leaks between the hot and cold sides.</li>
+        <li>Built a closed-loop temperature controller using an Arduino, IRLZ44N MOSFET,
+          and dual DS18B20 sensors, and integrated an INA219 current/voltage sensor to
+          log real-time power draw and validate cooling performance to steady state.</li>
       </ul>
     </article>
 
     <article class="entry">
-      <h3><!-- TODO: another project --></h3>
-      <p class="entry__meta"><!-- TODO: context, tools, date --></p>
+      <h3>Tennis Ball Flywheel Shooter</h3>
+      <p class="entry__meta">
+        Onshape, Autodesk Fusion, CNC router, 3D printing
+        &middot; Feb. 2026 – Present
+      </p>
       <ul>
-        <li class="todo">Mechanical projects belong here too — this does not have to be software.</li>
+        <li>Designed and fabricated a motorized flywheel launcher in Onshape/Fusion,
+          iterating on flywheel geometry and housing tolerances, then manufactured
+          components with a CNC router and 3D printer.</li>
+        <li>Programmed a Raspberry Pi 5 and ESP32 in Python to control motor speed,
+          firing mechanisms, and wireless communication between components.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <h3>CADodile</h3>
+      <p class="entry__meta">
+        Autodesk Fusion, laser cutting, 3D printing
+        &middot; Jan. 2026 – May 2026
+      </p>
+      <ul>
+        <li>Led CAD modeling for a laser-cut, hand-painted plywood dispenser enclosure
+          and four color-coded game boards using SolidWorks, producing assembly and
+          exploded-view documentation for a 5-person engineering team.</li>
+        <li>Co-developed a multiplayer STEM trivia game for 5th-grade students at
+          Melrose Leadership Academy, integrating a Raspberry Pi Zero 2 WH, servo-driven
+          dispenser, 16×2 LCD, and WS2812B LED strip with a custom Kivy-based Python
+          GUI.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <h3>Peachy Sweets Bakery</h3>
+      <p class="entry__meta">
+        HTML, CSS, JavaScript &middot; 2026
+      </p>
+      <ul>
+        <li>Built this site as a small browser game: a walkable exterior, a time-of-day
+          system tied to four Los Angeles landmarks, and an interior hub. No framework
+          and no build step.</li>
+        <li>Rendered with DOM elements and CSS transforms rather than canvas, so links,
+          focus order and screen readers keep working.</li>
       </ul>
     </article>
   </section>
 
   <section>
-    <h2>Skills</h2>
-    <dl class="skills">
-      <dt>Engineering</dt>
-      <dd class="todo">CAD, analysis, manufacturing, whatever you actually use.</dd>
-      <dt>Software</dt>
-      <dd class="todo">Languages and tools.</dd>
-    </dl>
+    <h2>Leadership</h2>
+
+    <article class="entry">
+      <h3>STEM Mentor — Science Club for Girls</h3>
+      <p class="entry__meta">
+        Amigos School &middot; Cambridge, MA &middot; Sep. 2026 – Present
+      </p>
+      <ul>
+        <li>Leads weekly hands-on STEM explorations for K–8 girls in a free after-school
+          club, guiding activities spanning engineering, physics, chemistry, and
+          environmental science across an 8-week semester.</li>
+        <li>Serves as a near-peer role model alongside Junior Mentors and staff, building
+          STEM confidence and literacy for students from communities underrepresented in
+          science.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <h3>President — Makers Club</h3>
+      <p class="entry__meta">
+        Northeastern University &middot; Sep. 2025 – Apr. 2026
+      </p>
+      <ul>
+        <li>Managed a club of 40+ members, facilitating project ideation sessions and
+          guiding teams from concept development through final fabrication.</li>
+        <li>Mentored members on safe operation of 3D printers, laser cutters, and CNC
+          machines, providing access to materials and workshop space.</li>
+      </ul>
+    </article>
   </section>
 
 </main>
