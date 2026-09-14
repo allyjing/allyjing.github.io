@@ -65,6 +65,25 @@ export const scenes = {
     aspect: 1408 / 768,
     hasBackdrop: true,             // the landmark layer only appears outdoors
 
+    /* How tall a band the backdrop is fitted into, as a percentage down the artwork.
+     *
+     * This single number controls two things at once, which is worth understanding
+     * before changing it. The backdrop is fitted with `contain`, so the band's height
+     * IS the image's height — a taller band means a bigger, closer-looking landmark.
+     * And the band's bottom is where the backdrop's own foreground sits, which needs
+     * to be below the painted treeline (~50%) so its edge is hidden.
+     *
+     * Push it too high and the landmark looms like a hill in the next field. Too low
+     * and the subject shrinks to nothing. 66 is the compromise: the Hollywood Sign
+     * sits at about 72% down its own image, so it lands at ~47% here, just above the
+     * treeline and still in view.
+     *
+     * 55 rather than 66: at 66 the fitted image is wide enough that the landmark
+     * cannot be shifted clear of the bakery — the geometry runs out before the
+     * subject escapes the roofline. Smaller reads as further away anyway, which is
+     * the point. */
+    horizon: 55,
+
     /* Walkable ground (R4). Traced against the artwork rather than approximated,
      * because a rectangle puts her ankle-deep in the roses. It excludes the
      * bottom-left rose bed, the raised bed across the bakery front, the fountain,

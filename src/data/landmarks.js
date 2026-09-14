@@ -8,11 +8,22 @@
  * Negative longitude is west.
  */
 
+/* `align` is where the backdrop sits horizontally, as an object-position percentage.
+ *
+ * It exists because the bakery stands in the middle of the frame and every one of
+ * these images has its subject near the middle too — so centred, the landmark ends up
+ * directly behind the building and is never seen. Measured: the HOLLYWOOD letters sit
+ * 61-68% down their image, Laguna's sun and cliffs 52-80%, the observatory 46-76%.
+ * All of them land behind the bakery roof if the backdrop is centred.
+ *
+ * Pushing them right puts the subject in the open sky beside the building, which is
+ * the only clear window in this composition. The regenerated exterior may change
+ * that, so re-check these against it. */
 export const landmarks = [
-  { id: 'hollywood-sign', name: 'Hollywood Sign',       lat: 34.1341, lon: -118.3216, time: 'morning' },
-  { id: 'smpier',         name: 'Santa Monica Pier',    lat: 34.0086, lon: -118.4986, time: 'noon'    },
-  { id: 'laguna',         name: 'Laguna Beach',         lat: 33.5314, lon: -117.7692, time: 'sunset'  },
-  { id: 'griffith',       name: 'Griffith Observatory', lat: 34.1183, lon: -118.3003, time: 'night'   },
+  { id: 'hollywood-sign', name: 'Hollywood Sign',       lat: 34.1341, lon: -118.3216, time: 'morning', align: 97 },
+  { id: 'smpier',         name: 'Santa Monica Pier',    lat: 34.0086, lon: -118.4986, time: 'noon',    align: 88 },
+  { id: 'laguna',         name: 'Laguna Beach',         lat: 33.5314, lon: -117.7692, time: 'sunset',  align: 84 },
+  { id: 'griffith',       name: 'Griffith Observatory', lat: 34.1183, lon: -118.3003, time: 'night',   align: 90 },
 ];
 
 /* Filenames follow `<id>-<time>` — the convention set in assets/PROMPTS.md. Because

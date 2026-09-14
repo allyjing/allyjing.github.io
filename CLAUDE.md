@@ -109,9 +109,25 @@ See `assets/PROMPTS.md` for folder roles and outstanding asset work.
   dark outlines. A final pass removes leftover islands above the horizon. Nothing below the
   horizon is ever cut, which is what protects the fountain structurally rather than by luck.
 
-  Still a stopgap with a real limitation: the painted treeline and hills stay in front, so
-  only the upper part of each backdrop shows. Griffith reads well because the observatory
-  sits high in its frame; the Hollywood Sign is mostly hidden behind the hills.
+  **The backdrop is placed as a distant vista, not stretched across the stage.** It is
+  fitted with `contain` into a band whose height is `scene.horizon`, so the whole image
+  lands at roughly half width and the landmark reads as miles away. Three things make that
+  work, and all three are load-bearing:
+
+  - **`horizon` sets the size as well as the band**, because `contain` fits to the band's
+    height. Bigger looks closer, and past about 66 the image gets too wide to shift clear
+    of the bakery at all.
+  - **`align` per landmark** shifts each image sideways. Every one of these images has its
+    subject near the middle, and so does the bakery — centred, the landmark sits behind the
+    building and is never seen. Measured subject positions: HOLLYWOOD letters 61-68% down
+    their image, Laguna's sun and cliffs 52-80%, the observatory 46-76%.
+  - **A blurred copy of the same image fills the band behind it**, because the fitted image
+    does not span the width and the CSS sky gradient does not match the painted sky. Filling
+    with the image itself matches by construction for every landmark, with no extra
+    download. The edges fade left, right and bottom so nothing ends on a visible rectangle.
+
+  Re-check `horizon` and `align` against the regenerated exterior — they are tuned to where
+  this particular bakery stands.
 
   The mask exists rather than a transparent PNG because the RGBA version of the same image
   was **996 KB against a 250 KB budget**. JPEG plus a 13 KB alpha mask is 388 KB. Worth

@@ -41,12 +41,82 @@
 /* --- backdrop --------------------------------------------------------------
    The distant landmark. Each image has its own time of day BAKED IN, which is why
    the tint below must never reach it: a night tint over an already-night Griffith
-   renders black. */
+   renders black.
+
+   Sized to the ARTWORK box like the props and actors, and then only to the band of
+   sky above the painted treeline (--horizon). Drawing it across the whole stage
+   wastes everything below that line — the painting is opaque there — and pushes each
+   landmark's subject down behind the hills, which is why the Hollywood Sign and the
+   Laguna cliffs were invisible. Confining it to the band brings them up into view.
+
+   `contain` rather than `cover`, which is what makes it read as DISTANT. Cover fills
+   the band's width and the landmark looms over the bakery like a mountain in the next
+   field; contain fits the whole image into the band, so it lands at roughly 58% width
+   and the subject sits small and low, the way something miles away actually looks. It
+   also means nothing is cropped, so the Hollywood Sign and the Laguna cliffs are
+   whole rather than sliced.
+
+   Anchored to the band's bottom so the backdrop's own foreground tucks behind the
+   painted treeline, and faded at the left and right edges so it dissolves into the
+   sky gradient instead of ending on a visible rectangle. */
 .layer--backdrop {
   z-index: var(--z-backdrop);
+  inset: auto;
+  left: var(--scene-x, 0px);
+  top: var(--scene-y, 0px);
+  width: var(--scene-w, 100%);
+  height: calc(var(--scene-h, 100%) * var(--horizon, 100%) / 100%);
   opacity: 1;
+  overflow: hidden;
+
+  /* Fade out the bottom edge. The band's lower edge is meant to hide behind the
+     painted treeline, but that line is uneven — where the hills dip, the edge shows
+     as a straight horizontal seam. Fading the last stretch means there is no edge to
+     catch, whatever the treeline does. Applied to the container so the blurred fill
+     and the sharp image fade together. */
+  --backdrop-floor: linear-gradient(to bottom, black 62%, transparent 100%);
+  mask-image: var(--backdrop-floor);
+  -webkit-mask-image: var(--backdrop-floor);
+
   /* 600ms cross-fade on a time change. It must never hard-cut (R30). */
   transition: opacity var(--dur-timeshift) var(--ease-soft);
+}
+
+/* The same image again, blurred and scaled to fill the whole band. Fitting the sharp
+   copy small leaves empty band either side of it, and the CSS sky gradient behind
+   does not match the painted sky in the image — the result was a rectangular window
+   floating in a differently-coloured sky. Filling with a blurred copy of the image
+   itself matches by construction, for every landmark, with no extra download and
+   nothing to keep in sync. Heavy blur reads as haze, which is what distance does. */
+.layer--backdrop::before {
+  content: '';
+  position: absolute;
+  inset: -8%;                       /* overscan, so the blur has no soft edge */
+  background-image: var(--backdrop-src);
+  background-size: cover;
+  background-position: center top;  /* bias to the image's own sky */
+  filter: blur(40px) saturate(1.05);
+}
+
+.backdrop__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* `contain` rather than `cover` is what makes it read as DISTANT. Cover fills the
+     band's width and the landmark looms over the bakery like a hill in the next
+     field. Contain fits the whole image in, so it lands around 58% width, the subject
+     sits small and low, and nothing is cropped — the Hollywood Sign and the Laguna
+     cliffs stay whole. Anchored to the bottom so the backdrop's own foreground tucks
+     behind the painted treeline. */
+  object-fit: contain;
+  object-position: var(--backdrop-align, 50%) bottom;
+
+  /* Dissolve into the blurred fill rather than ending on an edge. */
+  --backdrop-fade: linear-gradient(to right,
+    transparent 0%, black 20%, black 80%, transparent 100%);
+  mask-image: var(--backdrop-fade);
+  -webkit-mask-image: var(--backdrop-fade);
 }
 
 /* Hidden on scenes with no backdrop (the interior), set by the renderer. */

@@ -31,27 +31,45 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
   const landmark = landmarkForTime(time);
   if (!landmark) throw new Error(`renderer: no landmark for time "${time}"`);
 
+
   const showing = el(`backdrop-${frontBackdrop}`);
   const incoming = el(`backdrop-${frontBackdrop === 'a' ? 'b' : 'a'}`);
   const src = backdropImage(landmark);
 
-  if (immediate || !showing.getAttribute('src')) {
-    showing.src = src;
-    showing.alt = backdropAlt;
+  // Where this landmark's subject has to sit to clear the bakery; see landmarks.js.
+  el('stage').style.setProperty('--backdrop-align', `${landmark.align ?? 50}%`);
+
+  /* Each slot holds the sharp image and, behind it, the same file as a blurred
+   * background filling the whole band. One download, used twice. */
+  function fill(slot, url) {
+    const img = slot.querySelector('.backdrop__image');
+    img.src = url;
+    img.alt = backdropAlt;
+    /* Resolved to an absolute URL on purpose. A relative url() inside a custom
+     * property is resolved against the STYLESHEET that consumes it, not the page —
+     * so "assets/..." became "/src/styles/assets/..." and 404'd. */
+    const absolute = new URL(url, document.baseURI).href;
+    slot.style.setProperty('--backdrop-src', `url("${absolute}")`);
+    return img;
+  }
+
+  const showingImg = showing.querySelector('.backdrop__image');
+
+  if (immediate || !showingImg.getAttribute('src')) {
+    fill(showing, src);
     showing.hidden = false;
     showing.style.opacity = '1';
     return landmark;
   }
-  if (showing.getAttribute('src') === src) return landmark;
+  if (showingImg.getAttribute('src') === src) return landmark;
 
-  incoming.src = src;
-  incoming.alt = backdropAlt;
+  const incomingImg = fill(incoming, src);
   incoming.hidden = false;
   incoming.style.opacity = '0';
 
   /* Wait for the image to actually decode before fading it in. Without this the
    * fade starts against a blank element and the first part of it shows nothing. */
-  try { await incoming.decode(); } catch { /* a cached or failed image: carry on */ }
+  try { await incomingImg.decode(); } catch { /* cached or failed: carry on */ }
 
   /* Read a layout property to flush the opacity:0 above into the browser's style
    * state. Without the flush, setting 0 and 1 in the same task collapses into a
@@ -265,6 +283,7 @@ export function renderScene(sceneId, time) {
 
   const stage = el('stage');
   stage.dataset.scene = scene.id;
+  stage.style.setProperty('--horizon', `${scene.horizon ?? 100}%`);
 
   const sceneImg = el('scene');
   if (scene.image) {
