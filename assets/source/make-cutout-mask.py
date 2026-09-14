@@ -110,9 +110,23 @@ def build(src, dst, tol=38, tight=10, min_pocket=120, loose=34):
             near[i] = 1
 
     def pinkish(i):
+        """Is this pixel sitting in pink paint, rather than against stone or metal?
+
+        `r > g + 25` is the test doing the real work. It rejects the near-neutrals
+        that ring genuine trapped background -- stone, metal, dark outline -- and it
+        also rejects warm terracotta, whose blue sits far below its green.
+
+        The blue test only has to finish that job, so it must admit DESATURATED rose
+        as well as vivid magenta. `b > g + 10` did not. The awning over the entrance
+        door is painted (216, 154, 157), where blue leads green by just 3, so the
+        awning read as "not pink" and this pass cut a 1393 px wedge out of its shaded
+        right-hand facet -- and punched a smaller hole in the bougainvillea the same
+        way. `b > g - 10` accepts rose while still rejecting terracotta, where blue
+        trails green by about 20.
+        """
         o = i * n
         r, g, b = px[o], px[o+1], px[o+2]
-        return r > g + 25 and b > g + 10
+        return r > g + 25 and b > g - 10
 
     seen = bytearray(w * h)
     for start in range(w * h):

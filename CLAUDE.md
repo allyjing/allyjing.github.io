@@ -112,7 +112,7 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   `--dessert-plate`. Every `--surface-*` flips to a dark UI colour after dark, and a plate
   that turns navy at night reads as broken rather than as dim.
 
-Keying takes two passes, and both are load-bearing:
+Keying takes THREE passes, and all three are load-bearing:
 
 1. **A border flood fill** at tolerance 38. Connectivity is what protects the
    bougainvillea, which is pink and sits within ~30 of the key colour. The background
@@ -120,6 +120,11 @@ Keying takes two passes, and both are load-bearing:
 2. **A pocket pass** for background the fill cannot reach because the subject encloses it:
    between the fountain's tiers and its water streams, and the slot behind the downspout.
    Those showed as magenta patches.
+3. **A ring pass** at tolerance 34, for leftovers too small for the size rule and too
+   blended for the tight tolerance. Neither size nor colour finds them, so this pass uses
+   *what surrounds them*: trapped background is ringed by stone, metal or dark outline,
+   whereas a near-key patch inside a blossom is ringed by more pink. It groups the
+   leftovers and cuts only groups whose ring is under 45% pink.
 
 Colour cannot separate the second case — **the blossoms are shaded with literally the
 background colour**, so any tolerance that catches a pocket punches holes through the
@@ -129,6 +134,19 @@ and cuts only groups above ~120px.
 
 ⚠️ The pocket pass must stay **independent of the flood fill**. Seeding the fill from it let
 the fill spread outward at the looser tolerance and eat the blossoms wholesale.
+
+⚠️ **The ring pass's `pinkish()` test must accept DESATURATED rose, not just magenta.** This
+is the subtlest trap in the file and it has already drawn blood once: the predicate was
+`r > g + 25 and b > g + 10`, and the awning over the entrance door is painted
+(216, 154, 157) — blue leads green by only 3. The awning therefore read as "not pink", its
+whole ring voted non-pink, and the pass cut a 1393 px wedge out of the awning's shaded
+right-hand facet, plus a smaller hole in the bougainvillea. Fixed 2026-09-14 by relaxing the
+blue test to `b > g - 10`.
+
+`r > g + 25` is the condition doing the real work — it is what rejects the near-neutrals
+that ring genuine trapped background, and it rejects warm terracotta too. The blue test only
+has to finish that job. Measured on this art, the pass cuts exactly three blobs and all
+three were false positives, so err toward keeping paint.
 
 A handful of specks survive even that — in the mouth of the downspout and between the
 fountain's tiers — and `assets/source/despill-scene.py` RECOLOURS those rather than cutting
