@@ -28,7 +28,7 @@ from collections import deque
 RAMP = (70, 130, 185, 225)      # alpha at 1..4 px in from the cut, so the edge is
                                 # a ramp rather than a staircase
 
-def build(src, dst, tol=38, tight=10, min_pocket=120):
+def build(src, dst, tol=38, tight=10, min_pocket=120, loose=34):
     w, h, n, px = read_png(src)
     kr, kg, kb = px[0], px[1], px[2]
     t2, tight2 = tol * tol, tight * tight
@@ -91,6 +91,56 @@ def build(src, dst, tol=38, tight=10, min_pocket=120):
                 if j >= 0 and seed[j] and not seen[j]:
                     seen[j] = 1; stack.append(j)
         if len(blob) >= min_pocket:
+            for i in blob:
+                bg[i] = 1
+
+    # Third pass: the small stubborn ones -- inside the downspout, and in the middle
+    # of the fountain between the tiers. Too small for the size rule above and too
+    # blended for its tolerance, so neither size nor colour finds them.
+    #
+    # What does: WHAT SURROUNDS THEM. A near-key patch inside a bougainvillea blossom
+    # is ringed by more pink, because it is flower shading. A patch of trapped
+    # background is ringed by whatever encloses it -- stone, metal, dark outline --
+    # which is all near-neutral. So group the leftovers, look at the ring just
+    # outside each group, and cut only the ones that are not sitting in pink.
+    loose2 = loose * loose
+    near = bytearray(w * h)
+    for i in range(w * h):
+        if not bg[i] and dist2(i) < loose2:
+            near[i] = 1
+
+    def pinkish(i):
+        o = i * n
+        r, g, b = px[o], px[o+1], px[o+2]
+        return r > g + 25 and b > g + 10
+
+    seen = bytearray(w * h)
+    for start in range(w * h):
+        if not near[start] or seen[start]:
+            continue
+        blob, stack, seen[start] = [], [start], 1
+        while stack:
+            i = stack.pop()
+            blob.append(i)
+            x, y = i % w, i // w
+            for j in ((i-1 if x else -1), (i+1 if x < w-1 else -1),
+                      (i-w if y else -1), (i+w if y < h-1 else -1)):
+                if j >= 0 and near[j] and not seen[j]:
+                    seen[j] = 1; stack.append(j)
+        if len(blob) < 12:
+            continue
+        cells = set(blob)
+        ring, pink = 0, 0
+        for i in blob:
+            x, y = i % w, i // w
+            for j in ((i-1 if x else -1), (i+1 if x < w-1 else -1),
+                      (i-w if y else -1), (i+w if y < h-1 else -1)):
+                if j < 0 or j in cells or bg[j]:
+                    continue
+                ring += 1
+                if pinkish(j):
+                    pink += 1
+        if ring and pink / ring < 0.45:
             for i in blob:
                 bg[i] = 1
 

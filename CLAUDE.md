@@ -112,6 +112,15 @@ and cuts only groups above ~120px.
 ⚠️ The pocket pass must stay **independent of the flood fill**. Seeding the fill from it let
 the fill spread outward at the looser tolerance and eat the blossoms wholesale.
 
+A handful of specks survive even that — in the mouth of the downspout and between the
+fountain's tiers — and `assets/source/despill-scene.py` RECOLOURS those rather than cutting
+them, which cannot punch holes the way cutting can. It is scoped to a named region of the
+frame, deliberately: three general rules were tried and all three failed, because the specks
+and the blossom shading are the same colour, the same size, and sit in similarly
+non-pink surroundings. Two known defects in one painting are better fixed by saying where
+they are. Re-derive the box if the exterior is regenerated, or drop the script — a cleaner
+generation would not need it.
+
 ### Placing the backdrop
 
 The backdrop is drawn **smaller than the scene** — its height is `scene.horizon`, its bottom
