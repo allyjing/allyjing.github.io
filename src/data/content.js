@@ -112,3 +112,132 @@ export const dessertShape = {
   life: 'bao',
   arts: 'cake',
 };
+
+/* Every panel's copy (PRD R31). Keyed by the table id in `tables` above — the same
+ * string is the URL segment in #/interior/projects and the DOM id of the button
+ * that opens it, so one typo fails loudly instead of opening nothing.
+ *
+ * ⚠️ This copy is PLACEHOLDER. Phase 6 replaces it with real content. It is written
+ * at realistic length on purpose: stub text one line long would hide the fact that
+ * the card has to scroll.
+ *
+ * `kind` is 'entries' for all five. 'gallery' is reserved for Photography in Phase 6
+ * and no gallery renderer exists yet — adding one later is a new branch here, not a
+ * change to the shape of the data. */
+export const panels = {
+  experience: {
+    title: 'Experience',
+    kind: 'entries',
+    intro: 'Where I have worked, and what I actually did there.',
+    entries: [
+      {
+        heading: 'Placeholder role, one',
+        meta: 'Organisation · City · Month Year – Present',
+        bullets: [
+          'Placeholder bullet describing a responsibility in about the length a real one runs to, so the panel is laid out against realistic text rather than a stub.',
+          'A second placeholder bullet, because most entries have more than one and the spacing between them needs to be seen.',
+        ],
+        links: [],
+      },
+      {
+        heading: 'Placeholder role, two',
+        meta: 'Organisation · City · Month Year – Month Year',
+        bullets: [
+          'Placeholder bullet describing a second position, again at realistic length.',
+        ],
+        links: [],
+      },
+    ],
+  },
+
+  projects: {
+    title: 'Projects',
+    kind: 'entries',
+    intro: 'Things I have designed, built, and occasionally had to rebuild.',
+    entries: [
+      {
+        heading: 'Placeholder project, one',
+        meta: 'Tools, materials, techniques · Month Year – Present',
+        bullets: [
+          'Placeholder bullet describing what was engineered and the constraint that made it interesting, at the length a real project bullet runs to.',
+          'A second bullet covering fabrication, because these entries tend to have three.',
+          'A third bullet covering control or validation, so the tallest entry in the set is represented here.',
+        ],
+        links: [],
+      },
+      {
+        heading: 'Placeholder project, two',
+        meta: 'Tools, materials, techniques · Month Year – Present',
+        bullets: [
+          'Placeholder bullet at realistic length describing design and fabrication.',
+          'A second placeholder bullet describing the software side.',
+        ],
+        links: [],
+      },
+      {
+        heading: 'Placeholder project, three',
+        meta: 'Tools, materials, techniques · Month Year – Month Year',
+        bullets: [
+          'Placeholder bullet describing a team project and the role played in it.',
+        ],
+        links: [],
+      },
+      {
+        heading: 'Placeholder project, four',
+        meta: 'Tools · Year',
+        bullets: [
+          'Placeholder bullet. Four entries is what makes this the panel that proves scrolling works.',
+        ],
+        links: [],
+      },
+    ],
+  },
+
+  photography: {
+    title: 'Photography',
+    kind: 'entries',
+    intro: 'Placeholder introduction. Phase 6 turns this panel into a real gallery.',
+    entries: [
+      {
+        heading: 'Placeholder set',
+        meta: 'Place · Year',
+        bullets: [
+          'Placeholder bullet. This panel stays kind: "entries" until Jingwen supplies photographs; the gallery renderer with srcset, lazy loading and a lightbox is Phase 6 work.',
+        ],
+        links: [],
+      },
+    ],
+  },
+
+  life: {
+    title: 'Life',
+    kind: 'entries',
+    intro: 'Placeholder introduction for the things that are not work.',
+    entries: [
+      {
+        heading: 'Placeholder heading',
+        meta: 'Placeholder meta line',
+        bullets: [
+          'Placeholder bullet at realistic length, waiting on real content in Phase 6.',
+        ],
+        links: [],
+      },
+    ],
+  },
+
+  arts: {
+    title: 'Arts',
+    kind: 'entries',
+    intro: 'Placeholder introduction for drawing, making, and the rest of it.',
+    entries: [
+      {
+        heading: 'Placeholder heading',
+        meta: 'Placeholder meta line',
+        bullets: [
+          'Placeholder bullet at realistic length, waiting on real content in Phase 6.',
+        ],
+        links: [],
+      },
+    ],
+  },
+};
