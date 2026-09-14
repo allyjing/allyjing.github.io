@@ -85,39 +85,43 @@ export const scenes = {
      * because a rectangle puts her ankle-deep in the roses. It excludes the
      * bottom-left rose bed, the raised bed across the bakery front, the fountain,
      * the flowering bushes right of it, and the bottom-right lavender. */
-    /* The open sandy ground in front of the bakery. The planting, the pots and the
-     * fountain all sit above it, so the polygon starts below their bases. */
+    /* The open sandy ground in front of the bakery. The terracotta pots run right
+     * along the frontage and the fountain sits in the middle-right, so the polygon
+     * starts below all of their bases rather than at the building line. */
     walkable: [
-      [30, 79],   // beside the stone path, clear of the pots
-      [60, 77],
-      [80, 76],   // in front of the fountain
-      [95, 78],
-      [97, 97],
-      [8, 97],
-      [10, 90],
-      [20, 84],
+      [16, 90],   // clear of the pots stacked on the left
+      [28, 87],
+      [45, 85],
+      [62, 84],
+      [78, 84],   // in front of the fountain
+      [92, 84],
+      [98, 87],
+      [98, 98],
+      [3, 98],
     ],
 
     /* Walking onto the doorstep goes inside (R9). The radius is in image units, so
      * it is the same patch of doorstep at any window size. */
-    door: { x: 33, y: 80, radius: 5, to: 'interior' },
+    /* The door sits at about y=78, above the walkable ground, so the trigger is on
+     * the nearest patch of ground below it rather than on the threshold itself. */
+    door: { x: 31, y: 88, radius: 5, to: 'interior' },
 
     /* On a wide screen the contact signs sit just OUTSIDE the walkable polygon, on
      * the grass beyond its edges, so she never stands on one. On a tall screen those
      * positions are off-screen entirely — the scene is cropped to fill and only a
      * narrow band survives — so ui.css docks them into a corner instead. */
     signs: [
-      { id: 'linkedin', ...signs.linkedin, x: 14, y: 95 },
-      { id: 'email', ...signs.email, x: 88, y: 92 },
-      { id: 'enter', ...doors.enter, x: 30, y: 86 },
+      { id: 'linkedin', ...signs.linkedin, x: 17, y: 91 },   // clear of the location label
+      { id: 'email', ...signs.email, x: 88, y: 94 },
+      { id: 'enter', ...doors.enter, x: 38, y: 89 },
     ],
 
     decor: [],
 
     actors: [
-      { ...jingwen, x: 48, y: 93, height: 27, facing: 1 },
+      { ...jingwen, x: 52, y: 94, height: 26, facing: 1 },
       { id: 'junnie', image: 'assets/sprites/junnie.png', alt: actorAlt.junnie,
-        x: 60, y: 95, height: 13, facing: -1, walks: false, aspect: 237 / 420 },
+        x: 64, y: 96, height: 12, facing: -1, walks: false, aspect: 237 / 420 },
     ],
   },
 
@@ -134,39 +138,48 @@ export const scenes = {
     aspect: 1376 / 768,
     hasBackdrop: false,            // no landmark layer indoors
 
-    /* The clear wooden floor: off the counter on the left, off the chairs on the
-     * right, and reaching up the middle to the doorway so she can actually walk out
-     * of it. Without that reach the exit is visible but unreachable. */
+    /* The clear wooden floor, traced against the painting so she cannot walk over
+     * the furniture. It threads between the tables rather than across them: down the
+     * middle from the doorway, around the right-hand row, and out along the open
+     * foreground. It keeps off the counter on the left and every chair on the right.
+     *
+     * Perspective matters here — a table's chairs reach well below its top, so each
+     * boundary sits below the chair feet, not the table edge. */
     walkable: [
-      [34, 50],   // the doorway threshold
-      [45, 49],
-      [50, 60],
-      [70, 63],
-      [87, 71],
-      [94, 95],
-      [9, 95],
-      [21, 79],
-      [28, 60],
+      [55, 66],   // right of the front-left table's chairs
+      [64, 71],
+      [73, 79],   // below the right-hand row
+      [83, 86],
+      [92, 92],
+      [95, 97],
+      [5, 97],
+      [9, 86],
+      [26, 81],   // clear of the counter front
+      [42, 77],
     ],
 
-    // The doorway back out to the street, left of centre in the painting.
-    door: { x: 39, y: 51, radius: 4.5, to: 'exterior' },
+    /* No walk-in trigger here, unlike the exterior. The doorway sits behind the
+     * front-left table and its chairs, so there is no route to it across the floor —
+     * anything that let her reach it would also let her stand on the furniture. The
+     * "Back outside" sign is the affordance instead (R9), and it sits on the doorway
+     * itself so it reads as the way out rather than as a button. */
 
     signs: [
-      { id: 'outside', ...doors.exit, x: 39, y: 47 },
+      { id: 'outside', ...doors.exit, x: 38, y: 50 },
     ],
 
-    // One bubble above each painted table.
+    /* One marker per painted table. x/y is the TABLE SURFACE — the dessert sits
+     * there and the bubble floats above it. Read off the artwork. */
     decor: tables.map((table, i) => ({
       ...table,
       id: `table-${table.id}`,
-      kind: 'bubble',
-      ...[{ x: 44, y: 55 }, { x: 53, y: 43 }, { x: 68, y: 40 },
-          { x: 78, y: 47 }, { x: 89, y: 57 }][i],
+      kind: 'table',
+      ...[{ x: 44, y: 57 }, { x: 55, y: 47 }, { x: 67, y: 44 },
+          { x: 78, y: 50 }, { x: 90, y: 61 }][i],
     })),
 
     actors: [
-      { ...jingwen, x: 50, y: 88, height: 27, facing: 1 },
+      { ...jingwen, x: 55, y: 90, height: 27, facing: 1 },
     ],
   },
 };

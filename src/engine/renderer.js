@@ -6,7 +6,7 @@
 
 import { getScene } from '../data/scenes.js';
 import { landmarkForTime, backdropImage } from '../data/landmarks.js';
-import { backdropAlt } from '../data/content.js';
+import { backdropAlt, dessertShape } from '../data/content.js';
 import { applyCoverBox } from './layout.js';
 
 function el(id) {
@@ -39,17 +39,10 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
   // Where this landmark's subject has to sit to clear the bakery; see landmarks.js.
   el('stage').style.setProperty('--backdrop-align', `${landmark.align ?? 50}%`);
 
-  /* Each slot holds the sharp image and, behind it, the same file as a blurred
-   * background filling the whole band. One download, used twice. */
   function fill(slot, url) {
     const img = slot.querySelector('.backdrop__image');
     img.src = url;
     img.alt = backdropAlt;
-    /* Resolved to an absolute URL on purpose. A relative url() inside a custom
-     * property is resolved against the STYLESHEET that consumes it, not the page —
-     * so "assets/..." became "/src/styles/assets/..." and 404'd. */
-    const absolute = new URL(url, document.baseURI).href;
-    slot.style.setProperty('--backdrop-src', `url("${absolute}")`);
     return img;
   }
 
@@ -144,14 +137,25 @@ function renderDecor(items) {
 
   for (const item of items) {
     const node = document.createElement('div');
-    node.className = item.kind === 'bubble' ? 'bubble' : 'sign sign--decor';
+    node.className = item.kind === 'table' ? 'table-marker' : 'sign sign--decor';
     node.style.left = `${item.x}%`;
     node.style.top = `${item.y}%`;
 
-    if (item.kind === 'bubble') {
-      /* The tables are painted into the scene, so nothing is drawn for them — only
-       * the floating label above each. Phase 5 turns these into panel triggers. */
-      node.textContent = item.label;
+    if (item.kind === 'table') {
+      /* The table itself is painted. What gets added is the dessert sitting on it
+       * and the label floating above. Phase 5 turns the label into the panel
+       * trigger; for now both are scenery, so the room reads before the panels
+       * exist. x/y is the table surface, so the stack grows upward from there. */
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = item.label;
+
+      const dessert = document.createElement('div');
+      const shape = dessertShape[item.id.replace(/^table-/, '')] || 'cake';
+      dessert.className = `dessert dessert--${shape}`;
+      dessert.title = item.dessert;
+
+      node.append(bubble, dessert);
     } else {
       const board = document.createElement('div');
       board.className = 'sign__board';

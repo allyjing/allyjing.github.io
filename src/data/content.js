@@ -91,3 +91,15 @@ export const tables = [
   { id: 'life', label: 'Life', dessert: 'Bolo bao' },
   { id: 'arts', label: 'Arts', dessert: 'Layer cake' },
 ];
+
+/* Which dessert shape to draw on each table. The mapping is PRD D2 and it is not
+ * arbitrary — a croissant is laminated, built in layers over time, for Experience;
+ * a souffle is exacting and collapses if rushed, for Projects; macarons are colour
+ * matched in rows like a contact sheet, for Photography. */
+export const dessertShape = {
+  experience: 'croissant',
+  projects: 'souffle',
+  photography: 'macarons',
+  life: 'bao',
+  arts: 'cake',
+};

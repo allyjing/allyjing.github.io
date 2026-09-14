@@ -40,103 +40,35 @@
 
 /* --- backdrop --------------------------------------------------------------
    The distant landmark. Each image has its own time of day BAKED IN, which is why
-   the tint below must never reach it: a night tint over an already-night Griffith
-   renders black.
+   the tint must never reach it: a night tint over an already-night Griffith renders
+   black.
 
-   Sized to the ARTWORK box like the props and actors, and then only to the band of
-   sky above the painted treeline (--horizon). Drawing it across the whole stage
-   wastes everything below that line — the painting is opaque there — and pushes each
-   landmark's subject down behind the hills, which is why the Hollywood Sign and the
-   Laguna cliffs were invisible. Confining it to the band brings them up into view.
-
-   `contain` rather than `cover`, which is what makes it read as DISTANT. Cover fills
-   the band's width and the landmark looms over the bakery like a mountain in the next
-   field; contain fits the whole image into the band, so it lands at roughly 58% width
-   and the subject sits small and low, the way something miles away actually looks. It
-   also means nothing is cropped, so the Hollywood Sign and the Laguna cliffs are
-   whole rather than sliced.
-
-   Anchored to the band's bottom so the backdrop's own foreground tucks behind the
-   painted treeline, and faded at the left and right edges so it dissolves into the
-   sky gradient instead of ending on a visible rectangle. */
+   Full bleed. The backdrop and the scene artwork share the same aspect ratio, so
+   `cover` sizes it to exactly the same box as the painting in front of it — it runs
+   off all four edges of the screen with nothing fading out and no blurred filler
+   needed. That only became possible once the exterior was regenerated as a real
+   cutout; against the old painting the backdrop had to be shrunk into the band of
+   sky above the treeline, and shrinking it is what forced the fades. */
 .layer--backdrop {
   z-index: var(--z-backdrop);
   inset: auto;
   left: var(--scene-x, 0px);
   top: var(--scene-y, 0px);
   width: var(--scene-w, 100%);
-  /* Full height on purpose. The cut in the exterior reaches well below the vista, so
-     a band that stopped at the horizon left bare stage underneath it — the sky ran
-     out before the screen did. The container covers everything and the blurred fill
-     covers the container; only the sharp vista is confined to the top. */
   height: var(--scene-h, 100%);
   opacity: 1;
-  overflow: hidden;
-
-  /* Fade out the bottom edge. The band's lower edge is meant to hide behind the
-     painted treeline, but that line is uneven — where the hills dip, the edge shows
-     as a straight horizontal seam. Fading the last stretch means there is no edge to
-     catch, whatever the treeline does. Applied to the container so the blurred fill
-     and the sharp image fade together. */
-  --backdrop-floor: linear-gradient(to bottom,
-    black 0%, black 55%, rgba(0, 0, 0, 0.55) 78%, transparent 100%);
-  mask-image: var(--backdrop-floor);
-  -webkit-mask-image: var(--backdrop-floor);
-
   /* 600ms cross-fade on a time change. It must never hard-cut (R30). */
   transition: opacity var(--dur-timeshift) var(--ease-soft);
 }
 
-/* The same image again, blurred and scaled to fill the whole band. Fitting the sharp
-   copy small leaves empty band either side of it, and the CSS sky gradient behind
-   does not match the painted sky in the image — the result was a rectangular window
-   floating in a differently-coloured sky. Filling with a blurred copy of the image
-   itself matches by construction, for every landmark, with no extra download and
-   nothing to keep in sync. Heavy blur reads as haze, which is what distance does. */
-.layer--backdrop::before {
-  content: '';
-  position: absolute;
-  inset: -8%;                       /* overscan, so the blur has no soft edge */
-  background-image: var(--backdrop-src);
-  background-size: cover;
-  background-position: center top;  /* bias to the image's own sky */
-  filter: blur(46px) saturate(1.05);
-}
-
-/* Sized to the image itself rather than to the band, which matters for the fade.
-   With object-fit the element still spans the whole band while the picture sits
-   somewhere inside it, so a mask on the element is positioned against the BAND —
-   and the picture's own edges land in the opaque middle of that mask and stay
-   knife-sharp. Giving the element the picture's dimensions puts the fade exactly
-   where the picture ends.
-
-   Height fills the band and width follows the aspect ratio, so the whole image is
-   visible at roughly half width: small and far away, nothing cropped, which is what
-   keeps the Hollywood Sign and the Laguna cliffs whole.
-
-   left + translateX of the same percentage is the standard way to reproduce
-   background-position semantics on a positioned element: it lines the element's own
-   N% point up with the container's N% point, whatever the element's width. */
 .backdrop__image {
   position: absolute;
-  /* Sat on the horizon line rather than the bottom of the container, now that the
-     container runs the full height of the scene. */
-  bottom: calc(100% - var(--horizon, 100%));
-  left: var(--backdrop-align, 50%);
-  transform: translateX(calc(var(--backdrop-align, 50%) * -1));
-  height: var(--horizon, 100%);
-  width: auto;
-  max-width: none;
-
-  /* Dissolve into the blurred fill rather than ending on an edge. */
-  --backdrop-fade: linear-gradient(to right,
-    transparent 0%, black 11%, black 89%, transparent 100%);
-  mask-image: var(--backdrop-fade);
-  -webkit-mask-image: var(--backdrop-fade);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--backdrop-align, 50%) bottom;
 }
-
-/* Hidden on scenes with no backdrop (the interior), set by the renderer. */
-.stage[data-backdrop='false'] .layer--backdrop { display: none; }
 
 /* --- tint ------------------------------------------------------------------
    ⚠️ PRD §9 and tokens.css disagree about where this belongs, and the token wins:
@@ -333,11 +265,104 @@
    stays: time of day still applies, just more subtly. */
 .stage[data-scene='interior'] .chrome--location { display: none; }
 
+/* One marker per painted table: the dessert sits on the table surface and the label
+   floats above it. Positioned at the table surface, so the stack grows upward. */
+.table-marker {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 11%;
+}
+
+/* --- desserts -------------------------------------------------------------
+   Drawn rather than generated, because the tables came back bare and an empty
+   cafe reads as closed. They are small and seen at a distance, so a silhouette
+   in the right colour with the artwork's dark outline is enough; these are not
+   trying to be illustrations. Replace with sprites if any are ever generated —
+   PRD D2 fixes which dessert belongs to which table. */
+.dessert {
+  position: relative;
+  width: 46%;
+  height: 0;
+  padding-bottom: 30%;
+  filter: drop-shadow(0 1px 1px var(--shadow-cast));
+}
+
+.dessert::before,
+.dessert::after {
+  content: '';
+  position: absolute;
+  border: 2px solid var(--ink);
+  box-sizing: border-box;
+}
+
+/* Croissant: a fat crescent. */
+.dessert--croissant::before {
+  inset: 18% 4% 10% 4%;
+  background: var(--dessert-bake);
+  border-radius: 52% 52% 46% 46% / 78% 78% 42% 42%;
+}
+.dessert--croissant::after {
+  inset: 30% 26% 34% 26%;
+  border-width: 0 0 2px 0;
+  border-radius: 50%;
+}
+
+/* Souffle: a straight-sided ramekin with a risen dome. */
+.dessert--souffle::before {
+  inset: 42% 22% 4% 22%;
+  background: var(--surface-wall);
+  border-radius: 0 0 22% 22%;
+}
+.dessert--souffle::after {
+  inset: 6% 16% 52% 16%;
+  background: var(--dessert-bake);
+  border-radius: 50% 50% 14% 14%;
+}
+
+/* Macarons: a row, colour-matched, like a contact sheet. */
+.dessert--macarons::before {
+  inset: 30% 52% 12% 4%;
+  background: var(--dessert-glaze);
+  border-radius: var(--radius-full);
+}
+.dessert--macarons::after {
+  inset: 30% 4% 12% 52%;
+  background: var(--dessert-glaze);
+  border-radius: var(--radius-full);
+}
+
+/* Bolo bao: a round bun with a crackled top. */
+.dessert--bao::before {
+  inset: 16% 14% 8% 14%;
+  background: var(--dessert-bake);
+  border-radius: 48% 48% 42% 42%;
+}
+.dessert--bao::after {
+  inset: 34% 30% 34% 30%;
+  border-width: 2px 0 0 0;
+  border-radius: 40%;
+}
+
+/* Layer cake: a slice, because the cross-section is the point. */
+.dessert--cake::before {
+  inset: 14% 18% 8% 18%;
+  background: var(--dessert-glaze);
+  border-radius: 8% 8% 12% 12%;
+}
+.dessert--cake::after {
+  inset: 44% 22% 30% 22%;
+  border-width: 2px 0;
+  background: var(--surface-wall);
+}
+
 /* The floating label above each painted table. Phase 5 makes these the panel
    triggers; for now they are labels, so the room reads before the panels exist. */
 .bubble {
-  position: absolute;
-  transform: translate(-50%, -100%);
+  position: relative;
   font-family: var(--font-display);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -352,6 +377,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .bubble { animation: float 3s var(--ease-soft) infinite alternate; }
+  .table-marker:nth-child(even) .bubble { animation-delay: -1.4s; }
   @keyframes float {
     from { translate: 0 0; }
     to   { translate: 0 -4px; }

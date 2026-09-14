@@ -18,6 +18,8 @@
                                  obvious #C2577A measures 4.25:1 and fails AA. */
   --ink:            #3E3038;  /* all text */
   --cat-ginger:     #E08A4B;  /* Junnie. Reserved. */
+  --dessert-bake:   #E8C489;  /* baked pastry: croissant, bao, souffle */
+  --dessert-glaze:  #E9A7B4;  /* icing and macaron shells */
   --on-accent:      #FFFFFF;  /* text/icons ON --accent-berry. Flips at night. */
 
   /* ---- Derived surfaces -------------------------------------------------- */
@@ -175,6 +177,10 @@
   --hairline:       #4A4054;
   --chrome-bg:      rgba(42, 36, 54, 0.88);
   --chrome-ink:     #F3ECEF;
+
+  /* The room's lights are on after dark, so the desserts warm rather than dim. */
+  --dessert-bake:   #C9A876;
+  --dessert-glaze:  #C98F9C;
 
   --accent-berry:   #E88BA8;  /* lightened for the dark surface: 6.19:1.
                                  The daytime #B84A6E measures 3.20:1 here. */
