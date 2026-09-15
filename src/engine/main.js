@@ -43,7 +43,9 @@ function enterScene(sceneId) {
   for (const off of teardown) off();
   teardown = [];
 
-  const scene = renderScene(sceneId, time);
+  /* Opening a table is a ROUTE change, not a direct call. That is what makes
+   * #/interior/projects shareable and the Back button work (R10). */
+  const scene = renderScene(sceneId, time, (id) => navigate('interior', id));
   teardown.push(watchResize(scene));
 
   const player = scene.actors.find((actor) => actor.walks);

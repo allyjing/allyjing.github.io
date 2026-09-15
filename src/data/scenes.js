@@ -178,12 +178,17 @@ export const scenes = {
       { id: 'outside', ...doors.exit, x: 51, y: 47 },
     ],
 
-    /* One marker per painted table. x/y is the TABLE SURFACE — the dessert sits
-     * there and the bubble floats above it. Read off the artwork. */
-    decor: tables.map((table, i) => ({
+    decor: [],
+
+    /* One trigger per painted table. x/y is the TABLE SURFACE — the dessert sits
+     * there and the bubble floats above it. Read off the artwork.
+     *
+     * These are BUTTONS in the props layer, not scenery in the decor layer. The
+     * decor layer is aria-hidden, and a control a screen reader cannot see is not a
+     * control. The id is bare (`projects`), because the same string is the panels
+     * key and the URL segment; the DOM id gets the `table-` prefix at render. */
+    tables: tables.map((table, i) => ({
       ...table,
-      id: `table-${table.id}`,
-      kind: 'table',
       /* Read off the new artwork 2026-09-14, in the table order in content.js:
        * experience, projects, photography, life, arts. */
       ...[{ x: 37, y: 54 }, { x: 52, y: 60 }, { x: 67, y: 54 },

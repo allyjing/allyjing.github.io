@@ -139,10 +139,10 @@ function renderSigns(signs) {
   }
 }
 
-/* Scenery signs. No link, no button, not focusable, and the layer is aria-hidden —
- * this is painted detail, and a screen reader announcing "Please enter" as a control
- * that does nothing would be worse than silence. It becomes the real door in
- * Phase 5, and gets a proper accessible name then. */
+/* Scenery only. No link, no button, not focusable, and the layer is aria-hidden —
+ * this is painted detail, and a screen reader announcing it as a control that does
+ * nothing would be worse than silence. The interior tables used to live here; they
+ * are real buttons in the props layer now (see renderTables). */
 function renderDecor(items) {
   const layer = el('decor');
   layer.replaceChildren();
@@ -150,32 +150,59 @@ function renderDecor(items) {
 
   for (const item of items) {
     const node = document.createElement('div');
-    node.className = item.kind === 'table' ? 'table-marker' : 'sign sign--decor';
+    node.className = 'sign sign--decor';
     node.style.left = `${item.x}%`;
     node.style.top = `${item.y}%`;
 
-    if (item.kind === 'table') {
-      /* The table itself is painted. What gets added is the dessert sitting on it
-       * and the label floating above. Phase 5 turns the label into the panel
-       * trigger; for now both are scenery, so the room reads before the panels
-       * exist. x/y is the table surface, so the stack grows upward from there. */
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble';
-      bubble.textContent = item.label;
-
-      const dessert = document.createElement('div');
-      const shape = dessertShape[item.id.replace(/^table-/, '')] || 'cake';
-      dessert.className = `dessert dessert--${shape}`;
-      dessert.title = item.dessert;
-
-      node.append(bubble, dessert);
-    } else {
-      const board = document.createElement('div');
-      board.className = 'sign__board';
-      board.textContent = item.label;
-      node.append(board);
-    }
+    const board = document.createElement('div');
+    board.className = 'sign__board';
+    board.textContent = item.label;
+    node.append(board);
     layer.append(node);
+  }
+}
+
+/* The five interior tables, as real buttons (PRD D2).
+ *
+ * APPENDS to the props layer rather than replacing it, because renderSigns has
+ * already filled it and owns the clearing. Call order in renderScene matters:
+ * signs first, then tables.
+ *
+ * The table itself is painted into the artwork. What gets added is the dessert
+ * sitting on it and the bubble floating above, so the stack grows upward from the
+ * table surface at x/y. */
+function renderTables(items, onOpen) {
+  const layer = el('props');
+  if (!items) return;
+
+  for (const item of items) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'table';
+    button.id = `table-${item.id}`;
+    button.style.left = `${item.x}%`;
+    button.style.top = `${item.y}%`;
+
+    /* aria-haspopup tells a screen reader this opens a dialog rather than
+     * navigating; aria-expanded tracks whether it currently is open. */
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-expanded', 'false');
+
+    const bubble = document.createElement('span');
+    bubble.className = 'bubble';
+    bubble.textContent = item.label;
+
+    const dessert = document.createElement('span');
+    dessert.className = `dessert dessert--${dessertShape[item.id] || 'cake'}`;
+    /* The dessert name is decoration, not information — the bubble already carries
+     * the label that matters, so this is a title rather than an aria-label. */
+    dessert.title = item.dessert;
+
+    button.append(bubble, dessert);
+    /* A <button> fires click on Enter AND Space for free. That is the whole reason
+     * this is a button rather than a div with a handler. */
+    button.addEventListener('click', () => onOpen(item.id));
+    layer.append(button);
   }
 }
 
@@ -283,7 +310,7 @@ function renderActors(actors) {
   }
 }
 
-export function renderScene(sceneId, time) {
+export function renderScene(sceneId, time, onOpenTable = () => {}) {
   const scene = getScene(sceneId);
   if (!scene) throw new Error(`renderer: unknown scene "${sceneId}"`);
 
@@ -310,6 +337,7 @@ export function renderScene(sceneId, time) {
   if (scene.hasBackdrop) renderBackdrop(time, { immediate: true });
 
   renderSigns(scene.signs);
+  renderTables(scene.tables, onOpenTable);
   renderDecor(scene.decor);
   renderActors(scene.actors);
   applyCoverBox(stage, scene.aspect);

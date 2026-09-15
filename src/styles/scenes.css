@@ -379,9 +379,26 @@
    stays: time of day still applies, just more subtly. */
 .stage[data-scene='interior'] .chrome--location { display: none; }
 
-/* One marker per painted table: the dessert sits on the table surface and the label
-   floats above it. Positioned at the table surface, so the stack grows upward. */
-.table-marker {
+/* One trigger per painted table: the dessert sits on the table surface and the
+   label floats above it. Positioned at the table surface, so the stack grows
+   upward. A real <button>, so Enter and Space work without any key handling of our
+   own — but a button arrives with borders, background and centred text that have
+   to be cleared before it looks like part of the room. */
+.table {
+  /* button reset */
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+
+  cursor: pointer;
+  /* Comfortably tappable on a phone even though the painted table is small. */
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+
   position: absolute;
   transform: translate(-50%, -100%);
   display: flex;
@@ -409,7 +426,7 @@
    table; with it, it reads as something served. Same outline weight as the artwork. */
 .dessert::marker { content: none; }
 
-.table-marker::after {
+.table::after {
   content: '';
   position: absolute;
   bottom: -2%;
@@ -509,7 +526,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .bubble { animation: float 3s var(--ease-soft) infinite alternate; }
-  .table-marker:nth-child(even) .bubble { animation-delay: -1.4s; }
+  .table:nth-child(even) .bubble { animation-delay: -1.4s; }
   @keyframes float {
     from { translate: 0 0; }
     to   { translate: 0 -4px; }
