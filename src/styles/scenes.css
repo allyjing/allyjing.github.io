@@ -289,21 +289,6 @@
     80%, 100% { opacity: 0; scale: 1.9; }
   }
 
-  /* The profile has no separate legs to swing, so its walk is a rise and fall of the
-     whole body, one beat per footfall.
-
-     ⚠️ NO ROTATION. An earlier version rocked the body ±1.6deg here and that was the
-     waddle everyone kept seeing — most walking is sideways, so this is the pose you
-     look at most. Bob only. */
-  .actor[data-pose='side'][data-walking='true'] .actor__body {
-    animation: stride-profile calc(var(--dur-step) / 2) var(--ease-soft) infinite;
-  }
-
-  @keyframes stride-profile {
-    0%, 100% { translate: 0 0; }
-    50%      { translate: 0 -2.5%; }
-  }
-
   /* Idle: a slow breathing bob. */
   .actor { animation: breathe 2s var(--ease-soft) infinite alternate; }
 

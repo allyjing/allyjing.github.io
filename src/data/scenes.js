@@ -33,11 +33,7 @@ function pose(prefix, aspect) {
 
 const jingwenFront = pose('jingwen', 222 / 720);
 const jingwenBack = pose('jingwen-back', 227 / 720);
-/* The profile is the one pose drawn WHOLE. Its two shoes overlap into a single
- * solid mass — there is no interior gap on any row through them — so no cut leaves
- * both shoes intact. It walks with a body bob instead of swinging legs. A side pose
- * drawn mid-stride, feet apart, would cut like the others. */
-const jingwenSide = { aspect: 193 / 720, body: 'assets/sprites/jingwen-side.png' };
+const jingwenSide = pose('jingwen-side', 193 / 720);
 
 const jingwen = {
   id: 'jingwen',
