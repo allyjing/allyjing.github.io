@@ -374,8 +374,22 @@
    the souffle's ramekin and the cake's filling, both of which use --surface-wall.
 
    The --room-* values are the daytime ones and deliberately have no [data-time]
-   overrides of their own; see tokens.css. */
-.stage[data-scene='interior'] {
+   overrides of their own; see tokens.css.
+
+   ⚠️ .panel AND .lightbox ARE IN THIS SELECTOR LIST, and they are not inside the
+   stage — they are siblings of it in index.html, because the stage gets `inert`
+   while a panel is open and a panel nested inside it would inert itself. Being
+   outside, they do NOT inherit the rebinding from the interior stage, so without
+   being named here an open panel re-themed with the clock: its card went navy at
+   night while the room behind it stayed lit. Panels only ever open indoors —
+   main.js ignores route.panel on the exterior — so there is no case where this
+   list wrongly freezes an outdoor overlay.
+
+   Keep this as ONE selector list with ONE copy of the bindings. A second copy for
+   the panel is how the souffle's ramekin got missed the first time. */
+.stage[data-scene='interior'],
+.panel,
+.lightbox {
   --surface-wall:  var(--room-face);
   --surface-trim:  var(--room-keyline);
   --ink:           var(--room-ink);
@@ -389,6 +403,7 @@
   --dessert-bake:  var(--room-dessert-bake);
   --dessert-glaze: var(--room-dessert-glaze);
   --dessert-plate: var(--room-dessert-plate);
+  --panel-scrim:   var(--room-scrim);
 }
 
 .stage[data-scene='interior'] .chrome--location { display: none; }
@@ -419,107 +434,121 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  width: 11%;
+  /* 10%, and this number is MEASURED, not chosen for looks.
+
+     The stack grows upward from the table surface, so a table's box reaches back
+     over the table painted behind it. Experience (y 54) sits 16% of the artwork
+     above Life (y 70), and once the stack is taller than that gap the two boxes
+     overlap — with Life later in the DOM, clicking Experience's own plate opened
+     Life instead.
+
+     Swept in a browser: 10% is the widest that gives ZERO overlap between all five
+     pairs. 11% overlaps by 4% of the smaller button, 14% by 16%. Note that 11% was
+     the value here before the sprites went in, so that overlap is a bug being fixed
+     rather than one being introduced.
+
+     The desserts did not get smaller in the process. The old CSS shape was 54% of an
+     11% box — about 85px at 1400x800; the sprite is 62% of a 10% box, about 89px.
+
+     ⚠️ Re-measure if a table moves, if the sprite aspect changes, or if the bubble's
+     type size changes. All three feed the stack height. */
+  width: 10%;
 }
 
-/* --- desserts -------------------------------------------------------------
-   Drawn rather than generated, because the tables came back bare and an empty
-   cafe reads as closed. They are small and seen at a distance, so a silhouette
-   in the right colour with the artwork's dark outline is enough; these are not
-   trying to be illustrations. Replace with sprites if any are ever generated —
-   PRD D2 fixes which dessert belongs to which table. */
-.dessert {
+/* --- the place setting ----------------------------------------------------
+
+   SPRITES, not CSS shapes. The eight images are drawn by
+   assets/source/draw-desserts.py and are all cropped to ONE shared content box,
+   which is what the layout below depends on: every sprite has the same aspect
+   ratio and its artwork sits on the bottom edge of its own file. So
+   `align-items: end` alone lines the bottom of a croissant up with the bottom of
+   the glass next to it, and one plate offset is right for all five desserts.
+
+   ⚠️ If the sprites are re-rendered with a different content box, --sprite-aspect
+   below has to change with it. The script prints the value to use. */
+.setting {
+  --sprite-aspect: 1.1368;        /* 324 / 285, printed by draw-desserts.py */
+
+  display: flex;
+  align-items: end;               /* every sprite stands on the same line */
+  justify-content: center;
+  gap: 4%;
+  width: 100%;
+}
+
+/* The dessert and the plate under it. Sized as a share of the table box rather
+   than of the viewport, so the setting scales with the painted table it sits on. */
+.serving {
   position: relative;
-  width: 54%;
-  height: 0;
-  padding-bottom: 36%;
-  filter: drop-shadow(0 1px 1px var(--shadow-cast));
+  flex: 0 0 62%;
 }
 
-/* A plate under each one. Without it the dessert reads as a shape pasted onto the
-   table; with it, it reads as something served. Same outline weight as the artwork. */
-.dessert::marker { content: none; }
+/* A plate under each dessert, one per dessert rather than one per table. Without
+   it a dessert reads as a shape pasted onto the table; with it, it reads as
+   something served.
 
-.table::after {
+   The plate used to be `.table::after`, a single ellipse for the whole table. That
+   only worked while the table held exactly one thing — once a drink stood beside
+   the dessert, the one plate stretched under both of them and the drink appeared to
+   be standing in it. */
+.serving::after {
   content: '';
   position: absolute;
-  bottom: -2%;
+
+  /* The plate's MIDDLE sits on the dessert's feet, which is what makes the dessert
+     look like it is standing on the plate rather than behind it. The sprite's
+     baseline is the bottom edge of its own file (draw-desserts.py guarantees that),
+     so 'the dessert's feet' is just the bottom of .serving — and the plate has to
+     hang below it by half its own height.
+
+     -13% with aspect-ratio 3.1 does that: .serving is 1/1.1368 as tall as it is
+     wide, the plate is 84% as wide, so half the plate is about 13.5% of .serving's
+     height. Get this wrong in the other direction and the dessert floats. */
+  bottom: -13%;
   left: 50%;
   translate: -50% 0;
-  width: 62%;
-  aspect-ratio: 3.4;
+
+  /* 84%, not the 104% this started at. A plate wider than the thing on it stops
+     reading as a plate and becomes a white puddle under the table — which is
+     exactly what a 104% plate under a croissant looked like. */
+  width: 84%;
+  aspect-ratio: 3.1;
   border: 2px solid var(--ink);
   border-radius: 50%;
   background: var(--dessert-plate);
+  /* -1 is LOCAL: behind this pseudo-element's own parent content, i.e. behind the
+     dessert standing on the plate. It is not a layer and deliberately not a --z-*
+     token — the layer stack orders whole layers, and this orders two things inside
+     one of them. Carried over from the rule this replaced. */
   z-index: -1;
 }
 
-.dessert::before,
-.dessert::after {
-  content: '';
-  position: absolute;
-  border: 2px solid var(--ink);
-  box-sizing: border-box;
+.dessert,
+.drink {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--sprite-aspect);
+  /* The art is deliberately smooth. `pixelated` fights the brief — see CLAUDE.md. */
+  image-rendering: auto;
+  filter: drop-shadow(0 1px 1px var(--shadow-cast));
 }
 
-/* Croissant: a fat crescent. */
-.dessert--croissant::before {
-  inset: 18% 4% 10% 4%;
-  background: var(--dessert-bake);
-  border-radius: 52% 52% 46% 46% / 78% 78% 42% 42%;
-}
-.dessert--croissant::after {
-  inset: 30% 26% 34% 26%;
-  border-width: 0 0 2px 0;
-  border-radius: 50%;
-}
+/* The drink is narrower than the dessert and gets no plate: a glass stands on the
+   table, and a saucer under every one of them made the settings fussy.
 
-/* Souffle: a straight-sided ramekin with a risen dome. */
-.dessert--souffle::before {
-  inset: 42% 22% 4% 22%;
-  background: var(--surface-wall);
-  border-radius: 0 0 22% 22%;
-}
-.dessert--souffle::after {
-  inset: 6% 16% 52% 16%;
-  background: var(--dessert-bake);
-  border-radius: 50% 50% 14% 14%;
-}
+   ⚠️ `min-width: 0` IS LOAD-BEARING. A flex item defaults to `min-width: auto`,
+   which for a REPLACED element resolves to its own intrinsic size — so the image
+   ignored `flex-basis: 30%` and took the full width of the setting. It was not
+   subtle: the drink came out 201px wide beside a 124px dessert, and because its
+   height follows its width, it made the whole button 232px tall instead of 160px
+   and pushed three of the five tables into overlapping each other.
 
-/* Macarons: a row, colour-matched, like a contact sheet. */
-.dessert--macarons::before {
-  inset: 30% 52% 12% 4%;
-  background: var(--dessert-glaze);
-  border-radius: var(--radius-full);
-}
-.dessert--macarons::after {
-  inset: 30% 4% 12% 52%;
-  background: var(--dessert-glaze);
-  border-radius: var(--radius-full);
-}
-
-/* Bolo bao: a round bun with a crackled top. */
-.dessert--bao::before {
-  inset: 16% 14% 8% 14%;
-  background: var(--dessert-bake);
-  border-radius: 48% 48% 42% 42%;
-}
-.dessert--bao::after {
-  inset: 34% 30% 34% 30%;
-  border-width: 2px 0 0 0;
-  border-radius: 40%;
-}
-
-/* Layer cake: a slice, because the cross-section is the point. */
-.dessert--cake::before {
-  inset: 14% 18% 8% 18%;
-  background: var(--dessert-glaze);
-  border-radius: 8% 8% 12% 12%;
-}
-.dessert--cake::after {
-  inset: 44% 22% 30% 22%;
-  border-width: 2px 0;
-  background: var(--surface-wall);
+   .serving does not need this because it is a <span>, whose min-content width is
+   small. Any image put directly into a flex row here will need it. */
+.drink {
+  flex: 0 0 30%;
+  min-width: 0;
 }
 
 /* The floating label above each painted table. It names the panel the table opens;

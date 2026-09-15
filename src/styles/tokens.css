@@ -18,9 +18,15 @@
                                  obvious #C2577A measures 4.25:1 and fails AA. */
   --ink:            #3E3038;  /* all text */
   --cat-ginger:     #E08A4B;  /* Junnie. Reserved. */
+  /* The desserts. ⚠️ --dessert-bake and --dessert-glaze are now consumed by
+   * assets/source/draw-desserts.py, which BAKES THEM INTO PNGs — a PNG cannot read a
+   * custom property, so the script repeats these values as Python constants. They
+   * look unused from CSS and they are not: change one here and you must change it
+   * there and re-run the script, or the sprite and the plate under it disagree.
+   * --dessert-plate is still drawn in CSS, by .serving::after. */
   --dessert-bake:   #E8C489;  /* baked pastry: croissant, bao, souffle */
   --dessert-glaze:  #E9A7B4;  /* icing and macaron shells */
-  --dessert-plate:  #F6F0E8;  /* the plate under them */
+  --dessert-plate:  #F6F0E8;  /* the plate under them — drawn in CSS */
   --on-accent:      #FFFFFF;  /* text/icons ON --accent-berry. Flips at night. */
 
   /* ---- Derived surfaces -------------------------------------------------- */
@@ -113,6 +119,30 @@
   --room-dessert-bake:  #E8C489;
   --room-dessert-glaze: #E9A7B4;
   --room-dessert-plate: #F6F0E8;
+
+  /* A beverage beside some of them: glass, and what is in it. Kept separate from the
+   * desserts because a drink is translucent and a pastry is not.
+   *
+   * ⚠️ Same as the dessert tones above: these are baked into the drink PNGs by
+   * draw-desserts.py and are never read by CSS. They live here because tokens.css is
+   * the single source of truth for colour in this project and that has to stay true
+   * of colours that end up in an image. Do not delete them as unused. */
+  --room-drink-glass:   #EAF1F4;  /* the cup or glass itself */
+  --room-drink-tea:     #D9A06B;  /* milk tea, iced coffee */
+  --room-drink-matcha:  #A8C48A;  /* the green one */
+
+  --room-scrim:      rgba(62, 48, 56, 0.55);  /* stands in for --panel-scrim */
+
+  /* The photo lightbox. A photograph is shown against a DARK mat regardless of the
+   * clock, because a pale surround competes with the picture for the eye — this is
+   * the one surface on the site that is dark in every theme, and it is deliberate.
+   *
+   * Measured: --room-photo-ink on --room-photo-mat is 12.86:1, and
+   * --room-photo-ink-soft on the same mat is 7.36:1. Both AAA. */
+  --room-photo-scrim:    rgba(20, 16, 28, 0.88);
+  --room-photo-mat:      #2A2436;
+  --room-photo-ink:      #F3ECEF;
+  --room-photo-ink-soft: #C0B2BC;
 
   /* ---- Touch ------------------------------------------------------------- */
   --tap-min: 44px;

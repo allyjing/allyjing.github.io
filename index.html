@@ -95,6 +95,28 @@
   </div>
 </div>
 
+<!-- The photo lightbox. A SIBLING of the panel, not a child: the panel's focus trap
+     queries its own subtree, so a lightbox nested inside would be caught by that trap
+     and by the panel's Escape handler at the same time. Kept out here, it owns its
+     own trap and closes on its own Escape. src/engine/lightbox.js fills it. -->
+<div class="lightbox" id="lightbox" hidden>
+  <div class="lightbox__scrim" data-lightbox-close></div>
+  <div class="lightbox__frame" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption">
+    <!-- Close comes FIRST in the DOM even though it is styled into the top-right
+         corner. That corner is above the arrows on screen, so first in the markup is
+         what makes the tab order match the reading order. Placed last, Tab went
+         prev, next, close — the way out was the last thing a keyboard user found. -->
+    <button class="lightbox__close" id="lightbox-close" type="button" data-lightbox-close></button>
+    <img class="lightbox__image" id="lightbox-image" alt="">
+    <p class="lightbox__caption" id="lightbox-caption"></p>
+    <div class="lightbox__controls">
+      <button class="lightbox__nav" id="lightbox-prev" type="button"></button>
+      <span class="lightbox__count" id="lightbox-count"></span>
+      <button class="lightbox__nav" id="lightbox-next" type="button"></button>
+    </div>
+  </div>
+</div>
+
 <script type="module" src="src/engine/main.js"></script>
 </body>
 </html>

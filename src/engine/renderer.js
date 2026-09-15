@@ -6,7 +6,7 @@
 
 import { getScene } from '../data/scenes.js';
 import { landmarkForTime, backdropImage } from '../data/landmarks.js';
-import { backdropAlt, dessertShape } from '../data/content.js';
+import { backdropAlt, dessertSprite, tableDrink } from '../data/content.js';
 import { applyCoverBox } from './layout.js';
 
 function el(id) {
@@ -196,13 +196,41 @@ function renderTables(items, onOpen) {
     bubble.className = 'bubble';
     bubble.textContent = item.label;
 
-    const dessert = document.createElement('span');
-    dessert.className = `dessert dessert--${dessertShape[item.id] || 'cake'}`;
-    /* The dessert name is decoration, not information — the bubble already carries
-     * the label that matters, so this is a title rather than an aria-label. */
-    dessert.title = item.dessert;
+    /* The place setting: a dessert on a plate, and on some tables a drink beside it.
+     * The row exists even when there is no drink, so the dessert is positioned by
+     * the same rule on all five tables rather than by two different ones. */
+    const setting = document.createElement('span');
+    setting.className = 'setting';
 
-    button.append(bubble, dessert);
+    /* .serving is what carries the plate, in CSS. The dessert image is inside it so
+     * the plate is sized against the dessert rather than against the whole table
+     * box — a table with a drink is wider, and a plate scaled to that would run out
+     * from under the dessert it is supposed to be holding. */
+    const serving = document.createElement('span');
+    serving.className = 'serving';
+
+    const dessert = document.createElement('img');
+    dessert.className = 'dessert';
+    dessert.src = `assets/sprites/${dessertSprite[item.id]}.png`;
+    /* Decorative: the button's own label already names what this table is, and the
+     * dessert is a picture of the label rather than extra information. The dessert's
+     * NAME is still offered as a title for anyone who hovers. */
+    dessert.alt = '';
+    dessert.title = item.dessert;
+    serving.append(dessert);
+    setting.append(serving);
+
+    /* Three of the five tables have a drink; the rest have no entry at all. */
+    const drink = tableDrink[item.id];
+    if (drink) {
+      const glass = document.createElement('img');
+      glass.className = 'drink';
+      glass.src = `assets/sprites/${drink}.png`;
+      glass.alt = '';
+      setting.append(glass);
+    }
+
+    button.append(bubble, setting);
     /* A <button> fires click on Enter AND Space for free. That is the whole reason
      * this is a button rather than a div with a handler. */
     button.addEventListener('click', () => onOpen(item.id));

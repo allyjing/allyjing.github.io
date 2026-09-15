@@ -11,7 +11,9 @@
  * trapped inside the card, and focus goes back to the table that opened it.
  */
 
-import { panels, panelChrome } from '../data/content.js';
+import { panels, panelChrome, galleryChrome, photoSizes } from '../data/content.js';
+import { photoSrc, photoSrcset } from './photos.js';
+import { openLightbox, closeLightbox, isLightboxOpen } from './lightbox.js';
 
 function el(id) {
   const node = document.getElementById(id);
@@ -40,7 +42,10 @@ function focusables() {
 /* Tab from the last focusable wraps to the first, Shift+Tab from the first wraps to
  * the last. Without this, Tab walks out of the dialog into the page behind it. */
 function trapFocus(event) {
-  if (event.key !== 'Tab' || !isOpen()) return;
+  /* Stands down while the lightbox is over it — same rule as the Escape handler in
+   * bindPanel below. The inner dialog runs its own trap, and two traps both calling
+   * preventDefault on the same Tab fight each other. */
+  if (event.key !== 'Tab' || !isOpen() || isLightboxOpen()) return;
 
   const items = focusables();
   if (!items.length) return;
@@ -72,6 +77,83 @@ function fill(panel) {
     body.append(intro);
   }
 
+  /* Two renderers, selected by the data rather than by the panel's id — see `kind`
+   * in content.js. A panel declares one shape and carries only that shape's key, so
+   * reaching for `panel.entries` on the gallery would be undefined, not empty. */
+  if (panel.kind === 'gallery') {
+    fillGallery(body, panel);
+    return;
+  }
+  fillEntries(body, panel);
+}
+
+/* The grid of photographs. Each thumbnail is a real <button> rather than a linked
+ * image: it opens a dialog on the same page, which is a control and not a
+ * destination, so there is no URL for an <a> to point at. */
+function fillGallery(body, panel) {
+  const grid = document.createElement('ul');
+  grid.className = 'gallery';
+
+  /* The hint is a <p> before the grid rather than a title attribute on each
+   * thumbnail: a tooltip does not exist on a touch screen, which is the primary
+   * target here. */
+  const hint = document.createElement('p');
+  hint.className = 'gallery__hint';
+  hint.textContent = galleryChrome.hint;
+  body.append(hint);
+
+  panel.photos.forEach((photo, at) => {
+    const item = document.createElement('li');
+    item.className = 'gallery__item';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gallery__open';
+    button.setAttribute('aria-label', galleryChrome.openAria(photo.caption));
+
+    const image = document.createElement('img');
+    image.className = 'gallery__thumb';
+    image.src = photoSrc(photo.slug, 480);
+    image.srcset = photoSrcset(photo.slug);
+    image.sizes = photoSizes;
+
+    /* Intrinsic size, so the grid does not reflow as each photo lands. The CSS
+     * crops these to a common shape; the attributes describe the FILE, and the
+     * browser needs the file's ratio to reserve the right box. */
+    image.width = photo.width;
+    image.height = photo.height;
+
+    /* The panel is closed when the page loads, so none of these are ever in the
+     * first viewport — lazy is a straight win here rather than a tradeoff. */
+    image.loading = 'lazy';
+    image.decoding = 'async';
+
+    /* Empty alt, deliberately, and NOT missing. The button already carries a
+     * description of this photograph in its accessible name; alt text on the image
+     * inside it would make a screen reader read the same sentence twice. */
+    image.alt = '';
+
+    button.append(image);
+    /* `panel.photos` is passed whole, not a copy, so arrowing through the lightbox
+     * walks the same order the visitor just saw. */
+    button.addEventListener('click', () => openLightbox(panel.photos, at, button));
+
+    item.append(button);
+    grid.append(item);
+  });
+
+  body.append(grid);
+
+  for (const text of [panel.gear, panel.outro]) {
+    if (!text) continue;
+    const para = document.createElement('p');
+    para.className = 'gallery__note';
+    para.textContent = text;
+    body.append(para);
+  }
+}
+
+function fillEntries(body, panel) {
   for (const entry of panel.entries) {
     const article = document.createElement('article');
     article.className = 'entry';
@@ -155,6 +237,13 @@ export function openPanel(id) {
 export function closePanel() {
   if (!isOpen()) return;              // safe to call twice
 
+  /* Take the inner dialog down first. A panel can close from under an open
+   * lightbox — the browser's Back button on #/interior/projects does exactly that —
+   * and closing only the outer one leaves a photograph floating over an empty room
+   * with no visible way out. Order matters: closeLightbox() hands `inert` back to
+   * the panel, which has to happen while the panel is still the thing on screen. */
+  closeLightbox();
+
   el('panel').hidden = true;
 
   const stage = el('stage');
@@ -200,7 +289,11 @@ export function bindPanel(onClose) {
    * be on the card itself, and a listener on the panel would miss key presses that
    * land elsewhere. */
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isOpen()) onClose();
+    /* ⚠️ The lightbox is a dialog OVER this one, and Escape belongs to the topmost
+     * dialog. Without this check, one Escape inside a photograph closes both it and
+     * the Photography panel underneath, dumping the visitor back into the room. The
+     * lightbox closes itself on the same key; this side only has to stand down. */
+    if (event.key === 'Escape' && isOpen() && !isLightboxOpen()) onClose();
   });
 
   window.addEventListener('keydown', trapFocus);

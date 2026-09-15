@@ -151,3 +151,183 @@
   .panel__title { font-size: var(--text-lg); }
   .panel__body  { padding: var(--space-3); }
 }
+
+/* =========================================================================
+ * THE PHOTOGRAPHY GALLERY
+ * A grid of thumbnails inside the panel body. Only the Photography panel uses
+ * this — see `kind: 'gallery'` in content.js.
+ * ========================================================================= */
+
+.gallery__hint,
+.gallery__note {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.gallery__note { margin: var(--space-4) 0 0; }
+
+.gallery {
+  /* auto-fill with a minimum, not a fixed column count: the panel card is a
+     different width on a phone and on a desktop, and this reflows on its own
+     rather than needing a breakpoint per size. */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery__item { margin: 0; }
+
+/* The whole thumbnail is the button. Padding would put an inert border inside the
+   tap target, so the image fills it edge to edge and the button carries the frame. */
+.gallery__open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  overflow: hidden;
+  cursor: pointer;
+
+  /* Comfortably over the 44px minimum at the narrowest column. */
+  min-height: var(--tap-min);
+}
+
+.gallery__open:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+}
+
+/* The photographs are a mix of portrait, landscape and square. A common box with
+   `cover` is what makes the grid read as a contact sheet rather than as a ragged
+   pile; the lightbox shows each one at its own shape. */
+.gallery__thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  image-rendering: auto;   /* these are photographs — never `pixelated` */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gallery__open { transition: border-color var(--dur-scene) var(--ease-soft); }
+  .gallery__open:hover { border-color: var(--accent-berry); }
+}
+
+/* =========================================================================
+ * THE LIGHTBOX
+ * One photograph, full frame, over an open panel. A sibling of .panel in the
+ * markup — see the comment there for why it is not nested.
+ * ========================================================================= */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);        /* 300 — above --z-panel. Never a bare z-index. */
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.lightbox[hidden] { display: none; }
+
+.lightbox__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--room-photo-scrim);
+}
+
+.lightbox__frame {
+  position: relative;             /* above the scrim, which is absolutely placed */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: min(60rem, 100%);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--room-photo-mat);
+  color: var(--room-photo-ink);
+}
+
+/* The photograph keeps its own aspect ratio, and is bounded by BOTH axes. Without
+   the height cap a portrait photo runs off the bottom of a phone in landscape and
+   the caption goes with it. */
+.lightbox__image {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.lightbox__caption {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--room-photo-ink);
+  text-wrap: pretty;
+}
+
+.lightbox__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.lightbox__nav {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  border: 2px solid var(--room-photo-ink-soft);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--room-photo-ink);
+  cursor: pointer;
+}
+
+.lightbox__count {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;   /* so the row does not jitter as it counts */
+  color: var(--room-photo-ink-soft);
+}
+
+.lightbox__close {
+  position: absolute;
+  top: calc(var(--space-4) * -1);
+  right: 0;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent-berry);
+  color: var(--on-accent);              /* never plain white — flips per theme */
+  cursor: pointer;
+  translate: 0 -100%;
+}
+
+.lightbox__nav:focus-visible,
+.lightbox__close:focus-visible {
+  outline: 2px solid var(--room-photo-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox__frame { animation: panel-rise var(--dur-scene) var(--ease-soft); }
+  .lightbox__scrim { animation: panel-fade var(--dur-scene) var(--ease-soft); }
+  .lightbox__nav { transition: background var(--dur-scene) var(--ease-soft); }
+  .lightbox__nav:hover { background: var(--room-photo-ink-soft); }
+}

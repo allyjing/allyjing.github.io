@@ -19,6 +19,7 @@ import { createWalker } from './movement.js';
 import { bindInput, bindBackKeys } from './input.js';
 import { buildChrome } from './chrome.js';
 import { openPanel, closePanel, isOpen, bindPanel } from './panel.js';
+import { bindLightbox } from './lightbox.js';
 
 // The title is copy, so it comes from content.js rather than being typed into <title>.
 document.title = site.title;
@@ -42,6 +43,13 @@ updateChrome(time);
 /* Closing is a route change, not a direct DOM call: that is what makes the Back
  * button leave the panel rather than the site (R10). */
 bindPanel(() => navigate('interior'));
+
+/* The photo lightbox inside the Photography panel. Bound once here rather than when
+ * the gallery is built: its markup is static, and re-binding on every panel open
+ * would stack a fresh copy of every listener. It closes itself rather than going
+ * through the router — a photograph is not a route, so there is no hash for it and
+ * nothing to share. */
+bindLightbox();
 
 let teardown = [];
 

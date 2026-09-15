@@ -20,32 +20,97 @@ comment.
 
 ## Current state
 
-**Phases 0-3 are done, and the interior now exists as a working placeholder. The two
-things actually blocking progress are both art**: the regenerated SoCal exterior cutout,
-and an interior painting (prompt in `assets/PROMPTS.md`). The room is currently drawn in
-CSS from the tokens — it reads correctly and you can walk around it, but it plainly is not
-painted. Dropping `scenes/interior.*` in and setting `image` on `scenes.interior` replaces
-it with no other code change.
+**Phases 0-6 are done.** The exterior, the resume page, the deploy, the first-person
+interior, the panel system, and all five panels with real content.
 
-**Phase 4: `resume.html` is complete and the deploy is the remaining step.**
+Live at <https://allyjing.github.io/>, served from the repo root. Pushes go out through
+the `gh` CLI credential helper — see "Deploying" below.
 
-⚠️ **The source resume contains a phone number and this page deliberately omits it.** PRD
-§10.3 says never to commit a phone number to this repo, which is public. Email and LinkedIn
-are enough to reach her. `Resume.zip` is gitignored for the same reason — do not commit it,
-and do not add the number back.
+**Phase 7 (polish) is what remains**: a11y audit on a real screen reader, a performance
+pass, and testing on an actual phone rather than an emulated viewport.
 
-⚠️ `resume.html` holds its copy INLINE, not in `content.js`. R31 puts all copy in data, but
-R24 says this page loads with no JavaScript, and it cannot do both. R24 wins: this is the
-fast path for a recruiter and it has to work when every script fails. That page
-does not exist yet, so the Resume link in the top-right currently 404s. Phase 4 is
-deliberately early (PRD §12): it makes the site useful to a recruiter before the interior
-exists, and it surfaces the three deploy-only bugs in §10.3 while there are thirty files to
-check rather than three hundred.
+### Phase 6 — the panels hold real content now
 
-Phase 1 built the layer stack, the hash router and a static scene. Phase 2 added
-click-to-move and keyboard movement inside a walkable polygon. Phase 3 completed the
-exterior: both garden signs, the clock, the location label, and all four time states
-cycling. Verified in a browser at desktop and 390x844 portrait.
+No placeholder copy is left anywhere. `src/data/content.js` `panels`:
+
+| panel | `kind` | source of the content |
+|---|---|---|
+| Experience | `entries` | the resume: Red Vest, NU Oakland, Science Club for Girls, Makers Club |
+| Projects | `entries` | the resume plus Arcadium and CNC milling from the old site |
+| Photography | `gallery` | six of Jingwen's own photographs, her own words |
+| Life | `entries` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
+| Arts | `entries` | her Citrus College architectural drawing set. Text only, deliberately |
+
+⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
+things verifiable elsewhere in the repo and on the resume, because nothing on the old site
+covered it. Replace it rather than building on it.
+
+⚠️ **Arts has no artwork on purpose, and this is not an oversight to fix.** The old site's
+Arts and Architecture sections were illustrated with stock and AI-generated placeholders —
+a head made of stones, a hand drawing over a render, two "paintings" that are neither hers
+nor paintings — and the copy around them was written to match those images rather than her
+work. Only the architectural drawing-set description survived, because it is specific and
+credibly hers. The panel says plainly that the pieces are not shown yet. **Do not fill it
+from that site; ask for photographs of the real work.**
+
+### The photo gallery and the lightbox
+
+Photography is the one panel with `kind: 'gallery'`. `engine/panel.js` branches on `kind`
+and reads `photos` instead of `entries`; the two shapes never mix.
+
+- `engine/photos.js` turns a slug into paths. Files are `assets/photos/<slug>-<width>.webp`
+  at the three widths in `photoWidths`. **A missing width is a 404, not a fallback.**
+- Thumbnails are lazy, with `srcset` + `sizes`, and `width`/`height` from the data so a
+  six-photo grid does not reflow as each one lands.
+- `engine/lightbox.js` owns the full-frame view. It is a **sibling** of `#panel`, not a
+  child, and that is load-bearing: the panel's focus trap queries its own subtree, so a
+  nested lightbox would be caught by that trap and by the panel's Escape handler at once.
+
+⚠️ **Escape belongs to the topmost dialog.** `panel.js` asks `isLightboxOpen()` and stands
+down — in both its Escape handler and its Tab trap. Without that, one Escape inside a
+photograph closed the panel underneath it too and dumped the visitor back into the room.
+Do not rely on listener registration order for this; it is an explicit check.
+
+⚠️ **`closePanel()` calls `closeLightbox()` first.** A panel can close from under an open
+lightbox — the browser Back button on `#/interior/photography` does exactly that — and
+closing only the outer one leaves a photograph floating over an empty room.
+
+### The desserts are sprites, with a drink on three tables
+
+`assets/sprites/dessert-*.png` and `drink-*.png`, drawn by
+`assets/source/draw-desserts.py`. They replaced a pair of CSS pseudo-elements per dessert:
+a silhouette can manage a rounded shape and a line, but not lamination on a croissant or a
+crackled crust on a bao, and those are the marks that say which dessert it is.
+
+Three of the five tables carry a drink beside the dessert — coffee with the croissant, milk
+tea with the bolo bao, matcha with the cake. **Three, not five, deliberately:** a drink on
+every table makes five identical place settings and the eye stops reading them as separate
+tables.
+
+⚠️ **Every sprite's artwork sits on the bottom edge of its own file, and the CSS depends on
+it.** `draw-desserts.py` measures each drawing's alpha box and shifts it onto a shared
+baseline automatically, then crops all eight to one box. That is not tidiness — the first
+version trusted the drawings to end at `BASE` and two did not: the croissant was 64px short
+and hovered a visible gap above its plate, and the macarons overshot by 19px and sat buried
+in it. Because the baseline is shared, `align-items: end` alone lines a croissant up with
+the glass beside it and ONE plate offset works for all five.
+
+⚠️ **`--sprite-aspect` in `scenes.css` must match the crop the script prints.** Re-render
+and you must update it.
+
+⚠️ **`.drink` needs `min-width: 0`.** It is an `<img>`, and a flex item defaults to
+`min-width: auto`, which for a REPLACED element resolves to its own intrinsic size — so the
+image ignored `flex-basis: 30%` and took the full width of the setting. It was not subtle:
+the drink came out 201px wide beside a 124px dessert, and since its height follows its
+width it made the whole button 232px tall and pushed three of the five tables into
+overlapping each other. Any image put directly into a flex row here needs the same.
+
+⚠️ **`.table { width: 10% }` is a MEASURED value, not a chosen one.** The stack grows
+upward from the table surface, so a table's box reaches back over the table painted behind
+it. Swept in a browser: 10% is the widest that gives zero overlap between all five pairs;
+11% overlaps by 4% of the smaller button and 14% by 16%. At 11% — the value before the
+sprites went in — clicking Experience's own plate opened Life. Re-measure if a table moves,
+if the sprite aspect changes, or if the bubble's type size changes.
 
 ### Coordinates: everything is in image space
 
@@ -113,6 +178,15 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   to the `--room-*` set, which has no `[data-time]` overrides by design. Everything inside
   inherits, so a new dessert or button is covered without anyone remembering. Patching
   controls one at a time missed the souffle's ramekin and the cake's filling.
+
+  ⚠️ **`.panel` and `.lightbox` are in that same selector list, and they are NOT inside
+  the stage** — they are siblings of it, because the stage gets `inert` while a panel is
+  open and a panel nested inside it would inert itself. Being outside, they do not inherit
+  the rebinding, so until they were named there an open panel re-themed with the clock: its
+  card went navy at night while the room behind it stayed lit. Panels only ever open
+  indoors, so there is no case where this wrongly freezes an outdoor overlay. **Keep it as
+  ONE selector list with ONE copy of the bindings** — a second copy is how the ramekin got
+  missed the first time.
 
   ⚠️ **The interior does not change with the time of day** — no tint, no scene filter. It
   is a lit room and looks the same at midnight as at noon; a bakery that dims at night reads
@@ -202,7 +276,28 @@ sprite was generated against it, so it stays the style reference even though it 
 longer the scene.
 
 `scenes/exterior.jpg` is 276 KB and `interior.jpg` 299 KB, both a little over the 250 KB
-budget. WebP would bring them under.
+budget. WebP would bring them under — **and that is now actionable**: see the tooling note
+below. It has not been done because the exterior is a JPEG paired with a separate alpha
+mask, and re-encoding it means re-checking that the mask still registers.
+
+### Image tooling that actually exists on this machine
+
+Earlier notes here said there was no PIL, no ImageMagick and no `cwebp`, which is why
+`assets/source/png.py` is a from-scratch zlib+struct PNG codec. **Two of those three are
+now available**, verified 2026-09-15:
+
+- **`sips`** (`/usr/bin/sips`, ships with macOS) — resize and format conversion.
+- **`cwebp`** (`/opt/homebrew/bin/cwebp`) — WebP encoding.
+- Still no PIL and no ImageMagick, so `png.py` is still the way to read or write pixels
+  from Python.
+
+`sips` + `cwebp` is how `assets/photos/` was produced. Reach for them before writing
+another pure-Python pixel loop.
+
+⚠️ **`assets/source/png.py` lives in the repo now.** Every script in `assets/source/`
+imported it from a scratch directory under `~/.claude/jobs/`, which meant all six of them
+stopped working the moment that directory was cleaned up — committed scripts with an
+uncommitted dependency. They now resolve it relative to their own file.
 
 ### The time-of-day tint, resolved
 
@@ -238,6 +333,51 @@ are blocked by CORS on the file protocol.
 There is no test runner and no linter. Verification is done by looking at the page, so after
 a change, say what to open and what should be different.
 
+**For anything touching focus, layering, routing or responsive layout, that is not enough.**
+There are browser checks in the repo:
+
+```bash
+python3 serve.py                 # one terminal
+tools/browser-check/run.sh       # another
+```
+
+They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
+this installs nothing and does not break the no-npm rule, and none of it ships —
+`index.html` does not reference it. 75 assertions across five suites; see
+`tools/browser-check/README.md` for what each one holds down.
+
+Seven traps that produce confident, wrong results here. Every one cost a real
+investigation, and three of them make an EMPTY run look like a clean one — `run.sh` now
+fails a suite that printed no assertions, for exactly that reason:
+
+1. **Chrome's own cache**, on top of the one `serve.py` solves. A CSS edit did not reach the
+   page and produced a clean FAIL on a rule that was already fixed. Send
+   `Network.setCacheDisabled` AND cache-bust the URL on every navigation.
+2. **`input.js` listens for `pointerdown`.** `new MouseEvent('click')` never produces one,
+   so a synthetic click reports "she did not move" while everything works. Use
+   `Input.dispatchMouseEvent`.
+3. **Position is written to `left`/`top`**, not to `transform` — the transform is a constant
+   translate plus a walking lean. Comparing transforms reports no movement however far she
+   walks. (And she has an idle bob, so never assert "did not move" from a raw transform.)
+4. **1400x900 is 1.56, which is BELOW the 8:5 breakpoint.** Two checks and a screenshot
+   were taken in the phone menu layout while I believed they were the wide one. Assert
+   `matchMedia('(max-aspect-ratio: 8/5)').matches` is what you expect before trusting
+   anything about table layout.
+5. **`--scene-x/y/w/h` are published on `#stage`**, not on `documentElement`.
+6. **`:focus-visible` does not fire for a programmatic `.focus()`** — dispatch a real Tab.
+   And the panel focuses its close button on open, so the FIRST Tab lands on the second
+   control, not the first.
+7. **Silent no-run, three ways**: `timeout` does not exist on macOS, so wrapping a check in
+   it runs nothing; two Chrome clients on one page target crash Chrome and every later
+   suite reports nothing; and piping a check into `awk` from a script that also backgrounds
+   Chrome swallows its output. All three print `0 pass, 0 fail`.
+
+Assert geometry and state, not existence. "Five tables rendered and clicks work" passed
+while three of them sat piled on top of each other in the wrong place. And when the
+question is whether something LOOKS right, take the screenshot and look at it — the
+croissant floating above its plate, the plate reading as a white puddle, and the outlines
+coming out beaded were all invisible in every computed value and obvious in the picture.
+
 ## Architecture
 
 Plain HTML + CSS + ES modules. Rendering is **DOM elements moved with CSS `transform`**,
@@ -249,8 +389,11 @@ src/data/      pure data — scenes, tables, content, landmarks, theme state
 src/engine/    everything that touches the DOM
                main.js boots; layout.js maps image space; movement.js is pure geometry
                and timing, input.js owns the events, renderer.js owns the DOM writes
+               panel.js owns #panel; lightbox.js owns #lightbox; photos.js builds
+               photo paths and is shared by both so they cannot disagree
 src/styles/    tokens.css is the single source of truth for color
-assets/        scenes/ backdrops/ sprites/ refs/ source/ + PROMPTS.md
+assets/        scenes/ backdrops/ sprites/ photos/ refs/ source/ + PROMPTS.md
+               photos/ is the only real photography; everything else is illustration
 ```
 
 **Two scenes only: `exterior` and `interior`.** Each of the five tables opens an **overlay
@@ -303,16 +446,27 @@ Panel requirements that are easy to skip and are not optional: deep-linkable via
 `#/interior/projects`; closes on button, `Escape`, **and** backdrop click; focus trapped
 while open; focus returns to the table that opened it; scene behind is `aria-hidden`.
 
+The lightbox inside the Photography panel meets the same bar on its own terms — button,
+`Escape`, backdrop click, its own focus trap, focus back to the thumbnail — plus arrow keys
+through the set. It is a second dialog, not an extension of the first; see "The photo
+gallery and the lightbox" above for the two rules that keep them from fighting.
+
 `/resume.html` is a plain semantic HTML page with no JavaScript and no sprite assets. It is
 the fast path for recruiters and is not optional. Do not add game code to it.
 
-**Deploy at Phase 4, not at the end** (PRD §12). The resume page plus the exterior is
-already useful to a recruiter, and the three deploy-only bugs below surface while there are
-thirty files to check instead of three hundred.
+**Deploy at Phase 4, not at the end** (PRD §12) — done, and the reasoning held: the three
+deploy-only bugs below were checkable against thirty files instead of three hundred.
 
 ## Art assets
 
-Assets are AI-generated. Two constraints that are easy to violate by accident:
+Most assets are AI-generated. Two that are not, and confusing them causes real mistakes:
+
+- **`assets/sprites/dessert-*.png` and `drink-*.png` are DRAWN** by
+  `assets/source/draw-desserts.py`. Re-run the script; do not prompt a generator.
+- **`assets/photos/` are Jingwen's real photographs.** Not illustration, not generated, and
+  the only images on the site that depict real places.
+
+Two constraints that are easy to violate by accident:
 
 - **There are no walk-cycle frames.** Never write code that expects a sprite sheet or a
   frame index. Still true — but how walking is done has moved on from PRD §8.3, twice, and
@@ -444,6 +598,16 @@ site. The account was originally `JingleWhen`, which would have made `allyjing.g
 project served at `jinglewhen.github.io/allyjing.github.io/` — the base-path problem below,
 arriving through the repo name rather than through a path. The account was renamed to
 `allyjing`, which also matches the LinkedIn handle the site already links to.
+
+Pushing needs the `gh` CLI's credential helper — plain `git push` has no TTY to prompt on
+in this environment and fails with `could not read Username`:
+
+```bash
+git -c credential.helper='!gh auth git-credential' push origin main
+```
+
+`gh auth setup-git` would make that permanent. Pages rebuilds on its own; watch it with
+`gh api repos/allyjing/allyjing.github.io/pages/builds/latest`.
 
 Three rules whose
 violations are **invisible locally and only break after deploying**:

@@ -286,11 +286,91 @@ moment it deploys.
 | `backdrops/` | Distant landmark layer, one per time state. Time of day is **baked in**. |
 | `scenes/` | Scene backgrounds, painted under **neutral** light and tinted in CSS. |
 | `refs/` | Character sheets still on flat magenta. The img2img input for every later asset. |
-| `sprites/` | Final keyed transparent PNGs. **Empty — keying not done yet.** |
+| `sprites/` | Final transparent PNGs: the keyed character pieces, plus the eight DRAWN dessert and drink sprites. |
+| `photos/` | **Jingwen's own photographs.** Not artwork and not generated — see below. |
 
 `refs/` is an addition to the layout in PRD §7.3. It exists because the magenta sheet and
 the keyed sprite are two different artifacts with two different jobs, and collapsing them
 into one folder loses the reference you need for every future prop.
+
+## `photos/` — real photographs, and the only real ones
+
+Everything else under `assets/` is illustration. `assets/photos/` is six photographs
+Jingwen actually took, carried over from `jingwen.lovable.app` for the Photography panel:
+four of a sunrise above the fog line and two of the Southern California coast.
+
+Each exists at three widths — `<slug>-480.webp`, `-960.webp`, `-1600.webp` — because
+`engine/panel.js` builds a `srcset` from `photoWidths` in `content.js`. **Adding a
+photograph means exporting all three**; a missing width is a 404, not a fallback.
+
+Converted with the tools that are on this machine:
+
+```bash
+sips -s format png -Z 960 in.jpg --out /tmp/p.png     # resize
+cwebp -q 78 -m 6 /tmp/p.png -o out-960.webp           # encode
+```
+
+⚠️ **`sips` and `cwebp` both exist here.** Earlier notes in this repo say no WebP encoder
+was available and that is why `scenes/` holds JPEGs a little over budget. That is no longer
+true — `cwebp` is at `/opt/homebrew/bin/cwebp`. The scene JPEGs could be brought under
+budget the same way.
+
+⚠️ **Not everything on the old site was hers.** Its photography "cover" (cameras on a map)
+and "result" (an ID-card mockup) are stock, and every image in its Arts and Architecture
+sections is stock or AI-generated placeholder — a head made of stones, a hand drawing over a
+render, two "paintings" that are neither. The surrounding copy was written to match those
+images. None of it was carried over, and the Arts panel is text-only until there are
+photographs of the real pieces. **Check provenance before reusing anything else from
+there.**
+
+## The desserts and drinks are DRAWN, not generated
+
+`assets/sprites/dessert-*.png` and `drink-*.png` are the one set of assets in this project
+that never went near an image generator. They are rendered by
+`assets/source/draw-desserts.py`:
+
+```bash
+python3 assets/source/draw-desserts.py     # writes all eight
+```
+
+Two reasons they are drawn rather than prompted, and both are about the SET rather than
+about any one picture:
+
+- **The palette has to be exact.** Each dessert sits on a plate drawn in CSS from
+  `--dessert-plate`. A generator gives you approximately the colour you asked for, and
+  approximately is visible when the two are touching.
+- **Eight of them have to agree with each other** — one outline weight, one light
+  direction, one level of detail. Holding a set consistent is the thing generators are
+  worst at, and for a set it is the only thing that matters.
+
+**⚠️ The script does not take a subset.** It refuses arguments, because both the baseline
+alignment and the crop box are computed across all eight at once; rendering three of them
+would put those three on a different baseline than the rest.
+
+**⚠️ The palette constants at the top of the script must be kept in step with
+`src/styles/tokens.css` BY HAND.** A PNG cannot read a CSS variable. If a dessert token
+changes, change it there too and re-run — otherwise the sprite and the plate under it will
+disagree.
+
+**⚠️ If you re-render, update `--sprite-aspect` in `scenes.css`.** The script prints the
+value. Every sprite is cropped to one shared box so they all have the same aspect ratio and
+their artwork all sits on the bottom edge of the file, which is what lets `align-items: end`
+line a croissant up with the glass beside it and lets one plate offset work for all five
+desserts.
+
+Three things were learned making them, all by rendering a contact sheet and looking at it
+rather than by reading the code:
+
+1. **Stroke overlaps cancelled under nonzero winding.** A stroke is built from a quad per
+   segment plus a disc per vertex, and their winding follows each segment's direction — so
+   the overlaps summed to zero and every outline came out beaded, like a dotted line. They
+   are rasterised with a union rule instead.
+2. **Clipping by winding does not clip.** "Shape plus reversed clip region" leaves the clip
+   region itself at winding −1, which is nonzero, so it fills: every shade patch painted a
+   rectangle across the sprite. Coverage maps are multiplied instead.
+3. **Draw for the size it is SEEN at,** about 90px. A seven-line crackle pattern on the bao
+   became grey mush and macaron feet vanished entirely. Each sprite now carries the fewest
+   marks that still say which dessert it is.
 
 ## Log
 
@@ -303,6 +383,14 @@ into one folder loses the reference you need for every future prop.
 | `backdrops/smpier-noon.jpg` | §5 above | *unrecorded* | *unrecorded* | *unrecorded* | *unrecorded* | 2026-09-13 |
 | `backdrops/laguna-sunset.jpg` | §6 above | *unrecorded* | *unrecorded* | *unrecorded* | *unrecorded* | 2026-09-13 |
 | `backdrops/griffith-night.jpg` | §7 above | *unrecorded* | *unrecorded* | *unrecorded* | *unrecorded* | 2026-09-13 |
+| `sprites/dessert-croissant.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/dessert-souffle.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/dessert-macarons.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/dessert-bao.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/dessert-cake.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/drink-coffee.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/drink-milk-tea.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
+| `sprites/drink-matcha.png` | — drawn, not prompted | `assets/source/draw-desserts.py` | — | — | tokens.css palette | 2026-09-15 |
 
 All seven were generated before this log was filled in, so **tool, model, and seed are
 unknown**. The prompts themselves survive above and visibly match the output, so the style
