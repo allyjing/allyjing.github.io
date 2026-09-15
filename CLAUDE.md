@@ -108,6 +108,12 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   reads as served rather than as a shape pasted on; and **daylight from the window** spills
   the current `--sky-top` across the floor, so the room knows what time it is.
 
+  ⚠️ **Nothing indoors changes with the time of day**, including the buttons, the desserts
+  and the chrome. Done by REBINDING the flipping tokens on `.stage[data-scene='interior']`
+  to the `--room-*` set, which has no `[data-time]` overrides by design. Everything inside
+  inherits, so a new dessert or button is covered without anyone remembering. Patching
+  controls one at a time missed the souffle's ramekin and the cake's filling.
+
   ⚠️ **The interior does not change with the time of day** — no tint, no scene filter. It
   is a lit room and looks the same at midnight as at noon; a bakery that dims at night reads
   as closed rather than as evening. The clock still shows and the exterior still changes.
@@ -317,6 +323,14 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   rotation of the whole sprite, and that reads as gliding, not walking. This is still one
   generated pose with no frames; the cut is done in software from the single sprite. The
   cut lines are recorded in `scenes.js` as percentages and must match the images.
+
+  **The head-on step TRANSLATES the leg up; it does not scale it.** scaleY about the hip
+  raises the foot on paper, but it squashes the SHOE with it, so it reads as a trouser leg
+  compressing rather than a foot lifting — which is why a pass that measured correctly still
+  looked like nothing was happening. translateY lifts the foot and the shoe together. It
+  needs the leg's top to hide behind the body as it rises, so the body piece is cut to 72%
+  against a hip at 61.8%: a 10% overlap. The original 1.4% overlap is why scaling was
+  reached for first.
 
   **The head-on step uses NO ROTATION AT ALL.** Two passes kept a few degrees "just to
   suggest the leg passing under the body" and both still read as waddling — rotating a leg

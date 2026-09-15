@@ -91,6 +91,29 @@
   --chrome-bg:   rgba(251, 247, 244, 0.88);
   --chrome-ink:  #3E3038;
 
+  /* ---- Indoor UI ----------------------------------------------------------
+   * The interior is a lit room and does not change with the time of day, so
+   * neither does anything drawn on top of it. These deliberately have NO
+   * [data-time] overrides — that is the whole point of them.
+   *
+   * They hold the daytime values of the tokens they stand in for, so an indoor
+   * control looks the same at midnight as at noon. Do not "fix" the missing
+   * overrides by adding them. */
+  --room-face:       #FBF7F4;  /* stands in for --surface-wall  */
+  --room-ink:        #3E3038;  /* stands in for --ink           */
+  --room-keyline:    #F2C8D3;  /* stands in for --surface-trim  */
+  --room-accent:     #B84A6E;  /* stands in for --accent-berry  */
+  --room-on-accent:  #FFFFFF;  /* stands in for --on-accent     */
+  --room-chrome-bg:  rgba(251, 247, 244, 0.88);
+  --room-hairline:   #E2D5D9;
+  --room-ink-soft:   #6B5A62;
+  --room-shadow:     rgba(62, 48, 56, 0.16);
+
+  /* The desserts are IN the lit room, so they hold their daytime colours too. */
+  --room-dessert-bake:  #E8C489;
+  --room-dessert-glaze: #E9A7B4;
+  --room-dessert-plate: #F6F0E8;
+
   /* ---- Touch ------------------------------------------------------------- */
   --tap-min: 44px;
 }

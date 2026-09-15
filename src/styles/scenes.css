@@ -327,25 +327,29 @@
 
   /* A step, seen head-on.
    *
-   * NO ROTATION AT ALL. Rotating a leg about the hip swings the foot sideways, and
-   * sideways is what a waddle is — two earlier passes kept a few degrees "just to
-   * suggest the leg passing under the body" and both still read as waddling. Taking
-   * it to zero is what finally fixed it.
+   * The foot LIFTS. That is the only motion that reads as walking from the front,
+   * and getting there took three tries:
    *
-   * What is left is the only motion that reads as walking from the front: the foot
-   * LIFTS, done with scaleY about the hip, so shortening the leg raises the foot
-   * while the hip stays welded to the body. That is what a bending knee looks like
-   * from here.
+   *   - Rotating the leg about the hip swings the foot sideways. Sideways is what a
+   *     waddle is. Rotation is now zero and stays zero.
+   *   - scaleY about the hip raises the foot, but it squashes the SHOE with it, so
+   *     it reads as a trouser leg compressing rather than a foot coming up. That is
+   *     why the last attempt looked like nothing was happening.
+   *   - translateY raises the foot and the shoe together, which is what actually
+   *     reads. It needs the leg's top to hide behind the body as it rises, so the
+   *     body piece is cut down to 72% against a hip at 61.8% — a 10% overlap. With
+   *     the old 1.4% overlap a translate exposed a gap at the hip, which is why it
+   *     was not used first.
    *
    * The slight widening at the plant is depth, not width: a leg swinging forward
    * comes nearer the viewer, and nearer reads as very slightly bigger. */
   @keyframes step {
-    0%   { scale: 1    1;    }   /* planted, taking the weight */
-    20%  { scale: 1    0.92; }   /* heel comes up              */
-    40%  { scale: 1    0.82; }   /* knee up, foot at its highest */
-    60%  { scale: 1.03 0.92; }   /* swinging through, nearer   */
-    80%  { scale: 1.02 1;    }   /* plants forward             */
-    100% { scale: 1    1;    }
+    0%   { translate: 0 0;     scale: 1    1; }   /* planted, taking the weight */
+    25%  { translate: 0 -4.5%; scale: 1    1; }   /* foot comes up              */
+    45%  { translate: 0 -7%;   scale: 1    1; }   /* knee at its highest        */
+    65%  { translate: 0 -4%;   scale: 1.03 1; }   /* swinging through, nearer   */
+    85%  { translate: 0 0;     scale: 1.02 1; }   /* plants forward             */
+    100% { translate: 0 0;     scale: 1    1; }
   }
 }
 
@@ -367,8 +371,32 @@
 .stage[data-scene='interior'] .layer--tint { display: none; }
 .stage[data-scene='interior'] .layer--scene { filter: none; }
 
-/* Indoors there is no landmark to report, so the WHERE readout goes away. The clock
-   stays: time of day still applies, just more subtly. */
+/* Nothing drawn on top of the room changes either — the table buttons, the desserts
+   and every piece of chrome.
+   
+   Done by REBINDING THE TOKENS on the interior stage rather than by overriding each
+   control. Everything inside inherits, so a new dessert or a new button is covered
+   without anyone remembering to add a rule. Patching controls one at a time missed
+   the souffle's ramekin and the cake's filling, both of which use --surface-wall.
+
+   The --room-* values are the daytime ones and deliberately have no [data-time]
+   overrides of their own; see tokens.css. */
+.stage[data-scene='interior'] {
+  --surface-wall:  var(--room-face);
+  --surface-trim:  var(--room-keyline);
+  --ink:           var(--room-ink);
+  --ink-soft:      var(--room-ink-soft);
+  --hairline:      var(--room-hairline);
+  --chrome-bg:     var(--room-chrome-bg);
+  --chrome-ink:    var(--room-ink);
+  --accent-berry:  var(--room-accent);
+  --on-accent:     var(--room-on-accent);
+  --shadow-cast:   var(--room-shadow);
+  --dessert-bake:  var(--room-dessert-bake);
+  --dessert-glaze: var(--room-dessert-glaze);
+  --dessert-plate: var(--room-dessert-plate);
+}
+
 .stage[data-scene='interior'] .chrome--location { display: none; }
 
 /* One trigger per painted table: the dessert sits on the table surface and the

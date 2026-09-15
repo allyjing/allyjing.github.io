@@ -50,7 +50,7 @@ const jingwen = {
     back: jingwenBack,     // walking away
     side: jingwenSide,     // left or right; drawn facing RIGHT, mirrored for the other
   },
-  bodyHeight: 63.194,
+  bodyHeight: 72,
   legTop: 61.806,
   legHeight: 38.194,
 };
