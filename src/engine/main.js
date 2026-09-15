@@ -2,8 +2,9 @@
  *
  * Boot. Wires the router, the renderer, movement and the chrome together.
  *
- * Phase 3 scope: the exterior is complete — signs, clock, location label, resume
- * link, all four time states. Still to come: panels and the interior (Phase 5).
+ * Both scenes are complete: the exterior with its signs, clock, location label,
+ * resume link and four time states, and the interior with its five table buttons
+ * and the overlay panel each of them opens.
  */
 
 import { site } from '../data/content.js';

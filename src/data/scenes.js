@@ -129,12 +129,12 @@ export const scenes = {
     ],
   },
 
-  /* The hub. One room, five tables, each of which will open an overlay PANEL rather
-   * than lead to another scene — there is no third scene, ever (PRD R7/R11).
+  /* The hub. One room, five tables, each of which opens an overlay PANEL rather than
+   * leading to another scene — there is no third scene, ever (PRD R7/R11).
    *
-   * The tables are PAINTED now, so nothing draws them. The only things placed here
-   * are the floating bubbles that sit above each one; Phase 5 turns those into the
-   * panel triggers. Their coordinates are read off the artwork. */
+   * The tables are PAINTED now, so nothing draws them. What is placed here is the
+   * dessert on each table and the bubble above it, and the whole stack is a real
+   * <button> that opens the panel. Their coordinates are read off the artwork. */
   interior: {
     id: 'interior',
     image: 'assets/scenes/interior.webp',
@@ -175,12 +175,9 @@ export const scenes = {
      * to walk to, so the front EDGE is the way out — stepping toward the viewer is
      * stepping back outside.
      *
-     * `at` is an image-space y, like every other coordinate in this file. It sits
-     * just inside the polygon's bottom edge (y 97), not on it, so she reaches the
-     * trigger while still on painted floor.
-     *
-     * 95 sits between the polygon's foreground edge (y 98) and the y-90 spans, so
-     * she reaches it while still on painted floor. */
+     * `at` is an image-space y, like every other coordinate in this file. 95 sits
+     * between the polygon's foreground edge (y 98) and the y-90 spans, so she
+     * reaches the trigger while still on painted floor rather than on its edge. */
     exit: { edge: 'bottom', at: 95, to: 'exterior' },
 
     /* On the door itself, so it reads as the way out rather than as a button
@@ -195,10 +192,15 @@ export const scenes = {
     /* One trigger per painted table. x/y is the TABLE SURFACE — the dessert sits
      * there and the bubble floats above it. Read off the artwork.
      *
-     * These are BUTTONS in the props layer, not scenery in the decor layer. The
+     * These are BUTTONS in a layer of their own, not scenery in the decor layer. The
      * decor layer is aria-hidden, and a control a screen reader cannot see is not a
      * control. The id is bare (`projects`), because the same string is the panels
-     * key and the URL segment; the DOM id gets the `table-` prefix at render. */
+     * key and the URL segment; the DOM id gets the `table-` prefix at render.
+     *
+     * ⚠️ These x values span 37-73, and a portrait phone only shows about x 37-63 of
+     * the artwork. Three of the five fall outside that crop, so below an 8:5 aspect
+     * ratio ui.css docks the buttons into a menu down the left edge — the same
+     * treatment the garden signs get outdoors, for the same reason. */
     tables: tables.map((table, i) => ({
       ...table,
       /* Read off the new artwork 2026-09-14, in the table order in content.js:

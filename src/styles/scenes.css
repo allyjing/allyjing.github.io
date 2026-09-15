@@ -136,10 +136,13 @@
   -webkit-mask-repeat: no-repeat;
 }
 
-/* Props and actors are sized to the ARTWORK, not the stage. layout.js publishes the
-   box the cropped scene image actually occupies, so a position expressed as a
-   percentage in here lands on the same painted spot at every window shape. */
+/* Props, tables, decor and actors are sized to the ARTWORK, not the stage. layout.js
+   publishes the box the cropped scene image actually occupies, so a position
+   expressed as a percentage in here lands on the same painted spot at every window
+   shape. ui.css overrides this for .layer--props and .layer--tables below 8:5,
+   where the crop hides their contents and both dock as chrome instead. */
 .layer--props,
+.layer--tables,
 .layer--decor,
 .layer--actors {
   inset: auto;
@@ -148,23 +151,32 @@
   top: var(--scene-y, 0px);
   width: var(--scene-w, 100%);
   height: var(--scene-h, 100%);
-  pointer-events: none;
 }
 
 .layer--props  { z-index: var(--z-props); }
+
+/* The five table buttons. Same z as the props layer, but later in the DOM so a
+   bubble paints over a sign, and still below the actors so Jingwen walks in FRONT
+   of a table rather than behind it.
+
+   Its own layer rather than sharing the props layer, because the two dock to
+   different corners on a phone and a single layer can only go to one. Sharing one
+   meant the tables were carried into the signs' dock by a rule written for signs,
+   and collapsed into a band on top of Jingwen. See ui.css for both docks. */
+.layer--tables { z-index: var(--z-props); }
 
 /* Scenery signs. Same z as the props layer, but later in the DOM so it paints over
    them, and still below the actors — she should walk in front of a sign, not behind.
    Unlike the props layer this one NEVER docks to the corner: decor belongs to the
    painting, so it keeps the artwork box at every viewport shape. */
 .layer--decor { z-index: var(--z-props); }
-/* The signs and the table buttons live in the props layer and DO take clicks, even
-   though the layer itself does not — the layer is a frame that lets clicks pass
-   through to the ground beneath it, and only its interactive children take them.
-   The table buttons are appended here too (renderTables), so they need the same
-   opt-back-in or the layer's pointer-events: none swallows every click on them. */
+
+/* The signs and the table buttons DO take clicks, even though their layers do not —
+   a layer is a frame that lets clicks pass through to the ground beneath it, and
+   only its interactive children take them. Without this opt-back-in the layer's
+   pointer-events: none swallows every click on them. */
 .layer--props .sign,
-.layer--props .table { pointer-events: auto; }
+.layer--tables .table { pointer-events: auto; }
 .layer--actors { z-index: var(--z-actors); }
 
 /* The stage takes the clicks, because the actors layer must not intercept them. */
@@ -512,8 +524,9 @@
   background: var(--surface-wall);
 }
 
-/* The floating label above each painted table. Phase 5 makes these the panel
-   triggers; for now they are labels, so the room reads before the panels exist. */
+/* The floating label above each painted table. It names the panel the table opens;
+   the whole .table stack around it is the button, so this is the visible part of a
+   trigger rather than a control of its own. */
 .bubble {
   position: relative;
   font-family: var(--font-display);

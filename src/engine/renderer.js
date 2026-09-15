@@ -142,7 +142,7 @@ function renderSigns(signs) {
 /* Scenery only. No link, no button, not focusable, and the layer is aria-hidden —
  * this is painted detail, and a screen reader announcing it as a control that does
  * nothing would be worse than silence. The interior tables used to live here; they
- * are real buttons in the props layer now (see renderTables). */
+ * are real buttons in their own layer now (see renderTables). */
 function renderDecor(items) {
   const layer = el('decor');
   layer.replaceChildren();
@@ -164,15 +164,19 @@ function renderDecor(items) {
 
 /* The five interior tables, as real buttons (PRD D2).
  *
- * APPENDS to the props layer rather than replacing it, because renderSigns has
- * already filled it and owns the clearing. Call order in renderScene matters:
- * signs first, then tables.
+ * They have a layer of their own, NOT the props layer the signs live in, so this
+ * owns its own clearing and no longer depends on renderSigns running first. The
+ * split is a layout requirement, not tidiness: on a tall screen ui.css docks the
+ * props layer to the viewport so the signs become corner chrome, and a table
+ * carried along by that would resolve its hand-measured percentage against the
+ * window instead of the artwork.
  *
  * The table itself is painted into the artwork. What gets added is the dessert
  * sitting on it and the bubble floating above, so the stack grows upward from the
  * table surface at x/y. */
 function renderTables(items, onOpen) {
-  const layer = el('props');
+  const layer = el('tables');
+  layer.replaceChildren();
   if (!items) return;
 
   for (const item of items) {
@@ -330,7 +334,10 @@ export function renderScene(sceneId, time, onOpenTable = () => {}) {
     sceneImg.style.maskImage = mask;
     sceneImg.style.webkitMaskImage = mask;   // Safari still wants the prefix
   } else {
-    sceneImg.hidden = true;              // interior has no art yet (Phase 5)
+    /* Both scenes are painted now, so nothing reaches here. Kept as the honest
+     * fallback for a scene declared without an `image`: hide the element rather
+     * than leave the previous scene's artwork on screen. */
+    sceneImg.hidden = true;
   }
 
   stage.dataset.backdrop = String(scene.hasBackdrop);

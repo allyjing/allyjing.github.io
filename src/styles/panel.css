@@ -66,7 +66,11 @@
 }
 
 /* The only scrolling region. Projects is four entries and will not fit any
-   viewport, so this is load-bearing rather than defensive. */
+   viewport, so this is load-bearing rather than defensive.
+
+   index.html gives it tabindex="0" so a keyboard user can focus it and scroll with
+   the arrow keys — it holds no other focusable element, so without that there is no
+   way to reach the rest of a long panel. */
 .panel__body {
   overflow-y: auto;
   padding: var(--space-4);
@@ -74,6 +78,13 @@
   font-size: var(--text-base);
   line-height: var(--leading-body);
   color: var(--ink);
+}
+
+/* The ring goes INSIDE the region rather than outside it: base.css offsets focus
+   rings by 2px, and this element is flush with the card, so an outward ring is
+   clipped by the card's rounded overflow and half of it disappears. */
+.panel__body:focus-visible {
+  outline-offset: -2px;
 }
 
 .panel__intro {

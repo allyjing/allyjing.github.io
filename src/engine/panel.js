@@ -7,7 +7,8 @@
  * (PRD R7/R11). The panel is not a route of its own either; main.js drives it from
  * the hash, so #/interior/projects is shareable and Back closes it.
  *
- * Focus handling lives in this file too, added in the next task.
+ * Focus handling lives here too: the close button takes focus on open, Tab is
+ * trapped inside the card, and focus goes back to the table that opened it.
  */
 
 import { panels, panelChrome } from '../data/content.js';
@@ -117,12 +118,18 @@ function fill(panel) {
   }
 }
 
-/* Opens the panel for a table id. Returns false for an unknown id and does nothing
- * else — a typo in a shared link must not produce a broken page. */
+/* Opens the panel for a table id. Returns false for an unknown id.
+ *
+ * Any open panel is closed FIRST, before the id is validated. Order matters: if the
+ * unknown-id bail came first, hand-editing the hash from #/interior/projects to
+ * #/interior/nonsense would leave the Projects panel sitting over a URL that no
+ * longer names it. An unrecognised link should land you in a plain room, not on
+ * someone else's panel. */
 export function openPanel(id) {
+  if (isOpen()) closePanel();
+
   const panel = panels[id];
   if (!panel) return false;
-  if (isOpen()) closePanel();
 
   fill(panel);
 

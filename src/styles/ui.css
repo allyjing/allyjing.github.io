@@ -153,7 +153,14 @@
    sign stuck into the corner of a phone screen is not standing in any grass.
    
    `position: static` is what makes this work without fighting the inline left/top
-   the renderer sets for the wide layout — static simply ignores them. */
+   the renderer sets for the wide layout — static simply ignores them.
+
+   ⚠️ This resizes the whole LAYER to the viewport, which is only ever safe for
+   children that have stopped using the artwork box — everything in here must be
+   reset to `position: static` as .sign is. The table buttons were absolute and were
+   not reset, so they kept reading percentages against a box that was now the window
+   and landed nowhere. They have a layer of their own now, with a dock of their own
+   below. */
 @media (max-aspect-ratio: 8 / 5) {
   .layer--props {
     /* Docked signs are chrome, so they belong above the actors — otherwise Junnie
@@ -184,6 +191,72 @@
   }
 
   .sign::after { display: none; }
+}
+
+/* The table buttons hit the SAME crop problem, and need the same answer.
+ *
+ * The tables are painted at x 37, 40, 52, 67 and 73 across the artwork, and the
+ * visible band on a 390x844 phone is x 37-63. Photography (67) and Arts (73) are
+ * outside the frame entirely and Experience (37) is half off its left edge — so
+ * three of the five panels are simply unreachable if the buttons stay on their
+ * painted tables. There is no breakpoint that rescues this: covering x 37-73 needs
+ * a viewport wider than 0.75 x its height, which no phone is in portrait.
+ *
+ * So below 8:5 the tables stop being objects in the room and become a MENU, docked
+ * bottom-left, opposite the signs' column bottom-right. A control you cannot see is
+ * not a control, and a bakery menu is an honest thing to find in a bakery.
+ *
+ * This is deliberate, unlike the collapse it replaces: the tables used to share the
+ * signs' layer and got dragged into the dock by a rule written for signs, landing
+ * at viewport percentages that mean nothing — piled over Jingwen, none of them on a
+ * table. Their own layer is what makes the wide layout land on the painted tables
+ * and this one a chosen arrangement rather than an accident. */
+@media (max-aspect-ratio: 8 / 5) {
+  .layer--tables {
+    /* Docked tables are chrome, so they belong above the actors — otherwise
+       Jingwen stands in front of the menu. Same reasoning as the signs above; in
+       the wide layout she correctly walks in FRONT of a table. */
+    z-index: var(--z-ui);
+    inset: 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+
+  /* `position: static` ignores the inline left/top the renderer sets for the wide
+     layout, without having to fight them. Same trick as .sign. */
+  .table {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    /* Shrink-wrap the label instead of taking 11% of a box that is now the window.
+       min-width/min-height stay at --tap-min from the base rule, so the pill is
+       still a legal tap target. */
+    width: auto;
+  }
+
+  /* The plate is a dessert standing on a painted table. In the menu there is no
+     table, and the pill is the surface it sits on. */
+  .table::after { display: none; }
+
+  /* The dessert is sized as a fraction of the table box, which has no width of its
+     own once the pill shrink-wraps its label. Give it one, and keep the 3:2 of the
+     wide layout so the silhouettes do not distort. */
+  .dessert {
+    width: var(--space-8);
+    padding-bottom: var(--space-6);
+  }
+
+  /* A menu item that bobs reads as a glitch rather than as a balloon over a table,
+     and five of them bobbing out of phase makes the whole column jitter. */
+  .bubble { animation: none; }
 }
 
 /* R5: a gentle scale-up and a soft glow on hover AND focus, so the affordance is

@@ -58,6 +58,16 @@
   <div class="layer layer--tint"     id="tint"     aria-hidden="true"></div>
   <img class="layer layer--scene"    id="scene"    alt="" decoding="async">
   <div class="layer layer--props"    id="props"></div>
+
+  <!-- The five table buttons have their own layer, separate from the signs, because
+       the two need different treatment on a phone. Sharing the signs' layer meant
+       the tables were dragged into the signs' corner dock by a rule written for
+       signs, and landed at viewport percentages that mean nothing. Both layers do
+       dock below 8:5, but each to its own place — see ui.css.
+
+       NOT aria-hidden, unlike the decor layer below: these are real controls. -->
+  <div class="layer layer--tables"   id="tables"></div>
+
   <div class="layer layer--decor"    id="decor" aria-hidden="true"></div>
   <div class="layer layer--actors"   id="actors"></div>
 
@@ -76,7 +86,12 @@
       <h2 class="panel__title" id="panel-title"></h2>
       <button class="panel__close" type="button" data-close></button>
     </header>
-    <div class="panel__body" id="panel-body"></div>
+    <!-- tabindex="0" makes the scrolling region reachable by keyboard. Without it
+         the body is not focusable, the arrow keys go to the focused close button
+         instead, and a keyboard-only user cannot read past the fold of a long
+         panel — WCAG 2.1.1. It is also the standard technique for a scroll
+         container that holds no other focusable element. -->
+    <div class="panel__body" id="panel-body" tabindex="0"></div>
   </div>
 </div>
 

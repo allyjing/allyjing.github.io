@@ -5,6 +5,7 @@
  */
 
 import { toImageCoords } from './layout.js';
+import { isOpen as isPanelOpen } from './panel.js';
 
 const MOVEMENT_KEYS = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd',
@@ -28,12 +29,31 @@ export function bindInput({ stage, walker, aspect }) {
   // R2: arrow keys and WASD. Required for keyboard accessibility, not a bonus.
   function onKeyDown(event) {
     if (event.metaKey || event.ctrlKey || event.altKey) return;     // leave shortcuts alone
+
+    /* An open panel is modal, and the walker has to stop for it. These listeners
+     * are on `window`, and the `inert` panel.js puts on the stage blocks pointer
+     * and focus but NOT a window-level key listener — so without this, holding
+     * ArrowDown while reading a panel walked her across the interior's exit
+     * threshold and ejected the reader to #/exterior.
+     *
+     * Bailing BEFORE preventDefault also hands the arrow keys back to the browser,
+     * which is what lets a keyboard user scroll .panel__body (WCAG 2.1.1).
+     *
+     * Releasing on the way out covers a key that was already held when the panel
+     * opened: auto-repeat keeps firing keydown, so this runs and she stops. */
+    if (isPanelOpen()) {
+      walker.releaseAllKeys();
+      return;
+    }
+
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
     if (!MOVEMENT_KEYS.has(key)) return;
     event.preventDefault();                                         // stop arrows scrolling
     walker.holdKey(key);
   }
 
+  /* Deliberately NOT gated on the panel: a release is always safe, and swallowing
+   * one would leave a key stuck down if the panel opened mid-press. */
   function onKeyUp(event) {
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
     if (MOVEMENT_KEYS.has(key)) walker.releaseKey(key);

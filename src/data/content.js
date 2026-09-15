@@ -91,8 +91,9 @@ export const doors = {
   exit: { label: 'Back outside', href: '#/exterior', ariaLabel: 'Go back outside' },
 };
 
-/* The five tables (PRD D2). Each will open an overlay panel in Phase 5; for now they
- * are scenery with labels, so the room reads correctly before the panels exist. */
+/* The five tables (PRD D2). Each is a button that opens the overlay panel of the
+ * same id in `panels` below — `projects` here pairs with `panels.projects`, and
+ * with the route #/interior/projects. */
 export const tables = [
   { id: 'experience', label: 'Experience', dessert: 'Croissant' },
   { id: 'projects', label: 'Projects', dessert: 'Souffle' },
