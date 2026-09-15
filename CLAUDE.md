@@ -81,6 +81,27 @@ intent into `openPanel`, and is cleared on any other path so a cold load of
 `#/interior/life/places` still focuses the Close button, which is where opening a
 dialog belongs.
 
+**It looks like a spiral notebook, from a reference Jingwen supplied.** Coloured
+dividers stick OUT past the page's right edge and TUCK behind it, starting near the
+top; the page carries a drawn spiral binding down its left edge. The page is in
+normal flow with `position: relative`, the dividers are absolutely positioned behind
+it, and the page's own edge is what hides their tucked halves — so only the
+protruding part is clickable, which is how a real divider behaves too.
+
+⚠️ **Never give `.journal__tab` an explicit `width`.** In a column flex container the
+tabs already stretch to the container, and pinning the width leaves `margin-right`
+nothing to shrink — the selected-tab staircase measured identically on every tab and
+silently did nothing.
+
+⚠️ **The divider colours are `--room-tab-1..4`, not `--surface-trim`/`--surface-roof`.**
+`--surface-roof` is NOT in the interior rebinding list, so it would have turned slate
+at night while everything around it stayed lit. Any new colour used inside the panel
+needs a `--room-*` token. All four measure AAA against `--ink`.
+
+Selection is shown as a **staircase**, not a colour: each divider is already a
+different colour, so there is no spare colour left to mean "selected". The open one
+is pushed further out and sits in front of the page.
+
 ⚠️ **The ruled page is a BASELINE GRID and every element on it must stay on the grid.**
 `--rule` is the spacing; every text element sets `line-height: var(--rule)` and every
 margin is 0 or a whole multiple of it. The first version let each element keep its own

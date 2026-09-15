@@ -542,14 +542,13 @@ export const panels = {
   life: {
     title: 'Life',
     kind: 'journal',
-    intro: 'Everything that is not coursework.',
+    intro: 'Bits and pieces that make life whole',
     portrait: {
       slug: 'jingwen-portrait',
       width: 480,
       height: 480,
       alt: 'Jingwen Huang, smiling, in front of a wall of ferns',
       name: 'Jingwen Huang',
-      role: 'Proprietor',
     },
     tabs: [
       {

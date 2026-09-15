@@ -121,8 +121,21 @@ const jr = await evaluate(`
     roving: tabs.map(function(b){return b.tabIndex;}).join(','),
     pageRole: page.getAttribute('role'),
     pageLabelled: document.getElementById(page.getAttribute('aria-labelledby'))!==null,
-    // tabs beside the page, not above it, on a wide screen
-    beside: t0.right <= pr.left + 2,
+    /* The notebook: dividers stick OUT past the page's right edge and TUCK behind
+       it, the way they do in the reference. Both halves matter — protruding without
+       tucking is a column of buttons beside a box. */
+    protrudes: tabs.every(function(b){return b.getBoundingClientRect().right > pr.right;}),
+    tucked: tabs.every(function(b){return b.getBoundingClientRect().left < pr.right;}),
+    // the selected divider stands proud of the closed ones
+    selectedProudest: (function(){
+      var sel=tabs.find(function(b){return b.getAttribute('aria-selected')==='true';});
+      var rest=tabs.filter(function(b){return b!==sel;});
+      return rest.every(function(b){
+        return sel.getBoundingClientRect().right > b.getBoundingClientRect().right + 4;});
+    })(),
+    firstTabNearTop: (t0.top - pr.top) < 60,
+    spiral: getComputedStyle(page,'::before').backgroundImage !== 'none',
+    beside: t0.right > pr.left,
     tappable: tabs.every(function(b){var r=b.getBoundingClientRect();return r.height>=44;}),
     portraitDecoded: img.naturalWidth,
     portraitAlt: img.alt,
@@ -136,12 +149,28 @@ ok('a real tablist, not buttons that look like one',
    jr.listRole==='tablist' && jr.roles && jr.pageRole==='tabpanel' && jr.pageLabelled);
 ok('exactly one tab selected', jr.selected===1, String(jr.selected));
 ok('roving tabindex', jr.roving==='0,-1,-1', jr.roving);
-ok('tabs sit BESIDE the page on a wide screen', jr.beside);
+ok('dividers stick out past the page edge', jr.protrudes);
+ok('...and tuck behind it', jr.tucked);
+ok('the open divider stands proud of the closed ones', jr.selectedProudest);
+ok('dividers start near the top of the book', jr.firstTabNearTop);
+ok('the page has its spiral binding', jr.spiral);
 ok('aria-orientation matches the layout', jr.orientation==='vertical', jr.orientation);
 ok('tabs are tappable', jr.tappable);
 ok('one page at a time', jr.onlyOnePage);
 ok('portrait decoded with real alt text',
    jr.portraitDecoded>0 && (jr.portraitAlt||'').length>20, jr.portraitAlt);
+
+const copy = await evaluate(`
+  const body=document.getElementById('panel-body').textContent;
+  return {intro: (document.querySelector('.panel__intro')||{}).textContent,
+          role: document.querySelectorAll('.portrait__role').length,
+          proprietor: body.indexOf('Proprietor')>=0,
+          coursework: body.indexOf('coursework')>=0};
+`);
+ok('the intro is the line she asked for',
+   copy.intro==='Bits and pieces that make life whole', copy.intro);
+ok('no job title under her name', copy.role===0 && !copy.proprietor);
+ok('the old coursework line is gone', !copy.coursework);
 
 // switching tab is a route change, and focus follows
 await evaluate(`document.querySelectorAll('.journal__tab')[1].click();`);

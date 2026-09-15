@@ -571,10 +571,8 @@ function portraitHeader(portrait) {
   name.textContent = portrait.name;
   text.append(name);
 
-  const role = document.createElement('p');
-  role.className = 'portrait__role';
-  role.textContent = portrait.role;
-  text.append(role);
+  /* No job title under the name — asked for directly. `role` is no longer read from
+   * the data; delete it there too rather than leaving a key nothing consumes. */
 
   header.append(text);
   return header;

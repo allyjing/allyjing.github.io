@@ -131,6 +131,16 @@
   --room-drink-tea:     #D9A06B;  /* milk tea, iced coffee */
   --room-drink-matcha:  #A8C48A;  /* the green one */
 
+  /* The Life journal's divider tabs, one colour each, like the plastic dividers in
+   * a real notebook. Room-scoped on purpose: the obvious tokens to reach for are
+   * --surface-trim and --surface-roof, and --surface-roof is NOT in the interior
+   * rebinding, so it would have turned slate at night while everything around it
+   * stayed lit. All four measure AAA against --ink: 8.30, 7.11, 7.53, 7.04. */
+  --room-tab-1: #F2C8D3;   /* dusty rose */
+  --room-tab-2: #A8C8DE;   /* powder blue */
+  --room-tab-3: #E8C489;   /* warm tan */
+  --room-tab-4: #A8CE8B;   /* soft green */
+
   --room-scrim:      rgba(62, 48, 56, 0.55);  /* stands in for --panel-scrim */
 
   /* The photo lightbox. A photograph is shown against a DARK mat regardless of the

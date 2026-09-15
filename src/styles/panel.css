@@ -326,59 +326,96 @@
   color: var(--ink-soft);
 }
 
-/* Tabs beside the page, not above it. The column is a fixed width so the page does
-   not resize as you move between tabs with different label lengths. */
+/* The notebook. Divider tabs stick OUT of the right-hand edge, starting near the
+   top, and tuck behind the page the way real ones tuck behind a cover — see the
+   reference Jingwen supplied.
+   
+   The page is in normal flow and the tabs are absolutely positioned behind it, so
+   the page's own edge is what hides the tucked half. Only the part that sticks out
+   is clickable, which is also how a real divider behaves. */
 .journal {
-  display: grid;
-  grid-template-columns: 9rem 1fr;
-  gap: var(--space-4);
-  align-items: start;
+  --tab-out:  2.9rem;    /* how far a tab protrudes past the page */
+  --tab-tuck: 1.1rem;    /* how much of it hides behind the page */
+  --tab-top:  1.6rem;    /* where the first tab starts, measured from the top */
+
+  position: relative;
+  /* Room for a tab at its furthest out — the selected one, which is pushed a
+     further --space-2 past the rest. */
+  padding-right: calc(var(--tab-out) + var(--space-2));
 }
 
 .journal__tabs {
+  position: absolute;
+  top: var(--tab-top);
+  right: 0;
+  width: calc(var(--tab-out) + var(--tab-tuck));
+
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 
-  /* The tabs stay put while the page scrolls. #panel-body is the scroll container,
-     so sticky here sticks to the top of that, which is what you want in a long
-     entry — the way back to the other tabs is always on screen. */
-  position: sticky;
-  top: 0;
+  /* Behind the page. .journal__page sets `position: relative` for the same reason —
+     without a position it cannot take part in the stacking and the tabs paint over
+     the text. Local ordering inside one component, not a layer: no --z-* token. */
+  z-index: 0;
 }
 
-/* Each tab is a notebook divider: square on the side that meets the page, rounded
-   on the side that sticks out. */
 .journal__tab {
   appearance: none;
-  padding: var(--space-2) var(--space-3);
+  /* ⚠️ NO `width: 100%`. In a column flex container the tabs already stretch to the
+     container's width, and an explicit 100% pins that width so `margin-right` has
+     nothing to shrink — every tab measured to exactly the same right edge and the
+     selected-tab staircase silently did nothing. */
   min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-1);
+
+  /* The label runs down the tab, as on a real divider. Horizontal text in 2.9rem
+     of visible width would wrap to one letter per line. */
+  writing-mode: vertical-rl;
   font-family: var(--font-ui);
   font-size: var(--text-sm);
-  text-align: left;
-  border: 2px solid var(--hairline);
-  border-right-width: 0;
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
-  background: var(--surface-sunken);
-  color: var(--ink-soft);
+  line-height: 1;
+  text-align: center;
+  color: var(--ink);
+
+  border: 2px solid var(--ink);
+  /* Square where it meets the page, rounded where it sticks out. */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: 0;
   cursor: pointer;
+
+  /* Unselected dividers sit further IN. Selection is shown as a staircase — the
+     open one sticks out past its neighbours — because colour alone cannot carry it
+     here: each tab is already a different colour, so there is no spare colour left
+     to mean "selected". */
+  margin-right: var(--space-2);
 }
 
-/* The selected tab joins the page: same background, and the border on the page side
-   is removed so the two read as one surface rather than two stacked boxes. */
+/* One colour each, like the plastic dividers in the reference. */
+.journal__tab:nth-child(1) { background: var(--room-tab-1); }
+.journal__tab:nth-child(2) { background: var(--room-tab-2); }
+.journal__tab:nth-child(3) { background: var(--room-tab-3); }
+.journal__tab:nth-child(4) { background: var(--room-tab-4); }
+
+/* The selected divider is pulled further out and sits IN FRONT of the page, so it
+   reads as the one you have opened the book to. */
 .journal__tab[aria-selected='true'] {
-  background: var(--surface-raised);
-  color: var(--ink);
+  z-index: 2;                /* in front of the page: the divider you opened to */
   font-weight: 700;
-  border-color: var(--surface-trim);
-  box-shadow: inset 3px 0 0 var(--accent-berry);
+  margin-right: calc(var(--space-2) * -1);
 }
 
 .journal__tab:focus-visible {
   outline: 2px solid var(--accent-berry);
   outline-offset: 2px;
-  /* Above the page, so the ring is not clipped by the panel's overflow. */
-  position: relative;
+  z-index: 3;            /* above the page, so the ring is never clipped */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .journal__tab { transition: margin-right var(--dur-scene) var(--ease-soft); }
+  /* Hovering nudges a closed divider out, as though you were about to pull it. */
+  .journal__tab:hover { margin-right: 0; }
+  .journal__tab[aria-selected='true']:hover { margin-right: calc(var(--space-2) * -1); }
 }
 
 /* The page, ruled like a notebook — the journal conceit, and a repeating gradient
@@ -396,9 +433,14 @@
 .journal__page {
   --rule: 1.6rem;
 
-  padding: var(--space-4);
-  border: 2px solid var(--surface-trim);
-  border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  /* Above the divider tabs, so its own right edge hides their tucked halves. */
+  position: relative;
+  z-index: 1;
+
+  /* Left padding leaves room for the spiral binding drawn below. */
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-8);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-md);
   background-color: var(--surface-raised);
   background-image: repeating-linear-gradient(
     to bottom,
@@ -411,6 +453,27 @@
      rather than part-way through it. */
   background-position: 0 var(--space-4);
   background-repeat: repeat;
+}
+
+/* The spiral binding down the left edge — the thing that makes it read as a
+   notebook rather than a bordered box. Drawn as a repeating gradient of dark
+   rings, so it costs no image and scales with the page. */
+.journal__page::before {
+  content: '';
+  position: absolute;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  left: calc(var(--space-4) * 0.6);
+  width: var(--space-4);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--ink) 0 2px,
+    transparent 2px 8px,
+    var(--ink) 8px 10px,
+    transparent 10px 34px
+  );
+  /* Decorative: it is the picture of a spiral, not information. */
+  pointer-events: none;
 }
 
 .journal__page:focus-visible {
@@ -767,31 +830,41 @@
   .portrait__image { width: 5.5rem; height: 5.5rem; }
   .portrait__name { font-size: var(--text-lg); }
 
-  .journal {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
+  /* Side dividers do not fit: 2.9rem of protrusion beside a 390px viewport leaves
+     the page too narrow to read. They become a row of coloured tabs ALONG THE TOP,
+     which is the same object seen from a different edge of the book. */
+  .journal { padding-right: 0; }
 
   .journal__tabs {
+    position: static;        /* out of the absolute layout entirely */
+    width: auto;
     flex-direction: row;
     flex-wrap: wrap;
-    position: static;        /* sticky is meaningless once they are a row on top */
     gap: var(--space-1);
+    margin-bottom: calc(var(--space-1) * -1);   /* tuck under the page's top edge */
   }
 
   .journal__tab {
     flex: 1 1 auto;
+    /* ⚠️ Keep --tap-min. An earlier `min-height: 0` here — meant to stop the
+       vertical-text height carrying over — left the tabs 40px tall, under the 44px
+       floor this project sets for every touch target. */
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-2) var(--space-3);
+    writing-mode: horizontal-tb;     /* back to normal text */
     text-align: center;
-    border-right-width: 2px;
-    border-bottom-width: 0;
+    border-left: 2px solid var(--ink);
+    border-bottom: 0;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
+    margin-right: 0;                 /* the staircase is vertical below */
   }
 
   .journal__tab[aria-selected='true'] {
-    box-shadow: inset 0 3px 0 var(--accent-berry);
+    margin-right: 0;
+    padding-bottom: var(--space-4);  /* the open divider is the tall one */
   }
 
   .journal__page {
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }
 }
