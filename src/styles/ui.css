@@ -45,6 +45,19 @@
 /* Top-left is WHEN, bottom-left is WHERE, top-right is the way out. */
 .chrome--clock    { top: var(--space-4);    left: var(--space-4); }
 .chrome--location { bottom: var(--space-4); left: var(--space-4); }
+/* Only in the interior, where the view is first person and there is no character to
+   walk out. Outside, the way back in is the door itself. */
+.chrome--back {
+  bottom: var(--space-4);
+  right: var(--space-4);
+  background: var(--accent-berry);
+  border-color: var(--accent-berry);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+.stage:not([data-scene='interior']) .chrome--back { display: none; }
+
 .chrome--resume {
   top: var(--space-4);
   right: var(--space-4);

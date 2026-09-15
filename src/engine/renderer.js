@@ -297,10 +297,16 @@ export function setActorPose(node, actor, heading) {
 
   const body = node.querySelector('.actor__body');
   if (body && pose.body) body.src = pose.body;
+  /* A pose without legs is drawn whole — the profile view, where the two legs
+   * overlap into one shape and cutting them apart splits a leg lengthways. */
   const left = node.querySelector('.actor__leg--left');
-  if (left && pose.legLeft) left.src = pose.legLeft;
   const right = node.querySelector('.actor__leg--right');
-  if (right && pose.legRight) right.src = pose.legRight;
+  const jointed = Boolean(pose.legLeft && pose.legRight);
+  node.dataset.jointed = String(jointed);
+  if (jointed) {
+    if (left) left.src = pose.legLeft;
+    if (right) right.src = pose.legRight;
+  }
 }
 
 function renderActors(actors) {

@@ -8,7 +8,7 @@
  * --chrome-ink, which flip per theme instead.
  */
 
-import { timeNames, resume as resumeCopy, chrome as chromeCopy } from '../data/content.js';
+import { timeNames, resume as resumeCopy, chrome as chromeCopy, doors } from '../data/content.js';
 import { landmarkForTime, locationLabel } from '../data/landmarks.js';
 
 function button(className, onClick) {
@@ -47,13 +47,28 @@ function buildResume() {
   return link;
 }
 
+/* The way out of the interior, bottom-right.
+ *
+ * It lives in the chrome rather than in the scene because the interior is first
+ * person: there is no character to walk to a sign, so the exit has to be a control.
+ * A real <a> to the hash route, so it works with the keyboard and with Back, and
+ * CSS hides it outside the interior. */
+function buildBack() {
+  const link = document.createElement('a');
+  link.className = 'chrome chrome--back';
+  link.href = doors.exit.href;
+  link.textContent = doors.exit.label;
+  link.setAttribute('aria-label', doors.exit.ariaLabel);
+  return link;
+}
+
 export function buildChrome({ onCycle }) {
   const layer = document.getElementById('ui');
   layer.replaceChildren();
 
   const clock = buildClock(onCycle);
   const location = buildLocation(onCycle);
-  layer.append(clock, location, buildResume());
+  layer.append(clock, location, buildResume(), buildBack());
 
   // The visitor's real time, which keeps ticking regardless of the scene they pick.
   function wallClock() {

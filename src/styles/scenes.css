@@ -228,6 +228,9 @@
 .actor__leg--left  { left: 0; }
 .actor__leg--right { left: 50%; }
 
+/* Hidden for a pose drawn whole rather than cut into pieces. */
+.actor[data-jointed='false'] .actor__leg { display: none; }
+
 /* --- Junnie at the fountain ------------------------------------------------
    He is one sprite and always will be — no frames, no sheet (PRD §8.3) — so the
    fishing is done entirely with timing. He watches the water, leans in, takes a
@@ -308,18 +311,18 @@
     50%      { translate: 0 -2px; }
   }
 
-  /* In PROFILE the legs scissor forward and back, and that IS a rotation about the
-     hip — the same motion that looks like a waddle head-on is the correct one here.
-     The two halves of the merged profile leg shape swing in opposite phase. */
-  .actor[data-pose='side'] .actor__leg--left,
-  .actor[data-pose='side'] .actor__leg--right {
-    animation-name: step-profile;
+  /* The profile view has no separate legs to swing, so the walk is carried by the
+     whole body: a two-beat rise and fall with a slight rock, one beat per footfall.
+     Less articulate than the head-on walk, and still clearly walking. */
+  .actor[data-pose='side'][data-walking='true'] .actor__body {
+    animation: stride-profile var(--dur-step) var(--ease-soft) infinite;
   }
 
-  @keyframes step-profile {
-    0%   { rotate:  9deg; scale: 1 1; }
-    50%  { rotate: -9deg; scale: 1 0.97; }
-    100% { rotate:  9deg; scale: 1 1; }
+  @keyframes stride-profile {
+    0%, 100% { rotate: 0deg;    translate: 0 0; }
+    25%      { rotate: -1.6deg; translate: 0 -1.6%; }
+    50%      { rotate: 0deg;    translate: 0 0; }
+    75%      { rotate: 1.6deg;  translate: 0 -1.6%; }
   }
 
   /* A step, seen head-on.
@@ -351,35 +354,6 @@
 .stage[data-scene='interior'] .layer--tint {
   background: var(--light-tint);
   opacity: 0.35;
-}
-
-/* Daylight through the arched window at the back.
- *
- * Outside, time of day is obvious — the sky and the landmark both change. Inside,
- * the room was identical at every hour, which is what made it feel flat next to the
- * exterior. This spills the CURRENT SKY COLOUR through the window and across the
- * floor below it, so the room knows what time it is: pale and cool at noon, warm at
- * sunset, deep blue at night. --sky-top is already per-state, so it costs no new
- * tokens and can never drift out of step with outside.
- *
- * soft-light rather than a flat overlay: it tints what is underneath instead of
- * washing it, so the painted floorboards keep their grain. */
-.stage[data-scene='interior'] .layer--decor::before {
-  content: '';
-  position: absolute;
-  /* Anchored to the window itself and spilling DOWN onto the floor. The first
-     attempt started above the window and put a dark smudge across the ceiling,
-     which reads as dirt rather than as light. */
-  left: 47%;
-  top: 20%;
-  width: 28%;
-  height: 56%;
-  background: radial-gradient(ellipse 70% 52% at 50% 0%,
-    var(--sky-top) 0%, transparent 76%);
-  mix-blend-mode: soft-light;
-  opacity: 0.45;
-  pointer-events: none;
-  transition: background var(--dur-timeshift) var(--ease-soft);
 }
 
 /* A room with its lights on does not go as dark as the garden outside it. The actors
