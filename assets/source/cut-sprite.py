@@ -22,8 +22,12 @@ the divide to be a straight vertical line, and in profile that is wrong.
 The body is cut well past the hip so the top of a leg stays hidden behind it while
 the leg translates upward during a step; see the step keyframes in scenes.css.
 """
-import sys
-sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
+import sys, os
+# png.py lives beside this script. It used to be imported from a scratch directory
+# outside the repo, which meant every script here stopped working as soon as that
+# directory was cleaned up. Resolve it relative to THIS FILE so the scripts stay
+# runnable from anywhere, including a fresh clone.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from collections import deque
 
 from png import read_png, write_rgba

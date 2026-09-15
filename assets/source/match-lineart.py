@@ -12,8 +12,13 @@ shadow -- and leaves the fur alone, so the ginger stays the warmest thing on scr
 The real fix is regenerating him with the exterior as an img2img style reference,
 which is what assets/PROMPTS.md §3 asks for.
 """
-import sys, colorsys
-sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
+import sys, os
+# png.py lives beside this script. It used to be imported from a scratch directory
+# outside the repo, which meant every script here stopped working as soon as that
+# directory was cleaned up. Resolve it relative to THIS FILE so the scripts stay
+# runnable from anywhere, including a fresh clone.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import colorsys
 from png import read_png, write_rgba
 
 LINE_BELOW = 0.62      # value under which a pixel counts as linework or shadow

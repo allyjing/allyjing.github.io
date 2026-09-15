@@ -25,8 +25,12 @@ outlines, which the fill cannot cross.
 
 Nothing below the horizon is ever cut, which protects the fountain structurally.
 """
-import sys
-sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
+import sys, os
+# png.py lives beside this script. It used to be imported from a scratch directory
+# outside the repo, which meant every script here stopped working as soon as that
+# directory was cleaned up. Resolve it relative to THIS FILE so the scripts stay
+# runnable from anywhere, including a fresh clone.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from png import read_png, write_rgba
 from collections import deque
 

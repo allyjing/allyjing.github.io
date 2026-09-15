@@ -15,8 +15,12 @@ Groups are capped in size so the flowers' own large shaded areas are never touch
 
     python3 despill-scene.py <source.png> <mask.png> <out.png>
 """
-import sys
-sys.path.insert(0, '/Users/jingwenhuang/.claude/jobs/41521682/tmp')
+import sys, os
+# png.py lives beside this script. It used to be imported from a scratch directory
+# outside the repo, which meant every script here stopped working as soon as that
+# directory was cleaned up. Resolve it relative to THIS FILE so the scripts stay
+# runnable from anywhere, including a fresh clone.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from png import read_png, write_rgba
 
 NEAR = 44        # counts as "still looks like the background"
