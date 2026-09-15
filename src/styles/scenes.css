@@ -327,29 +327,30 @@
 
   /* A step, seen head-on.
    *
-   * The foot LIFTS. That is the only motion that reads as walking from the front,
-   * and getting there took three tries:
+   * The leg spends MOST of the cycle planted. That is the part that makes it read as
+   * one step at a time: it lifts for about a third of the stride and stands for the
+   * rest, so with the other leg half a cycle behind there are stretches where both
+   * feet are down. That pause is what a walk has and a float does not.
    *
-   *   - Rotating the leg about the hip swings the foot sideways. Sideways is what a
-   *     waddle is. Rotation is now zero and stays zero.
-   *   - scaleY about the hip raises the foot, but it squashes the SHOE with it, so
-   *     it reads as a trouser leg compressing rather than a foot coming up. That is
-   *     why the last attempt looked like nothing was happening.
-   *   - translateY raises the foot and the shoe together, which is what actually
-   *     reads. It needs the leg's top to hide behind the body as it rises, so the
-   *     body piece is cut down to 72% against a hip at 61.8% — a 10% overlap. With
-   *     the old 1.4% overlap a translate exposed a gap at the hip, which is why it
-   *     was not used first.
+   * An earlier version had each leg raised for 80% of the cycle, which meant both
+   * were off the ground at once nearly all the time — no weight anywhere, which is
+   * exactly what read as waddling.
    *
-   * The slight widening at the plant is depth, not width: a leg swinging forward
-   * comes nearer the viewer, and nearer reads as very slightly bigger. */
+   * Two other things that had to be true first:
+   *   - NO ROTATION. Rotating about the hip swings the foot sideways, and sideways
+   *     is a waddle.
+   *   - TRANSLATE, not scaleY. Scaling squashes the shoe along with the leg, so it
+   *     reads as a trouser leg compressing rather than a foot rising.
+   *
+   * The 15% peak is bounded by the cut: a leg is 38% of the sprite, so 15% of it is
+   * 5.7% of sprite height, and the body/leg overlap is 10.2%. Go much past this and
+   * the top of the leg comes out from behind the body and a gap opens at the hip. */
   @keyframes step {
-    0%   { translate: 0 0;     scale: 1    1; }   /* planted, taking the weight */
-    25%  { translate: 0 -4.5%; scale: 1    1; }   /* foot comes up              */
-    45%  { translate: 0 -7%;   scale: 1    1; }   /* knee at its highest        */
-    65%  { translate: 0 -4%;   scale: 1.03 1; }   /* swinging through, nearer   */
-    85%  { translate: 0 0;     scale: 1.02 1; }   /* plants forward             */
-    100% { translate: 0 0;     scale: 1    1; }
+    0%,  50% { translate: 0 0;    scale: 1    1; }  /* planted, carrying the weight */
+    58%      { translate: 0 -8%;  scale: 1    1; }  /* pushes off                   */
+    66%      { translate: 0 -15%; scale: 1.03 1; }  /* highest, swinging through    */
+    74%      { translate: 0 -8%;  scale: 1.02 1; }  /* reaching down                */
+    80%, 100% { translate: 0 0;   scale: 1    1; }  /* plants, and stands           */
   }
 }
 

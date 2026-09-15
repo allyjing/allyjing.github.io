@@ -324,6 +324,12 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   generated pose with no frames; the cut is done in software from the single sprite. The
   cut lines are recorded in `scenes.js` as percentages and must match the images.
 
+  **A leg stays PLANTED for most of the cycle.** That is what makes it read as one step at
+  a time: it lifts for about a third of the stride and stands for the rest, so with the
+  other leg half a cycle behind there are stretches where both feet are down. A version
+  that raised each leg for 80% of the cycle had both feet off the ground nearly always —
+  no weight anywhere, which is exactly what kept reading as a waddle.
+
   **The head-on step TRANSLATES the leg up; it does not scale it.** scaleY about the hip
   raises the foot on paper, but it squashes the SHOE with it, so it reads as a trouser leg
   compressing rather than a foot lifting — which is why a pass that measured correctly still
