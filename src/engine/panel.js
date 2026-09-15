@@ -25,6 +25,37 @@ export function isOpen() {
   return !el('panel').hidden;
 }
 
+/* Everything inside the card that can take focus, in DOM order. Queried fresh on
+ * each Tab rather than cached at open: the body is rebuilt per panel, and a stale
+ * list would trap focus against elements that no longer exist. */
+function focusables() {
+  return Array.from(
+    el('panel').querySelectorAll(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  );
+}
+
+/* Tab from the last focusable wraps to the first, Shift+Tab from the first wraps to
+ * the last. Without this, Tab walks out of the dialog into the page behind it. */
+function trapFocus(event) {
+  if (event.key !== 'Tab' || !isOpen()) return;
+
+  const items = focusables();
+  if (!items.length) return;
+
+  const first = items[0];
+  const last = items[items.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 /* Fills the card from data. Rebuilt on every open rather than cached: five small
  * panels are cheap to build, and a cache would be one more thing to invalidate. */
 function fill(panel) {
@@ -107,6 +138,10 @@ export function openPanel(id) {
   stage.setAttribute('inert', '');
   stage.setAttribute('aria-hidden', 'true');
 
+  /* Focus the close button rather than the card: it is the one control every panel
+   * has, and it tells a screen-reader user immediately how to get out. */
+  el('panel').querySelector('.panel__close').focus();
+
   return true;
 }
 
@@ -121,6 +156,11 @@ export function closePanel() {
 
   if (opener) {
     opener.setAttribute('aria-expanded', 'false');
+    /* Focus goes back to the table that opened the panel, so a keyboard user
+     * resumes where they were instead of at the top of the document. Order
+     * matters: the stage must have lost `inert` first, or this focus call is
+     * silently ignored. */
+    opener.focus();
     opener = null;
   }
 }
@@ -147,4 +187,6 @@ export function bindPanel(onClose) {
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isOpen()) onClose();
   });
+
+  window.addEventListener('keydown', trapFocus);
 }
