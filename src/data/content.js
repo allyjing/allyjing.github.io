@@ -145,6 +145,15 @@ export const tableDrink = {
  * `assets/photos/<slug>-<width>.webp` and a missing one is a 404, not a fallback. */
 export const photoWidths = [480, 960, 1600];
 
+/* The portrait in the Life menu is drawn at about 7rem and never opens in the
+ * lightbox, so it gets its own, much smaller pair. Exporting it at 1600 like a
+ * gallery photograph would ship 180 KB nobody ever sees. */
+export const portraitWidths = [240, 480];
+
+/* The portrait is a fixed 7rem square on a wide card and 5.5rem on a phone; it never
+ * grows with the viewport, so `sizes` is a plain length rather than a vw fraction. */
+export const portraitSizes = '(min-width: 30rem) 7rem, 5.5rem';
+
 /* How wide a grid thumbnail actually ends up, as a CSS length. This is the `sizes`
  * attribute, and it is not decoration: a srcset without sizes makes the browser
  * assume the image fills the viewport and download far more than it needs.
@@ -501,41 +510,110 @@ export const panels = {
     outro: 'Each image holds a sense of presence — a reminder of the headspace, energy, and quiet meaning that existed in that instant. A landscape washed in light, or an ordinary moment made extraordinary: photography lets me relive the world as I experienced it.',
   },
 
-  /* ⚠️ DRAFT. Written by Claude from things that are verifiable elsewhere in this
-   * repo and on the resume — not from anything Jingwen has said about herself. It is
-   * here so the panel is not a placeholder, and it is the one panel on the site whose
-   * words are not hers. Replace it. */
+  /* The Life panel is a MENU, laid out like the board behind the counter — asked
+   * for directly: sections, items, and a note in the price column.
+   *
+   * ⚠️ THIS IS A DRAFT and it is the one panel on the site whose words are not
+   * Jingwen's. Everything in it is sourced from somewhere verifiable — the resume,
+   * her own photographs, the artwork in this repo — because the alternative is
+   * inventing a personality for her, which is worse than an empty panel. She asked
+   * for a draft to edit, so: EDIT IT. The items that are most worth replacing are
+   * the ones under "Friends and people", which describes groups she is part of
+   * rather than the people she would actually name.
+   *
+   * Item shape: `name` is the dish, `note` is the price column, `body` is the
+   * one-line description under it. `note` is optional.
+   *
+   * ⚠️ Nothing here is a joke at her expense or a claim she has not made. No
+   * invented favourite foods, no invented friends, no guessed hobbies. The tennis
+   * ball launcher is a school project and does NOT mean she plays tennis; that is
+   * exactly the kind of inference left out. */
   life: {
     title: 'Life',
-    kind: 'entries',
-    intro: 'The parts that are not coursework.',
-    entries: [
+    kind: 'menu',
+    intro: 'Everything that is not coursework, served daily.',
+    portrait: {
+      slug: 'jingwen-portrait',
+      width: 480,
+      height: 480,
+      alt: 'Jingwen Huang, smiling, in front of a wall of ferns',
+      name: 'Jingwen Huang',
+      role: 'Proprietor',
+    },
+    sections: [
       {
-        heading: 'Mechanical engineering, by way of everything else',
-        meta: 'Northeastern University · Los Angeles and Boston',
-        bullets: [
-          'I study mechanical engineering, and the things I am drawn to sit where automation, structural design and visual work overlap — how something works and how it looks are the same question asked twice.',
+        title: 'Friends and people',
+        items: [
+          {
+            name: 'Makers Club',
+            note: '40+ members',
+            body: 'I ran it. Most of the job was talking people into starting the thing they had been describing for three weeks.',
+          },
+          {
+            name: 'Science Club for Girls',
+            note: 'weekly, K–8',
+            body: 'An after-school club where I hand tools to people who have not used them before. They ask much better questions than adults do.',
+          },
+          {
+            name: 'The CADodile five',
+            note: 'one semester',
+            body: 'A five-person team, a laser cutter, and a servo that kept flinging candy everywhere. We got it working the week of the showcase.',
+          },
+          {
+            name: 'First-years at the Makerspace',
+            note: 'red vest',
+            body: 'Usually the same conversation: it will not break if you use it, here is how, go on.',
+          },
         ],
       },
       {
-        heading: 'Teaching it to someone smaller',
-        meta: 'Science Club for Girls · Makers Club',
-        bullets: [
-          'A lot of my week is spent handing tools to people who have not used them before — K–8 students in an after-school club, and club members meeting a laser cutter for the first time. Explaining a machine is the fastest way to find out whether you actually understand it.',
+        title: 'Hobbies',
+        items: [
+          {
+            name: 'Photography',
+            note: 'Fujifilm X-S20',
+            body: 'Mostly landscapes, mostly early. The good ones need you to be standing somewhere cold before the sun is up.',
+          },
+          {
+            name: 'Getting above the fog line',
+            note: 'before sunrise',
+            body: 'Worth the alarm about one time in three. The other two you drive home in cloud.',
+          },
+          {
+            name: 'Making things that are not assignments',
+            note: 'ongoing',
+            body: 'Laser cutter, 3D printer, CNC router, a lot of plywood. Hand-painting the enclosure is the part I like most.',
+          },
+          {
+            name: 'Drawing and painting',
+            note: 'acrylic, oil',
+            body: 'Older than the engineering. It is where the architectural drawing sets came from.',
+          },
+          {
+            name: 'This website',
+            note: 'first one',
+            body: 'I had not written a site before. No framework, on purpose — I wanted to know what was actually happening.',
+          },
         ],
       },
       {
-        heading: 'Junnie',
-        meta: 'Orange tabby · full-time supervisor',
-        bullets: [
-          'He is in the artwork, outside by the fountain and again inside the shop. He is usually watching the fish.',
-        ],
-      },
-      {
-        heading: 'This bakery',
-        meta: 'First web project · 2026',
-        bullets: [
-          'I had not written a website before this one. It is built without a framework on purpose — I wanted to understand what was actually happening rather than what a library was doing for me.',
+        title: 'Small things',
+        items: [
+          {
+            name: 'Junnie',
+            note: 'orange tabby',
+            body: 'He is in the artwork twice: outside by the fountain, and again inside. Usually watching the fish.',
+          },
+          {
+            name: 'A budget that holds',
+            note: '$86.57',
+            body: 'The whole CADodile prototype. I am unreasonably pleased about this.',
+          },
+          {
+            name: 'Los Angeles and Boston',
+            note: 'both',
+            body: 'The clock in the corner is set to Los Angeles. That is where the landmarks in the window come from.',
+          },
         ],
       },
     ],

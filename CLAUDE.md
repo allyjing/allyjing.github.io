@@ -38,7 +38,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
 | Projects | `showcase` | six projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
-| Life | `entries` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
+| Life | `menu` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | her Citrus College architectural drawing set. Text only, deliberately |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
@@ -53,6 +53,35 @@ panel id:
   thumbnail you could not read. Each set carries its own description.
 - **`showcase`** — an index of cards, each opening its own page at
   `#/interior/projects/<slug>`.
+- **`menu`** — the Life panel, laid out like the board behind the counter: a portrait
+  at the head, then sections of items with a note where a price would go. Asked for
+  directly.
+
+### The Life menu
+
+The portrait is Jingwen's own photograph, carried over from her old site and cropped
+to head and shoulders. It has **real alt text, not empty** — unlike a gallery
+thumbnail it is not inside a button that already describes it, and it is a picture of
+a person. It is exported at 240 and 480 only (`portraitWidths`), because it is drawn
+at 7rem and never opens in the lightbox; a 1600 version would be 180 KB nobody sees.
+
+⚠️ **The leader dots between an item and its note are DRAWN IN CSS, not typed.** A row
+of literal periods is read out one at a time by a screen reader — "dot dot dot dot"
+between every item and its note — and cannot stretch to fit a column whose width
+depends on the text either side. They are a repeating radial-gradient on
+`.menu__line::after`, which is decorative (so assistive technology skips it) and
+flexes to fill exactly the gap left.
+
+⚠️ **Do not move that pseudo-element onto `.menu__name`.** A `width: 100%` leader
+inside the name makes the name span fill the row and pushes the dots onto a line of
+their own underneath. That was the first version.
+
+⚠️ **The menu is a DRAFT and every line of it is sourced, not invented.** No made-up
+friends, no guessed hobbies, no favourite foods she has never mentioned. The tennis
+ball launcher is a school project and deliberately does NOT appear as "she plays
+tennis" — that is the exact kind of inference left out. The items most worth replacing
+are under "Friends and people", which names groups rather than the people she would
+actually name.
 
 ### The Projects showcase
 
@@ -400,7 +429,7 @@ this installs nothing and does not break the no-npm rule, and none of it ships �
 `index.html` does not reference it. 75 assertions across five suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
-Seven traps that produce confident, wrong results here. Every one cost a real
+Eight traps that produce confident, wrong results here. Every one cost a real
 investigation, and three of them make an EMPTY run look like a clean one — `run.sh` now
 fails a suite that printed no assertions, for exactly that reason:
 
@@ -421,7 +450,11 @@ fails a suite that printed no assertions, for exactly that reason:
 6. **`:focus-visible` does not fire for a programmatic `.focus()`** — dispatch a real Tab.
    And the panel focuses its close button on open, so the FIRST Tab lands on the second
    control, not the first.
-7. **Silent no-run, three ways**: `timeout` does not exist on macOS, so wrapping a check in
+7. **Double every backslash inside an `evaluate()` string** — they are template
+   literals, so `\.` becomes `.` and a regex for four literal periods silently becomes
+   "any four characters". And write one cause per assertion: a combined `a && !b`
+   names the wrong reason when it fails.
+8. **Silent no-run, three ways**: `timeout` does not exist on macOS, so wrapping a check in
    it runs nothing; two Chrome clients on one page target crash Chrome and every later
    suite reports nothing; and piping a check into `awk` from a script that also backgrounds
    Chrome swallows its output. All three print `0 pass, 0 fail`.

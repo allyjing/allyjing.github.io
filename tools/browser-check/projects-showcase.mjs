@@ -116,7 +116,9 @@ await goto('http://localhost:8000/#/interior/projects/arcadium');
 // `querySelectorAll(...)[0].click()` throw on undefined, intermittently.
 await waitFor("document.querySelectorAll('.gallery__open').length===4", {label:'four project photos'});
 await evaluate(`document.querySelectorAll('.gallery__open')[0].click();`);
-await waitFor("!document.getElementById('lightbox').hidden", {label:'lightbox open'});
+// Same as the gallery suite: wait for the photo to decode, not just for the dialog.
+await waitFor("!document.getElementById('lightbox').hidden && document.getElementById('lightbox-image').naturalWidth > 0",
+              {label:'lightbox photo decoded'});
 const lb = await evaluate(`
   return {open: !document.getElementById('lightbox').hidden,
           count: document.getElementById('lightbox-count').textContent,

@@ -11,7 +11,8 @@
  * trapped inside the card, and focus goes back to the table that opened it.
  */
 
-import { panels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes } from '../data/content.js';
+import { panels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes,
+         portraitWidths, portraitSizes } from '../data/content.js';
 import { photoSrc, photoSrcset } from './photos.js';
 import { openLightbox, closeLightbox, isLightboxOpen } from './lightbox.js';
 
@@ -108,6 +109,8 @@ function fill(panel, item) {
     fillGallery(body, panel);
   } else if (panel.kind === 'showcase') {
     fillShowcase(body, panel, item);
+  } else if (panel.kind === 'menu') {
+    fillMenu(body, panel);
   } else {
     fillEntries(body, panel);
   }
@@ -402,6 +405,102 @@ function fillProject(body, entry) {
     }
     body.append(links);
   }
+}
+
+/* --- the menu ------------------------------------------------------------- */
+
+/* The Life panel, laid out like the board behind the counter: a portrait at the
+ * head, then sections of items with a note where a price would go.
+ *
+ * The leader dots between an item and its note are drawn in CSS, not typed into the
+ * text — a row of literal periods is read out one by one by a screen reader, and it
+ * cannot stretch to fit the column. See .menu__item in panel.css. */
+function fillMenu(body, panel) {
+  if (panel.portrait) body.append(portraitHeader(panel.portrait));
+
+  for (const section of panel.sections) {
+    const block = document.createElement('section');
+    block.className = 'menu__section';
+
+    const heading = document.createElement('h3');
+    heading.className = 'menu__heading';
+    heading.textContent = section.title;
+    block.append(heading);
+
+    const list = document.createElement('ul');
+    list.className = 'menu__list';
+
+    for (const item of section.items) {
+      const row = document.createElement('li');
+      row.className = 'menu__item';
+
+      const line = document.createElement('p');
+      line.className = 'menu__line';
+
+      const name = document.createElement('span');
+      name.className = 'menu__name';
+      name.textContent = item.name;
+      line.append(name);
+
+      /* The note is optional, but the dots are drawn by the name's ::after, so a
+       * row without one still gets its leader and the column stays straight. */
+      if (item.note) {
+        const note = document.createElement('span');
+        note.className = 'menu__note';
+        note.textContent = item.note;
+        line.append(note);
+      }
+      row.append(line);
+
+      if (item.body) {
+        const description = document.createElement('p');
+        description.className = 'menu__body';
+        description.textContent = item.body;
+        row.append(description);
+      }
+
+      list.append(row);
+    }
+
+    block.append(list);
+    body.append(block);
+  }
+}
+
+/* The portrait and the two lines beside it. */
+function portraitHeader(portrait) {
+  const header = document.createElement('header');
+  header.className = 'portrait';
+
+  const image = document.createElement('img');
+  image.className = 'portrait__image';
+  image.src = photoSrc(portrait.slug, 240);
+  image.srcset = photoSrcset(portrait.slug, portraitWidths);
+  image.sizes = portraitSizes;
+  image.width = portrait.width;
+  image.height = portrait.height;
+  image.decoding = 'async';
+
+  /* Real alt text, NOT empty: unlike a gallery thumbnail this is not inside a
+   * button that already describes it, and it is a photograph of a person. */
+  image.alt = portrait.alt;
+  header.append(image);
+
+  const text = document.createElement('div');
+  text.className = 'portrait__text';
+
+  const name = document.createElement('p');
+  name.className = 'portrait__name';
+  name.textContent = portrait.name;
+  text.append(name);
+
+  const role = document.createElement('p');
+  role.className = 'portrait__role';
+  role.textContent = portrait.role;
+  text.append(role);
+
+  header.append(text);
+  return header;
 }
 
 /* --- headed entries ------------------------------------------------------- */

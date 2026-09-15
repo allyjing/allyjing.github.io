@@ -73,7 +73,12 @@ ok('closing note rendered', gal.notes===1, String(gal.notes));
 
 // --- the lightbox
 await evaluate(`document.querySelectorAll('.gallery__open')[2].click();`);
-await waitFor("!document.getElementById('lightbox').hidden", {label:'lightbox open'});
+/* Wait for the full image to DECODE, not just for the dialog to be un-hidden. The
+   lightbox opens instantly and the 1600px file arrives a moment later, so asserting
+   on `hidden` alone reported naturalWidth 0 and a missing src. Wait for the thing the
+   assertion is actually about. */
+await waitFor("!document.getElementById('lightbox').hidden && document.getElementById('lightbox-image').naturalWidth > 0",
+              {label:'lightbox photo decoded'});
 const lb1 = await evaluate(`
   const lb=document.getElementById('lightbox');
   return {open:!lb.hidden, count:document.getElementById('lightbox-count').textContent,

@@ -26,6 +26,6 @@ export function photoSrc(slug, width) {
  * 480 pixels across", and the `sizes` attribute is what tells the browser how wide
  * the element will be. Both are required — a srcset without sizes makes the browser
  * assume the image fills the viewport and download far more than it needs. */
-export function photoSrcset(slug) {
-  return photoWidths.map((w) => `${photoSrc(slug, w)} ${w}w`).join(', ');
+export function photoSrcset(slug, widths = photoWidths) {
+  return widths.map((w) => `${photoSrc(slug, w)} ${w}w`).join(', ');
 }

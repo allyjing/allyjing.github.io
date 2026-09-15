@@ -285,6 +285,127 @@
 }
 
 /* =========================================================================
+ * THE LIFE MENU
+ * Laid out like the board behind the counter: a portrait at the head, then
+ * sections of items with a note where a price would go.
+ * ========================================================================= */
+
+.portrait {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--surface-trim);
+}
+
+.portrait__image {
+  flex: 0 0 auto;
+  width: 7rem;
+  height: 7rem;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--surface-trim);
+  object-fit: cover;
+  image-rendering: auto;   /* a photograph — never `pixelated` */
+}
+
+.portrait__text { min-width: 0; }
+
+.portrait__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  color: var(--ink);
+}
+
+.portrait__role {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+.menu__section { margin-bottom: var(--space-8); }
+
+.menu__heading {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: var(--leading-tight);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.menu__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu__item { margin-bottom: var(--space-4); }
+
+/* The name, the leader dots, and the note, on one line.
+   
+   ⚠️ The dots are DRAWN, not typed. A row of literal periods in the text is read out
+   one by one by a screen reader — "dot dot dot dot dot" between every item and its
+   note — and it cannot stretch to fit a column whose width depends on the text either
+   side. A repeating radial-gradient on a flexible pseudo-element does both correctly:
+   it is decorative, so assistive technology skips it, and it fills exactly the gap
+   that is left. */
+.menu__line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.menu__name {
+  flex: 0 1 auto;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* The leader: a flexible pseudo-element on the LINE, which takes whatever space is
+   left between the name and the note.
+   
+   ⚠️ Do not put it on .menu__name instead. A `width: 100%` pseudo-element inside the
+   name makes the name span fill the row, which pushes the dots onto a line of their
+   own underneath — which is exactly what the first version did. */
+.menu__line::after {
+  content: '';
+  flex: 1 1 auto;
+  align-self: end;
+  height: 0.55em;
+  background-image: radial-gradient(circle, var(--hairline) 1px, transparent 1.2px);
+  background-position: bottom;
+  background-size: 0.5em 0.5em;
+  background-repeat: repeat-x;
+}
+
+/* The note sits after the leader, so it must come later in the paint order than the
+   ::after above. `order` puts it there without changing the DOM. */
+.menu__note {
+  order: 1;
+  flex: 0 0 auto;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-berry);
+  white-space: nowrap;
+}
+
+.menu__body {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+/* =========================================================================
  * THE PROJECTS SHOWCASE
  * An index of cards, each opening a page of its own at
  * #/interior/projects/<slug>.
@@ -595,4 +716,11 @@
      eight characters per line for the value. */
   .project__facts { grid-template-columns: 1fr; gap: 0; }
   .project__facts dt { margin-top: var(--space-2); }
+}
+
+/* The menu's portrait shrinks on a phone, where 7rem beside two lines of text
+   leaves the name wrapping awkwardly. */
+@media (max-width: 30rem) {
+  .portrait__image { width: 5.5rem; height: 5.5rem; }
+  .portrait__name { font-size: var(--text-lg); }
 }

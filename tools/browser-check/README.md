@@ -68,10 +68,21 @@ list under "Run it"; the short version:
    depends on when it runs is worse than no check.
 9. **Only ever run one `run.sh` at a time.** Two instances fight over the debug port and
    kill each other's Chrome, which shows up as trap 5.
-10. **Never sleep where you can wait.** `await new Promise(r=>setTimeout(r,1200))` followed
+10. **Wait for the thing you are asserting, not a proxy for it.** `waitFor` on the
+   lightbox being un-hidden passes the instant the dialog appears — while the 1600px
+   photograph is still downloading — so the very next assertion read `naturalWidth: 0`.
+   Wait on `naturalWidth > 0`. **Never sleep where you can wait**, either: `await new Promise(r=>setTimeout(r,1200))` followed
    by `querySelectorAll(...)[0].click()` throws on `undefined` whenever the panel is slower
    than the guess — intermittently, which is the worst way to fail. Use `waitFor(...)`,
    which polls for the condition and names it in the error if it never arrives.
+
+11. **Double every backslash inside an `evaluate()` string.** Those are JS template
+   literals, so `\.` collapses to a bare `.` before the page ever sees it — a check for
+   `/\.{4,}/` became `/.{4,}/`, which matches *any* four characters, and reported
+   "literal periods found" in perfectly clean copy.
+12. **One cause per assertion.** That same check was written as `a && !b`, so when it
+   failed it named the wrong reason and sent me reading CSS that was fine. If an
+   assertion can fail two ways, make it two assertions.
 
 `drive.mjs` puts a **20-second deadline on every CDP command**. A lost reply used to leave
 the promise unsettled, and node then exited with no assertions at all — reported as

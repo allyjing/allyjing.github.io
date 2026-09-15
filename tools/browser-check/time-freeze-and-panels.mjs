@@ -1,4 +1,4 @@
-import { evaluate, goto, metrics, key, close } from './drive.mjs';
+import { evaluate, goto, metrics, key, waitFor, close } from './drive.mjs';
 const out=[]; const ok=(n,p,d='')=>out.push(`${p?'PASS':'FAIL'}  ${n}${d?'  — '+d:''}`);
 
 await metrics(1400, 900);
@@ -21,6 +21,7 @@ const themed = await evaluate(`
       closeBg: cs(document.querySelector('.panel__close')).backgroundColor,
       closeInk: cs(document.querySelector('.panel__close')).color,
       bubbleBg: cs(document.querySelector('.bubble')).backgroundColor,
+      closeRing: cs(document.querySelector('.panel__close')).backgroundColor,
       plate: cs(document.querySelector('.serving'),'::after').backgroundColor,
       tint: cs(document.querySelector('.layer--tint')).display,
       sceneFilter: cs(document.querySelector('.layer--scene')).filter,
@@ -100,6 +101,56 @@ for (const p of panels) {
 const exp = panels.find(p=>p.id==='experience');
 ok('Experience groups work and clubs together',
    exp.groups.length===2 && /Clubs/i.test(exp.groups[1]), exp.groups.join(' | '));
+
+// --- the Life menu
+await goto('http://localhost:8000/#/interior/life');
+await waitFor("document.querySelector('.portrait__image')", {label:'portrait'});
+const menu = await evaluate(`
+  const img=document.querySelector('.portrait__image');
+  const rows=[...document.querySelectorAll('.menu__item')];
+  const line=document.querySelector('.menu__line');
+  const name=line.querySelector('.menu__name').getBoundingClientRect();
+  const note=line.querySelector('.menu__note').getBoundingClientRect();
+  const leader=getComputedStyle(line,'::after');
+  return {
+    headings: [...document.querySelectorAll('.menu__heading')].map(function(h){return h.textContent;}),
+    rows: rows.length,
+    withNote: document.querySelectorAll('.menu__note').length,
+    withBody: document.querySelectorAll('.menu__body').length,
+    portraitDecoded: img.naturalWidth,
+    portraitAlt: img.alt,
+    portraitSrc: img.currentSrc.split('/').pop(),
+    portraitRound: getComputedStyle(img).borderRadius,
+    portraitSquare: Math.abs(img.getBoundingClientRect().width - img.getBoundingClientRect().height) < 1,
+    proprietor: (document.querySelector('.portrait__role')||{}).textContent,
+    // name and note must sit on ONE line with the note to the right of the name
+    sameLine: Math.abs(name.top - note.top) < 12,
+    noteAfterName: note.left > name.right,
+    leaderDrawn: leader.backgroundImage !== 'none',
+    /* No literal dots typed into the text.
+       ⚠️ The backslash is DOUBLED because this regex lives inside a JS template
+       literal. \\. there collapses to a bare . before the page ever sees it, and
+       /.{4,}/ matches any four characters — so this "found literal periods" in
+       perfectly clean text. Every backslash in an evaluate() string needs doubling. */
+    literalDots: /\\.{4,}/.test(document.getElementById('panel-body').textContent),
+  };
+`);
+ok('menu has the three sections asked for', menu.headings.length===3, menu.headings.join(' | '));
+ok('twelve menu items', menu.rows===12, String(menu.rows));
+ok('every item has a note and a description',
+   menu.withNote===12 && menu.withBody===12, `${menu.withNote} notes, ${menu.withBody} bodies`);
+ok('portrait decoded', menu.portraitDecoded>0, `${menu.portraitDecoded}px, ${menu.portraitSrc}`);
+ok('portrait has real alt text', (menu.portraitAlt||'').length>20, menu.portraitAlt);
+ok('portrait is a round square', menu.portraitSquare && /999|50%/.test(menu.portraitRound),
+   menu.portraitRound);
+ok('portrait names her role', menu.proprietor==='Proprietor', menu.proprietor);
+ok('name and note share one line', menu.sameLine && menu.noteAfterName);
+/* Two assertions, not one with an && — a combined check reported the wrong reason
+   for the failure and sent me looking at the CSS when the test's own regex was
+   broken. One cause per line. */
+ok('leader dots are drawn in CSS', menu.leaderDrawn, menu.leaderDrawn ? 'gradient' : 'no background-image');
+ok('no literal periods typed into the copy', !menu.literalDots,
+   menu.literalDots ? 'found a run of periods' : 'clean');
 
 console.log(out.join('\n'));
 close();
