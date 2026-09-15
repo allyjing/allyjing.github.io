@@ -46,12 +46,15 @@ let teardown = [];
 
 /* Which scene is currently rendered, so the router callback below can tell a real
  * scene change from a panel-only hash change (R10). Without this, opening or
- * closing a panel — which is ALSO a hash change — would tear the whole scene down
- * and rebuild it, replacing every table button with a new element. panel.js hangs
- * onto the button that opened it so it can hand focus back on close; a rebuilt
- * button is a different element, so that focus call would silently land on
- * nothing. Tracking the current scene and skipping the rebuild when it has not
- * changed is what keeps the opener button alive across a panel open/close. */
+ * closing a panel on the SAME scene — which is also a hash change — would tear
+ * the whole scene down and rebuild it, replacing every table button with a new
+ * element. panel.js hangs onto the button that opened it so it can hand focus
+ * back on close; a rebuilt button is a different element, so that focus call
+ * would silently land on nothing. This guard only covers that same-scene case:
+ * skipping the rebuild there keeps the opener button alive across a panel
+ * open/close. It does nothing for an actual scene change with a panel open
+ * (e.g. #/interior/projects -> #/exterior), where the old table button is
+ * legitimately gone — panel.js's own `isConnected` check handles that case. */
 let currentScene = null;
 
 function enterScene(sceneId) {

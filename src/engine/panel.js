@@ -159,8 +159,16 @@ export function closePanel() {
     /* Focus goes back to the table that opened the panel, so a keyboard user
      * resumes where they were instead of at the top of the document. Order
      * matters: the stage must have lost `inert` first, or this focus call is
-     * silently ignored. */
-    opener.focus();
+     * silently ignored.
+     *
+     * `isConnected` guards against a scene change while the panel was open (e.g.
+     * the hash going straight from #/interior/projects to #/exterior): the scene
+     * rebuild replaces every table button with a new element, so `opener` can be
+     * a detached node by the time this runs. Focusing a detached node is a silent
+     * no-op, so check first rather than let that happen unnoticed. There is no
+     * correct element to send focus to in that case — the table is gone — so we
+     * simply do not move focus, and it rests on <body>. */
+    if (opener.isConnected) opener.focus();
     opener = null;
   }
 }
