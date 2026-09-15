@@ -162,6 +162,10 @@ export const scenes = {
     walkable: [],
     signs: [],
 
+    /* Pressing back walks you back out. There is no character to move, so this is a
+     * key binding rather than a walk: see bindBackKeys in engine/input.js. */
+    back: { to: 'exterior' },
+
     decor: [],
 
     /* One trigger per painted table. x/y is the TABLE SURFACE — the dessert sits

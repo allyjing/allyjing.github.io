@@ -16,7 +16,7 @@ import {
   actorElement, placeActor, setActorPose,
 } from './renderer.js';
 import { createWalker } from './movement.js';
-import { bindInput } from './input.js';
+import { bindInput, bindBackKeys } from './input.js';
 import { buildChrome } from './chrome.js';
 import { openPanel, closePanel, isOpen, bindPanel } from './panel.js';
 
@@ -66,6 +66,16 @@ function enterScene(sceneId) {
    * #/interior/projects shareable and the Back button work (R10). */
   const scene = renderScene(sceneId, time, (id) => navigate('interior', id));
   teardown.push(watchResize(scene));
+
+  /* A scene with no character to walk — the first-person interior — gets the back
+   * keys instead, so there is a keyboard way out that does not depend on finding
+   * the button. `isOpen` keeps a panel's Escape from also leaving the room. */
+  if (scene.back) {
+    teardown.push(bindBackKeys({
+      onBack: () => navigate(scene.back.to),
+      isBlocked: isOpen,
+    }));
+  }
 
   const player = scene.actors.find((actor) => actor.walks);
   if (!player) return;

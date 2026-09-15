@@ -108,6 +108,10 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   reads as served rather than as a shape pasted on; and **daylight from the window** spills
   the current `--sky-top` across the floor, so the room knows what time it is.
 
+  ⚠️ **The interior does not change with the time of day** — no tint, no scene filter. It
+  is a lit room and looks the same at midnight as at noon; a bakery that dims at night reads
+  as closed rather than as evening. The clock still shows and the exterior still changes.
+
   ⚠️ Objects in a scene need their own colour tokens — `--dessert-bake`, `--dessert-glaze`,
   `--dessert-plate`. Every `--surface-*` flips to a dark UI colour after dark, and a plate
   that turns navy at night reads as broken rather than as dim.
@@ -313,6 +317,10 @@ Assets are AI-generated. Two constraints that are easy to violate by accident:
   rotation of the whole sprite, and that reads as gliding, not walking. This is still one
   generated pose with no frames; the cut is done in software from the single sprite. The
   cut lines are recorded in `scenes.js` as percentages and must match the images.
+
+  **The head-on step uses NO ROTATION AT ALL.** Two passes kept a few degrees "just to
+  suggest the leg passing under the body" and both still read as waddling — rotating a leg
+  about the hip swings the foot sideways, and sideways is the waddle. Zero is what fixed it.
 
   **Steps are a foot LIFTING, not a leg swinging.** Rotating the legs around the hip is
   what a waddle is — from a head-on view it swings the feet sideways. The lift is done with

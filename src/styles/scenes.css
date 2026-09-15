@@ -327,20 +327,25 @@
 
   /* A step, seen head-on.
    *
-   * The motion that reads as walking from the FRONT is the foot LIFTING, not the
-   * leg swinging sideways. Swinging it around the hip is what a waddle is.
+   * NO ROTATION AT ALL. Rotating a leg about the hip swings the foot sideways, and
+   * sideways is what a waddle is — two earlier passes kept a few degrees "just to
+   * suggest the leg passing under the body" and both still read as waddling. Taking
+   * it to zero is what finally fixed it.
    *
-   * So the lift is done with scaleY about the hip: shortening the leg raises the
-   * foot while the hip stays welded to the body, which is exactly what a knee
-   * bending looks like from here. Rotation is kept small -- just enough to suggest
-   * the leg passing under the body -- and does not drive the movement. */
+   * What is left is the only motion that reads as walking from the front: the foot
+   * LIFTS, done with scaleY about the hip, so shortening the leg raises the foot
+   * while the hip stays welded to the body. That is what a bending knee looks like
+   * from here.
+   *
+   * The slight widening at the plant is depth, not width: a leg swinging forward
+   * comes nearer the viewer, and nearer reads as very slightly bigger. */
   @keyframes step {
-    0%   { scale: 1 1;    rotate:  2.5deg; }   /* planted, trailing  */
-    20%  { scale: 1 0.90; rotate:  1.5deg; }   /* heel comes up      */
-    40%  { scale: 1 0.84; rotate: -1deg;   }   /* knee up, foot high */
-    60%  { scale: 1 0.93; rotate: -2.5deg; }   /* reaching forward   */
-    80%  { scale: 1 1;    rotate: -1.5deg; }   /* foot plants        */
-    100% { scale: 1 1;    rotate:  2.5deg; }   /* takes the weight   */
+    0%   { scale: 1    1;    }   /* planted, taking the weight */
+    20%  { scale: 1    0.92; }   /* heel comes up              */
+    40%  { scale: 1    0.82; }   /* knee up, foot at its highest */
+    60%  { scale: 1.03 0.92; }   /* swinging through, nearer   */
+    80%  { scale: 1.02 1;    }   /* plants forward             */
+    100% { scale: 1    1;    }
   }
 }
 
@@ -351,19 +356,16 @@
  * dramatic sunset on its walls looks wrong (PRD §9).
  * ========================================================================= */
 
-.stage[data-scene='interior'] .layer--tint {
-  background: var(--light-tint);
-  opacity: 0.35;
-}
-
-/* A room with its lights on does not go as dark as the garden outside it. The actors
-   take the same light as the room they are standing in, or she ends up noticeably
-   darker than the floor she is on. */
-.stage[data-scene='interior'] .layer--scene { filter: var(--interior-filter); }
-
-.stage[data-scene='interior'] .actor {
-  filter: var(--interior-filter) drop-shadow(0 var(--space-1) var(--space-2) var(--shadow-cast));
-}
+/* The interior does NOT change with the time of day. It is a lit room: the lamps are
+ * on, so it looks the same at midnight as at noon.
+ *
+ * This overrides the whole time-of-day treatment indoors — no tint overlay and no
+ * scene filter. An earlier version applied a softened version of both, on the theory
+ * that a room should feel the hour; it does not, and a bakery that dims at night
+ * reads as closed rather than as evening. The clock still shows and the exterior
+ * still changes; the room simply stays lit. */
+.stage[data-scene='interior'] .layer--tint { display: none; }
+.stage[data-scene='interior'] .layer--scene { filter: none; }
 
 /* Indoors there is no landmark to report, so the WHERE readout goes away. The clock
    stays: time of day still applies, just more subtly. */

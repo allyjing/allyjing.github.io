@@ -11,6 +11,30 @@ const MOVEMENT_KEYS = new Set([
   'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd',
 ]);
 
+/* The way out of a scene you cannot walk in.
+ *
+ * The interior is first person, so there is no character to step backwards. These
+ * keys stand in for that: down and left both read as "back" — down because walking
+ * backwards is how you leave a room you are standing in, left because a left arrow
+ * is what a back control looks like. `s` comes along for the WASD habit.
+ *
+ * Nothing else indoors uses the keyboard except the panels, and those are checked
+ * for first so Escape-closing a panel never also leaves the room. */
+const BACK_KEYS = new Set(['ArrowDown', 'ArrowLeft', 's']);
+
+export function bindBackKeys({ onBack, isBlocked }) {
+  function onKeyDown(event) {
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (isBlocked && isBlocked()) return;          // a panel is open; it owns the keys
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (!BACK_KEYS.has(key)) return;
+    event.preventDefault();
+    onBack();
+  }
+  window.addEventListener('keydown', onKeyDown);
+  return () => window.removeEventListener('keydown', onKeyDown);
+}
+
 export function bindInput({ stage, walker, aspect }) {
   // R1: click or tap anywhere on walkable ground walks there in a straight line.
   // Out-of-bounds points are clamped by the walker rather than ignored, so a click

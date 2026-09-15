@@ -36,7 +36,6 @@
   --ground-shade:   #8FBA73;
   --light-tint:     transparent;          /* the wash over the whole scene */
   --scene-filter:   none;                 /* brightness/saturate adjustment */
-  --interior-filter: none;                /* the same, indoors, but much gentler */
   --window-glow:    transparent;          /* lit bakery windows at night */
   --shadow-cast:    rgba(62, 48, 56, 0.16);
   --panel-scrim:    rgba(62, 48, 56, 0.55);  /* dim behind an open panel */
@@ -111,7 +110,6 @@
   --sky-bottom:   #FCE0C4;
   --light-tint:   rgba(255, 216, 168, 0.10);
   --scene-filter: brightness(1.07) saturate(1.05) hue-rotate(-5deg);
-  --interior-filter: brightness(1.02) saturate(1.02);
   --ground:       #B0D492;
   --shadow-cast:  rgba(58, 70, 110, 0.16);  /* COOL shadows — this is what reads as
                                                morning rather than sunset */
@@ -133,7 +131,6 @@
   /* -16deg turned the lawn autumn-yellow. -9 keeps the golden cast on the walls and
    * the path without draining the green out of the grass. */
   --scene-filter: brightness(1.02) saturate(1.22) hue-rotate(-9deg);
-  --interior-filter: brightness(1.00) saturate(1.06) hue-rotate(-4deg);
   --ground:       #8FA86E;
   --shadow-cast:  rgba(110, 48, 32, 0.30);
   --panel-scrim:  rgba(110, 48, 32, 0.55);
@@ -145,7 +142,6 @@
   --sky-bottom:   #DCEBF5;
   --light-tint:   transparent;
   --scene-filter: none;
-  --interior-filter: none;
   --ground:       #A8CE8B;
   --shadow-cast:  rgba(62, 48, 56, 0.16);
   --panel-scrim:  rgba(62, 48, 56, 0.55);
@@ -159,9 +155,6 @@
   /* Carries the whole night treatment outdoors now that there is no overlay: a
    * little darker and bluer than before to make up for the wash that was removed. */
   --scene-filter: brightness(0.54) saturate(0.58) hue-rotate(16deg);
-  /* Indoors the lights are on. Applying the outdoor night filter to a lit room made
-   * it read as an abandoned bakery rather than an open one. */
-  --interior-filter: brightness(0.86) saturate(0.92) hue-rotate(6deg);
   --ground:       #5E7A5C;
   --shadow-cast:  rgba(14, 18, 40, 0.34);
   --panel-scrim:  rgba(14, 18, 40, 0.68);
