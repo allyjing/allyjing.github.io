@@ -225,10 +225,14 @@
   transform-origin: 50% 0;
 }
 
-/* Sized from the pose's own split rather than assumed to be halves — in profile the
-   near leg is much wider than the far one. */
-.actor__leg--left  { left: 0;                 width: var(--leg-split, 50%); }
-.actor__leg--right { left: var(--leg-split, 50%); width: calc(100% - var(--leg-split, 50%)); }
+/* Both leg pieces are FULL WIDTH, with the divide between them baked into their own
+   transparency rather than expressed as a box. That is what lets the divide follow
+   the drawing: head-on it is a straight vertical line down the gap between the legs,
+   but in profile the shoes overlap and merge, so any vertical cut slices a shoe in
+   half. There the boundary slants as it descends, passing between the back heel and
+   the front shoe so each keeps a whole shoe. See assets/source/cut-sprite.py. */
+.actor__leg--left,
+.actor__leg--right { left: 0; width: 100%; }
 
 /* Hidden for a pose drawn whole rather than cut into pieces. */
 .actor[data-jointed='false'] .actor__leg { display: none; }
@@ -283,6 +287,21 @@
     62%      { opacity: 0.9; scale: 1; }
     72%      { opacity: 0.5; scale: 1.5; }
     80%, 100% { opacity: 0; scale: 1.9; }
+  }
+
+  /* The profile has no separate legs to swing, so its walk is a rise and fall of the
+     whole body, one beat per footfall.
+
+     ⚠️ NO ROTATION. An earlier version rocked the body ±1.6deg here and that was the
+     waddle everyone kept seeing — most walking is sideways, so this is the pose you
+     look at most. Bob only. */
+  .actor[data-pose='side'][data-walking='true'] .actor__body {
+    animation: stride-profile calc(var(--dur-step) / 2) var(--ease-soft) infinite;
+  }
+
+  @keyframes stride-profile {
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -2.5%; }
   }
 
   /* Idle: a slow breathing bob. */

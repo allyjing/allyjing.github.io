@@ -18,16 +18,13 @@ import { sceneAlt, actorAlt, signs, doors, tables } from './content.js';
  * renderer updates the actor box when the pose changes. Heights are normalised, so
  * she stays the same height throughout. */
 
-/* Each pose carries its own `split`: where the two legs divide, as a percentage
- * across the sprite. It is 50% for the head-on views, where the legs are mirror
- * halves, but 58.5% in profile — there the near leg is wide and the far one peeks
- * out behind it, and the artwork draws an outline between them at exactly that
- * point. Cutting at 50% instead lands in the middle of the near leg and splits it
- * lengthways, which read as one and a half legs. */
-function pose(prefix, aspect, split = 50) {
+/* Where the two legs divide is baked into the leg images themselves, not expressed
+ * here — see assets/source/cut-sprite.py. Head-on it is a straight line down the gap
+ * between the legs; in profile the shoes overlap, so it slants to pass between the
+ * back heel and the front shoe and leave each with a whole shoe. */
+function pose(prefix, aspect) {
   return {
     aspect,
-    split,
     body: `assets/sprites/${prefix}-body.png`,
     legLeft: `assets/sprites/${prefix}-leg-left.png`,
     legRight: `assets/sprites/${prefix}-leg-right.png`,
@@ -36,7 +33,11 @@ function pose(prefix, aspect, split = 50) {
 
 const jingwenFront = pose('jingwen', 222 / 720);
 const jingwenBack = pose('jingwen-back', 227 / 720);
-const jingwenSide = pose('jingwen-side', 193 / 720, 58.5);
+/* The profile is the one pose drawn WHOLE. Its two shoes overlap into a single
+ * solid mass — there is no interior gap on any row through them — so no cut leaves
+ * both shoes intact. It walks with a body bob instead of swinging legs. A side pose
+ * drawn mid-stride, feet apart, would cut like the others. */
+const jingwenSide = { aspect: 193 / 720, body: 'assets/sprites/jingwen-side.png' };
 
 const jingwen = {
   id: 'jingwen',
