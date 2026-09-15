@@ -171,6 +171,18 @@ export const scenes = {
      * the only focusable, keyboard-operable exit, and walking is the nice way rather
      * than the only way. */
 
+    /* Walking down across the front of the room leaves it. There is no painted door
+     * to walk to, so the front EDGE is the way out — stepping toward the viewer is
+     * stepping back outside.
+     *
+     * `at` is an image-space y, like every other coordinate in this file. It sits
+     * just inside the polygon's bottom edge (y 97), not on it, so she reaches the
+     * trigger while still on painted floor.
+     *
+     * 95 sits between the polygon's foreground edge (y 98) and the y-90 spans, so
+     * she reaches it while still on painted floor. */
+    exit: { edge: 'bottom', at: 95, to: 'exterior' },
+
     /* On the door itself, so it reads as the way out rather than as a button
      * floating in the room. Re-placed 2026-09-14: the old x38 sat on the window
      * pane left of the door in the new artwork. The double door spans x 44-58. */

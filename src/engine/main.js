@@ -71,9 +71,12 @@ function enterScene(sceneId) {
 
   const sprite = actorElement(player.id);
 
-  /* Walking onto the doorstep goes inside (R9). `entered` latches so arriving does
-   * not fire the transition on every frame while she stands there. */
-  let entered = false;
+  /* `left` latches so arriving at the way out does not re-fire the transition on
+   * every frame while she stands there. */
+  let left = false;
+  /* The previous frame's y, so the exit can tell walking DOWN from merely being
+   * near the bottom. Seeded with her start so the first frame compares sanely. */
+  let lastY = player.y;
 
   const walker = createWalker({
     start: { x: player.x, y: player.y },
@@ -82,11 +85,33 @@ function enterScene(sceneId) {
       setActorPose(sprite, player, heading);
       placeActor(sprite, position, facing, moving);
 
+      const movingDown = position.y > lastY;
+      lastY = position.y;
+      if (left) return;
+
+      /* Two shapes of way-out, one per scene.
+       *
+       * Outdoors it is a POINT: the bakery door, entered by getting close to it.
+       *
+       * Indoors it is the front EDGE of the room, and crossing it must also mean
+       * moving DOWNWARD. Without that, any click low on the screen ejects a
+       * visitor who was only trying to walk to a table.
+       *
+       * ⚠️ Do NOT use `heading` for this. movement.js collapses it to 'side'
+       * whenever horizontal movement dominates, so a diagonal walk toward the
+       * bottom-left reports 'side', not 'front', and the exit would silently never
+       * fire. `heading` picks a sprite pose; it is not a direction of travel. */
       const door = scene.door;
-      if (!door || entered) return;
-      if (Math.hypot(position.x - door.x, position.y - door.y) <= door.radius) {
-        entered = true;
+      if (door && Math.hypot(position.x - door.x, position.y - door.y) <= door.radius) {
+        left = true;
         navigate(door.to);
+        return;
+      }
+
+      const exit = scene.exit;
+      if (exit && movingDown && position.y >= exit.at) {
+        left = true;
+        navigate(exit.to);
       }
     },
   });
