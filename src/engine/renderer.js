@@ -230,6 +230,7 @@ function buildActor(actor) {
   flip.className = 'actor__flip';
 
   if (actor.parts) {
+    node.style.setProperty('--leg-split', `${(actor.parts.split ?? 50)}%`);
     node.style.setProperty('--leg-top', `${actor.legTop}%`);
     node.style.setProperty('--leg-height', `${actor.legHeight}%`);
     node.style.setProperty('--body-height', `${actor.bodyHeight}%`);
@@ -294,6 +295,7 @@ export function setActorPose(node, actor, heading) {
   node.dataset.pose = heading;
 
   if (pose.aspect) node.style.aspectRatio = String(pose.aspect);
+  if (pose.split) node.style.setProperty('--leg-split', `${pose.split}%`);
 
   const body = node.querySelector('.actor__body');
   if (body && pose.body) body.src = pose.body;

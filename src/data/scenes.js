@@ -17,9 +17,17 @@ import { sceneAlt, actorAlt, signs, doors, tables } from './content.js';
  * `aspect` differs per pose because a profile is narrower than a front view; the
  * renderer updates the actor box when the pose changes. Heights are normalised, so
  * she stays the same height throughout. */
-function pose(prefix, aspect) {
+
+/* Each pose carries its own `split`: where the two legs divide, as a percentage
+ * across the sprite. It is 50% for the head-on views, where the legs are mirror
+ * halves, but 58.5% in profile — there the near leg is wide and the far one peeks
+ * out behind it, and the artwork draws an outline between them at exactly that
+ * point. Cutting at 50% instead lands in the middle of the near leg and splits it
+ * lengthways, which read as one and a half legs. */
+function pose(prefix, aspect, split = 50) {
   return {
     aspect,
+    split,
     body: `assets/sprites/${prefix}-body.png`,
     legLeft: `assets/sprites/${prefix}-leg-left.png`,
     legRight: `assets/sprites/${prefix}-leg-right.png`,
@@ -28,16 +36,7 @@ function pose(prefix, aspect) {
 
 const jingwenFront = pose('jingwen', 222 / 720);
 const jingwenBack = pose('jingwen-back', 227 / 720);
-/* The side view is NOT cut into legs, unlike the other two.
- *
- * Head-on the legs are two shapes with a gap between them, so a cut down the middle
- * lands in the gap. In profile they overlap into one solid mass — measured, the
- * silhouette runs unbroken from x=22 to x=150 — so the same cut goes straight
- * through a leg and splits it lengthways. It read as one and a half legs.
- *
- * There is nothing to separate, so it stays whole and the walk is carried by the
- * body instead. See .actor[data-pose='side'] in scenes.css. */
-const jingwenSide = { aspect: 193 / 720, body: 'assets/sprites/jingwen-side.png' };
+const jingwenSide = pose('jingwen-side', 193 / 720, 58.5);
 
 const jingwen = {
   id: 'jingwen',

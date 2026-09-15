@@ -225,8 +225,10 @@
   transform-origin: 50% 0;
 }
 
-.actor__leg--left  { left: 0; }
-.actor__leg--right { left: 50%; }
+/* Sized from the pose's own split rather than assumed to be halves — in profile the
+   near leg is much wider than the far one. */
+.actor__leg--left  { left: 0;                 width: var(--leg-split, 50%); }
+.actor__leg--right { left: var(--leg-split, 50%); width: calc(100% - var(--leg-split, 50%)); }
 
 /* Hidden for a pose drawn whole rather than cut into pieces. */
 .actor[data-jointed='false'] .actor__leg { display: none; }
@@ -311,19 +313,6 @@
     50%      { translate: 0 -2px; }
   }
 
-  /* The profile view has no separate legs to swing, so the walk is carried by the
-     whole body: a two-beat rise and fall with a slight rock, one beat per footfall.
-     Less articulate than the head-on walk, and still clearly walking. */
-  .actor[data-pose='side'][data-walking='true'] .actor__body {
-    animation: stride-profile var(--dur-step) var(--ease-soft) infinite;
-  }
-
-  @keyframes stride-profile {
-    0%, 100% { rotate: 0deg;    translate: 0 0; }
-    25%      { rotate: -1.6deg; translate: 0 -1.6%; }
-    50%      { rotate: 0deg;    translate: 0 0; }
-    75%      { rotate: 1.6deg;  translate: 0 -1.6%; }
-  }
 
   /* A step, seen head-on.
    *
