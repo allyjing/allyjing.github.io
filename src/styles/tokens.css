@@ -39,6 +39,7 @@
   --interior-filter: none;                /* the same, indoors, but much gentler */
   --window-glow:    transparent;          /* lit bakery windows at night */
   --shadow-cast:    rgba(62, 48, 56, 0.16);
+  --panel-scrim:    rgba(62, 48, 56, 0.55);  /* dim behind an open panel */
 
   /* ---- Type -------------------------------------------------------------- */
   --font-display: "Fraunces", Georgia, serif;
@@ -114,6 +115,7 @@
   --ground:       #B0D492;
   --shadow-cast:  rgba(58, 70, 110, 0.16);  /* COOL shadows — this is what reads as
                                                morning rather than sunset */
+  --panel-scrim:  rgba(58, 70, 110, 0.55);
   --window-glow:  transparent;
 }
 
@@ -134,6 +136,7 @@
   --interior-filter: brightness(1.00) saturate(1.06) hue-rotate(-4deg);
   --ground:       #8FA86E;
   --shadow-cast:  rgba(110, 48, 32, 0.30);
+  --panel-scrim:  rgba(110, 48, 32, 0.55);
   --window-glow:  rgba(255, 206, 140, 0.52);
 }
 
@@ -145,6 +148,7 @@
   --interior-filter: none;
   --ground:       #A8CE8B;
   --shadow-cast:  rgba(62, 48, 56, 0.16);
+  --panel-scrim:  rgba(62, 48, 56, 0.55);
   --window-glow:  transparent;
 }
 
@@ -160,6 +164,7 @@
   --interior-filter: brightness(0.86) saturate(0.92) hue-rotate(6deg);
   --ground:       #5E7A5C;
   --shadow-cast:  rgba(14, 18, 40, 0.34);
+  --panel-scrim:  rgba(14, 18, 40, 0.68);
   --window-glow:  rgba(255, 206, 128, 0.72);
 
   /* Text surfaces stay readable after dark — the UI overlay does NOT get dimmed.

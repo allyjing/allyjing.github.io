@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="src/styles/base.css">
 <link rel="stylesheet" href="src/styles/scenes.css">
 <link rel="stylesheet" href="src/styles/ui.css">
+<link rel="stylesheet" href="src/styles/panel.css">
 </head>
 
 <!-- data-time is replaced on boot from the visitor's clock. The value here only
@@ -63,6 +64,20 @@
   <!-- Chrome. Sits above the time-of-day tint, so it is never dimmed by the night
        wash — that would be a bug, not a mood. -->
   <div class="layer layer--ui" id="ui"></div>
+</div>
+
+<!-- The overlay panel a table opens. Outside .stage deliberately: the stage gets
+     `inert` while a panel is open, and a panel nested inside it would inert itself.
+     Empty here — src/engine/panel.js fills it, because copy lives in content.js. -->
+<div class="panel" id="panel" hidden>
+  <div class="panel__scrim" data-close></div>
+  <div class="panel__card" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+    <header class="panel__bar">
+      <h2 class="panel__title" id="panel-title"></h2>
+      <button class="panel__close" type="button" data-close></button>
+    </header>
+    <div class="panel__body" id="panel-body"></div>
+  </div>
 </div>
 
 <script type="module" src="src/engine/main.js"></script>

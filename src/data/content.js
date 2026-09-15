@@ -241,3 +241,9 @@ export const panels = {
     ],
   },
 };
+
+/* The panel's own chrome. Copy, so it lives here and not in panel.js (R31). */
+export const panelChrome = {
+  close: 'Close',
+  closeAria: 'Close this panel',
+};
