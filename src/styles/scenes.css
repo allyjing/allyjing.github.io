@@ -158,9 +158,13 @@
    Unlike the props layer this one NEVER docks to the corner: decor belongs to the
    painting, so it keeps the artwork box at every viewport shape. */
 .layer--decor { z-index: var(--z-props); }
-/* The signs live in the props layer and DO take clicks, even though the layer
-   itself does not — otherwise the layer would swallow clicks meant for the ground. */
-.layer--props .sign { pointer-events: auto; }
+/* The signs and the table buttons live in the props layer and DO take clicks, even
+   though the layer itself does not — the layer is a frame that lets clicks pass
+   through to the ground beneath it, and only its interactive children take them.
+   The table buttons are appended here too (renderTables), so they need the same
+   opt-back-in or the layer's pointer-events: none swallows every click on them. */
+.layer--props .sign,
+.layer--props .table { pointer-events: auto; }
 .layer--actors { z-index: var(--z-actors); }
 
 /* The stage takes the clicks, because the actors layer must not intercept them. */
