@@ -58,9 +58,23 @@ ok('close label AA on the accent', con.closeOnAccent>=4.5, String(con.closeOnAcc
 await goto('http://localhost:8000/#/exterior');
 const ext = await evaluate(`
   await new Promise(r=>setTimeout(r,700));
+  /* ⚠️ Cycle to a time that actually applies a filter before asserting.
+   * --scene-filter is 'none' at NOON by design, and the time of day comes from the
+   * visitor's real clock (R27) — so this assertion passed at night and failed at
+   * 2pm, on identical code. A check whose result depends on when it is run is worse
+   * than no check. Advance until the filter is non-none, at most four clicks. */
+  const clock=document.querySelector('.chrome--clock');
+  let filter=getComputedStyle(document.querySelector('.layer--scene')).filter;
+  let tries=0;
+  while (filter==='none' && tries<4) {
+    clock.click();
+    await new Promise(r=>setTimeout(r,750));
+    filter=getComputedStyle(document.querySelector('.layer--scene')).filter;
+    tries++;
+  }
   return {signs: document.querySelectorAll('.sign').length,
           actors: document.querySelectorAll('.actor').length,
-          exteriorThemes: getComputedStyle(document.querySelector('.layer--scene')).filter,
+          exteriorThemes: filter,
           time: document.body.dataset.time};
 `);
 ok('exterior renders its signs', ext.signs>=2, String(ext.signs));

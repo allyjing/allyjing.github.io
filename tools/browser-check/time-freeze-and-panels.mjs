@@ -85,6 +85,8 @@ const panels = await evaluate(`
     const body=document.getElementById('panel-body');
     seen.push({id, title:document.getElementById('panel-title').textContent,
       entries:body.querySelectorAll('.entry').length,
+      groups:[...body.querySelectorAll('.entrygroup__label')].map(function(h){return h.textContent;}),
+      cards:body.querySelectorAll('.showcase__card').length,
       photos:body.querySelectorAll('.gallery__item').length,
       chars:body.textContent.length,
       placeholder:/Placeholder (bullet|heading|introduction|role|project|meta|set)|Organisation · City/i.test(body.textContent)});
@@ -93,8 +95,11 @@ const panels = await evaluate(`
 `);
 for (const p of panels) {
   ok(`${p.id} panel has real content`, p.chars>200 && !p.placeholder,
-     `${p.title}: ${p.entries} entries, ${p.photos} photos, ${p.chars} chars${p.placeholder?' PLACEHOLDER TEXT':''}`);
+     `${p.title}: ${p.entries} entries, ${p.cards} cards, ${p.photos} photos, ${p.chars} chars${p.placeholder?' PLACEHOLDER TEXT':''}`);
 }
+const exp = panels.find(p=>p.id==='experience');
+ok('Experience groups work and clubs together',
+   exp.groups.length===2 && /Clubs/i.test(exp.groups[1]), exp.groups.join(' | '));
 
 console.log(out.join('\n'));
 close();

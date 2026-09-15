@@ -21,12 +21,24 @@ let id = 0;
 const pending = new Map();
 ws.addEventListener('message', ev => {
   const m = JSON.parse(ev.data);
-  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+  if (m.id && pending.has(m.id)) { pending.get(m.id).resolve(m); pending.delete(m.id); }
 });
-export function send(method, params = {}) {
+
+/* ⚠️ EVERY command has a deadline. Without one, a lost or never-answered CDP reply
+ * leaves the promise unsettled and node exits with "Detected unsettled top-level
+ * await" and NO assertions — which run.sh can only report as "0 pass, 0 fail". That
+ * happened intermittently and cost two debugging cycles before the timeout went in.
+ * A rejection names the method that stalled; silence names nothing. */
+export function send(method, params = {}, timeoutMs = 20000) {
   const myId = ++id;
   ws.send(JSON.stringify({ id: myId, method, params }));
-  return new Promise(r => pending.set(myId, r));
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pending.delete(myId);
+      reject(new Error(`CDP timeout after ${timeoutMs}ms: ${method}`));
+    }, timeoutMs);
+    pending.set(myId, { resolve: (m) => { clearTimeout(timer); resolve(m); } });
+  });
 }
 export async function evaluate(expr) {
   const r = await send('Runtime.evaluate', {
@@ -35,6 +47,20 @@ export async function evaluate(expr) {
   if (r.result?.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails));
   return r.result?.result?.value;
 }
+/* Polls the page until `expression` is truthy. Use this instead of guessing a sleep:
+ * the panels fill after a hashchange and the photographs decode over the network, so
+ * a fixed wait is either too short — and then querySelector(...)[0].click() throws on
+ * undefined — or slower than it needs to be. */
+export async function waitFor(expression, { timeoutMs = 8000, label = expression } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const ok = await evaluate(`return Boolean(${expression});`);
+    if (ok) return true;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  throw new Error(`waitFor timed out after ${timeoutMs}ms: ${label}`);
+}
+
 export async function goto(url) {
   await send('Page.enable');
   await send('Runtime.enable');

@@ -35,11 +35,65 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 
 | panel | `kind` | source of the content |
 |---|---|---|
-| Experience | `entries` | the resume: Red Vest, NU Oakland, Science Club for Girls, Makers Club |
-| Projects | `entries` | the resume plus Arcadium and CNC milling from the old site |
-| Photography | `gallery` | six of Jingwen's own photographs, her own words |
+| Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
+| Projects | `showcase` | six projects, each with a page of its own |
+| Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | Life | `entries` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | her Citrus College architectural drawing set. Text only, deliberately |
+
+There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
+panel id:
+
+- **`entries`** — headed articles. Optionally `groups`, each with a label: Experience
+  keeps paid and unpaid work in one panel while still telling them apart, which was
+  asked for directly. A group label is an `h3` and its entries drop to `h4` so the
+  outline a screen reader walks stays in order.
+- **`gallery`** — photographs in `sets`, **two to a row**. Also asked for directly: an
+  auto-fill grid fitted four across on a wide card and made every photograph a
+  thumbnail you could not read. Each set carries its own description.
+- **`showcase`** — an index of cards, each opening its own page at
+  `#/interior/projects/<slug>`.
+
+### The Projects showcase
+
+`#/interior/projects/arcadium` is a real, shareable route — the router parses a THIRD
+hash segment for it (`route.item`).
+
+⚠️ **Opening a project refills the panel IN PLACE.** `openPanel(id, item)` compares
+against `filledId` and only tears the dialog down when the panel itself changes.
+Closing and reopening would make a screen reader announce the whole dialog again and
+would bounce focus out to the table button and back on every step between the index
+and a project.
+
+⚠️ **On a project's page the panel title becomes the PROJECT's name**, and the project
+renders no heading of its own. `#panel-title` is the dialog's `aria-labelledby`
+target, so leaving it as "Projects" told a screen-reader user they were in a dialog
+called Projects while it displayed Arcadium. The first version had both, which showed
+as two identical titles stacked.
+
+⚠️ **An unknown slug renders the index**, not an error — a stale link should land you
+on the list, the same way an unknown panel id lands you in a plain room.
+
+Cards with no photograph show **"No photos yet"**, not the project's initial. The
+initial was the first version, and because two projects begin with T the grid showed
+two tiles reading "T", which looks like a rendering bug rather than an absence.
+
+### Which words on this site are whose
+
+This matters more than it sounds and `content.js` says it at the top too:
+
+- **Jingwen's resume** — the Experience entries and the project bullets.
+- **Jingwen's own writing, verbatim from `jingwen.lovable.app`** — both panel intros,
+  the Photography set descriptions and technical notes, and the project
+  About/Challenge/Result prose. Do not paraphrase these; her voice is the thing they
+  are there for.
+- **Written for this site** — per-photo captions, the one-line card summaries, and the
+  section headings over her prose.
+- **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
+
+⚠️ **The CNC Milling entry is deliberately thin.** The old site's write-up for it was
+generated filler and its three photographs were stock images of an industrial 5-axis
+mill, not her Forest router. Only the verifiable part was kept.
 
 ⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
 things verifiable elsewhere in the repo and on the resume, because nothing on the old site

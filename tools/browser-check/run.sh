@@ -22,7 +22,7 @@ set -u
 HERE=${0:a:h}
 PORT=9331
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-CHECKS=(tables-layout gallery-lightbox time-freeze-and-panels lightbox-a11y walking-and-doors)
+CHECKS=(tables-layout gallery-lightbox projects-showcase time-freeze-and-panels lightbox-a11y walking-and-doors)
 
 if [[ ! -x $CHROME ]]; then
   print "Chrome not found at: $CHROME"

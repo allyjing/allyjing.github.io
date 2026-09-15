@@ -42,7 +42,13 @@ updateChrome(time);
 
 /* Closing is a route change, not a direct DOM call: that is what makes the Back
  * button leave the panel rather than the site (R10). */
-bindPanel(() => navigate('interior'));
+bindPanel(
+  () => navigate('interior'),
+  /* Opening a project, and going back to the list, are both route changes. Passing
+   * null for the item drops the third segment, which is what makes "All projects"
+   * a Back-able step rather than a silent DOM swap. */
+  (slug) => navigate('interior', 'projects', slug),
+);
 
 /* The photo lightbox inside the Photography panel. Bound once here rather than when
  * the gallery is built: its markup is static, and re-binding on every panel open
@@ -160,7 +166,7 @@ startRouter((route) => {
    * Panels exist only indoors: #/exterior/projects renders the exterior, no panel.
    * An unknown id opens nothing, so a typo in a shared link is a plain room. */
   if (sceneId === 'interior' && route.panel) {
-    openPanel(route.panel);
+    openPanel(route.panel, route.item);
   } else if (isOpen()) {
     closePanel();
   }

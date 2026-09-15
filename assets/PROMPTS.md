@@ -299,9 +299,25 @@ Everything else under `assets/` is illustration. `assets/photos/` is six photogr
 Jingwen actually took, carried over from `jingwen.lovable.app` for the Photography panel:
 four of a sunrise above the fog line and two of the Southern California coast.
 
+`assets/photos/` also holds **seven photographs of her own project builds**, carried
+over the same way: four of the Arcadium cabinet and three of CADodile.
+
 Each exists at three widths — `<slug>-480.webp`, `-960.webp`, `-1600.webp` — because
 `engine/panel.js` builds a `srcset` from `photoWidths` in `content.js`. **Adding a
 photograph means exporting all three**; a missing width is a 404, not a fallback.
+
+⚠️ **PEOPLE. Three of the old site's project photographs were left out because they
+show identifiable faces**, and that is not a call to make on someone else's behalf in
+a public repo:
+
+- a 5th-grade student holding a game board, in a hoodie naming their school
+- the five-person project team, all faces clear
+- the annotated dispenser photo, which had a bystander visible through a doorway in
+  the background — this one was **cropped to its right-hand panel** instead of
+  dropped, which keeps the finished build and loses the person
+
+Hardware, boards, wiring diagrams and her own hands are all fine. Check any new
+photograph for faces before adding it, including in the background.
 
 Converted with the tools that are on this machine:
 

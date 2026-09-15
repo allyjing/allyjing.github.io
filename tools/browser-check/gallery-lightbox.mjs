@@ -1,4 +1,4 @@
-import { evaluate, goto, metrics, key, send, close } from './drive.mjs';
+import { evaluate, goto, metrics, key, send, waitFor, close } from './drive.mjs';
 const out=[]; const ok=(n,p,d='')=>out.push(`${p?'PASS':'FAIL'}  ${n}${d?'  — '+d:''}`);
 
 await metrics(1400, 900);
@@ -29,6 +29,7 @@ ok('each plate click lands on its own table', hits.every(h=>h.id===h.hit),
 
 // --- the gallery
 await goto('http://localhost:8000/#/interior/photography');
+await waitFor("document.querySelectorAll('.gallery__open').length===6", {label:'six thumbnails'});
 const gal = await evaluate(`
   const thumbs=[...document.querySelectorAll('.gallery__open')];
   const imgs=thumbs.map(b=>b.querySelector('img'));
@@ -37,6 +38,14 @@ const gal = await evaluate(`
     open: !document.getElementById('panel').hidden,
     title: document.getElementById('panel-title').textContent,
     n: thumbs.length,
+    sets: document.querySelectorAll('.photoset').length,
+    setTitles: [...document.querySelectorAll('.photoset__title')].map(h=>h.textContent),
+    setBody: document.querySelectorAll('.photoset__body').length,
+    notesTitle: (document.querySelector('.photoset__notes h4')||{}).textContent,
+    notesBullets: document.querySelectorAll('.photoset__notes li').length,
+    captions: document.querySelectorAll('.gallery__caption').length,
+    cols: getComputedStyle(document.querySelector('.gallery')).gridTemplateColumns.split(' ').length,
+    thumbW: Math.round(imgs[0].getBoundingClientRect().width),
     srcs: imgs.map(i=>i.currentSrc.split('/').pop()),
     decoded: imgs.map(i=>i.naturalWidth>0),
     lazy: imgs.every(i=>i.loading==='lazy'),
@@ -49,14 +58,22 @@ const gal = await evaluate(`
 `);
 ok('photography panel opens from the URL', gal.open, gal.title);
 ok('six thumbnails', gal.n===6);
+ok('grid is TWO columns', gal.cols===2, gal.cols+' columns');
+ok('thumbnails are large, not tiny', gal.thumbW>=200, gal.thumbW+'px wide');
+ok('two photo sets with her titles', gal.sets===2, gal.setTitles.join(' | '));
+ok('her set description is shown', gal.setBody===2, gal.setBody+' paragraphs');
+ok('her technical notes are shown', gal.notesTitle==='Technical Details' && gal.notesBullets===3,
+   `${gal.notesTitle}: ${gal.notesBullets} bullets`);
+ok('every photo has a caption', gal.captions===6, String(gal.captions));
 ok('every thumbnail decoded', gal.decoded.every(Boolean), gal.srcs.join(' '));
 ok('browser picked a responsive width', gal.srcs.every(s=>/-(480|960|1600)\.webp$/.test(s)), gal.srcs[0]);
 ok('lazy + sizes + 3-entry srcset', gal.lazy && gal.hasSizes && gal.hasSrcset);
 ok('images decorative, button carries the name', gal.emptyAlt && gal.labelled);
-ok('gear and outro notes rendered', gal.notes===2, String(gal.notes));
+ok('closing note rendered', gal.notes===1, String(gal.notes));
 
 // --- the lightbox
-await evaluate(`document.querySelectorAll('.gallery__open')[2].click(); await new Promise(r=>setTimeout(r,500));`);
+await evaluate(`document.querySelectorAll('.gallery__open')[2].click();`);
+await waitFor("!document.getElementById('lightbox').hidden", {label:'lightbox open'});
 const lb1 = await evaluate(`
   const lb=document.getElementById('lightbox');
   return {open:!lb.hidden, count:document.getElementById('lightbox-count').textContent,

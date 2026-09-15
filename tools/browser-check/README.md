@@ -24,7 +24,8 @@ suite fails.
 | script | what it holds down |
 |---|---|
 | `tables-layout.mjs` | the five place settings: sprites decode, dessert and drink share a baseline, no two table buttons overlap, and the phone menu drops the plate and the drink |
-| `gallery-lightbox.mjs` | the photo grid is lazy with a 3-entry `srcset`, the lightbox opens on the thumbnail that was clicked, arrows wrap, and Escape closes the lightbox WITHOUT closing the panel |
+| `gallery-lightbox.mjs` | the photo grid is TWO columns with large thumbnails, sets carry her descriptions and technical notes, the lightbox opens on the thumbnail that was clicked, arrows wrap across sets, and Escape closes the lightbox WITHOUT closing the panel |
+| `projects-showcase.mjs` | the card index, opening a project as a route change without tearing the dialog down, the dialog being titled by the project, browser Back stepping out of a project, cold deep links, an unknown slug falling back to the index, and cards going one-up on a phone |
 | `time-freeze-and-panels.mjs` | cycling the clock changes nothing indoors — card, bar, close button, bubble, plate, tint, filter — and all five panels hold real content |
 | `lightbox-a11y.mjs` | tab order and trap, backdrop click, measured contrast on the dark mat, and that the exterior still re-themes |
 | `walking-and-doors.mjs` | Jingwen walks on a real pointer event, walking to the door goes inside, and nothing covers the way out |
@@ -61,6 +62,21 @@ list under "Run it"; the short version:
 7. **Do not pipe a check straight into `awk` from `run.sh`.** The backgrounded Chrome
    shares the pipeline, and `node … 2>&1 | awk` printed nothing while the identical command
    in a terminal printed thirteen passes. Output goes via a file.
+8. **Never assert on something the visitor's clock decides.** `--scene-filter` is
+   legitimately `none` at noon, so "the exterior re-themes" passed at night and failed at
+   2pm on identical code. Cycle the clock to a known state first. A check whose result
+   depends on when it runs is worse than no check.
+9. **Only ever run one `run.sh` at a time.** Two instances fight over the debug port and
+   kill each other's Chrome, which shows up as trap 5.
+10. **Never sleep where you can wait.** `await new Promise(r=>setTimeout(r,1200))` followed
+   by `querySelectorAll(...)[0].click()` throws on `undefined` whenever the panel is slower
+   than the guess — intermittently, which is the worst way to fail. Use `waitFor(...)`,
+   which polls for the condition and names it in the error if it never arrives.
+
+`drive.mjs` puts a **20-second deadline on every CDP command**. A lost reply used to leave
+the promise unsettled, and node then exited with no assertions at all — reported as
+`0 pass, 0 fail`, which is trap 5's signature with a different cause. A timeout at least
+names the method that stalled.
 
 Numbers 5, 6 and 7 are the dangerous ones: each makes an empty run look like a clean one.
 `run.sh` now treats a suite that printed no assertions as a FAILURE and shows the first
