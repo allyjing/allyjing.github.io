@@ -17,6 +17,7 @@ import {
 import { createWalker } from './movement.js';
 import { bindInput } from './input.js';
 import { buildChrome } from './chrome.js';
+import { openPanel, closePanel, isOpen, bindPanel } from './panel.js';
 
 // The title is copy, so it comes from content.js rather than being typed into <title>.
 document.title = site.title;
@@ -37,7 +38,21 @@ const updateChrome = buildChrome({
 });
 updateChrome(time);
 
+/* Closing is a route change, not a direct DOM call: that is what makes the Back
+ * button leave the panel rather than the site (R10). */
+bindPanel(() => navigate('interior'));
+
 let teardown = [];
+
+/* Which scene is currently rendered, so the router callback below can tell a real
+ * scene change from a panel-only hash change (R10). Without this, opening or
+ * closing a panel — which is ALSO a hash change — would tear the whole scene down
+ * and rebuild it, replacing every table button with a new element. panel.js hangs
+ * onto the button that opened it so it can hand focus back on close; a rebuilt
+ * button is a different element, so that focus call would silently land on
+ * nothing. Tracking the current scene and skipping the rebuild when it has not
+ * changed is what keeps the opener button alive across a panel open/close. */
+let currentScene = null;
 
 function enterScene(sceneId) {
   for (const off of teardown) off();
@@ -79,6 +94,27 @@ function enterScene(sceneId) {
 }
 
 startRouter((route) => {
-  enterScene(getScene(route.scene) ? route.scene : 'exterior');
-  // route.panel is parsed and deliberately ignored until Phase 5.
+  const sceneId = getScene(route.scene) ? route.scene : 'exterior';
+
+  /* Only rebuild the scene when it actually changed. See the comment on
+   * `currentScene` above: a panel open/close is also a hash change, and calling
+   * enterScene unconditionally would rebuild the table buttons under the panel's
+   * own opener reference on every open and close. */
+  if (sceneId !== currentScene) {
+    currentScene = sceneId;
+    enterScene(sceneId);
+  }
+
+  /* The scene is rendered FIRST, every time it changes. The panel's opener is the
+   * table button that enterScene just created, and on a cold load of
+   * #/interior/projects that button does not exist until this point — open before
+   * it and focus has nowhere to return to when the panel closes.
+   *
+   * Panels exist only indoors: #/exterior/projects renders the exterior, no panel.
+   * An unknown id opens nothing, so a typo in a shared link is a plain room. */
+  if (sceneId === 'interior' && route.panel) {
+    openPanel(route.panel);
+  } else if (isOpen()) {
+    closePanel();
+  }
 });
