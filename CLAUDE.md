@@ -38,7 +38,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
 | Projects | `showcase` | six projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
-| Life | `menu` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
+| Life | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | her Citrus College architectural drawing set. Text only, deliberately |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
@@ -53,59 +53,63 @@ panel id:
   thumbnail you could not read. Each set carries its own description.
 - **`showcase`** — an index of cards, each opening its own page at
   `#/interior/projects/<slug>`.
-- **`menu`** — the Life panel, laid out like the board behind the counter: a portrait
-  at the head, then sections of items with a note where a price would go. Asked for
-  directly.
+- **`journal`** — the Life panel: a portrait at the head, **tabs down the side**, and
+  one page of entries at a time. Asked for directly, replacing a single column where
+  everything stacked below everything else.
 
-### The Life menu
+### The Life journal
 
-The portrait is Jingwen's own photograph, carried over from her old site and cropped
-to head and shoulders. It has **real alt text, not empty** — unlike a gallery
-thumbnail it is not inside a button that already describes it, and it is a picture of
-a person. It is exported at 240 and 480 only (`portraitWidths`), because it is drawn
-at 7rem and never opens in the lightbox; a 1600 version would be 180 KB nobody sees.
+Tabs down the side, one page at a time. The tab is the **third URL segment** —
+`#/interior/life/places` — so a tab is shareable and Back steps between tabs, the same
+mechanism the Projects showcase uses.
 
-⚠️ **The leader dots between an item and its note are DRAWN IN CSS, not typed.** A row
-of literal periods is read out one at a time by a screen reader — "dot dot dot dot"
-between every item and its note — and cannot stretch to fit a column whose width
-depends on the text either side. They are a repeating radial-gradient on
-`.menu__line::after`, which is decorative (so assistive technology skips it) and
-flexes to fill exactly the gap left.
+⚠️ **`onOpenItem` takes the PANEL ID as well as the item.** It used to take only the
+item with `'projects'` hardcoded in main.js, which was fine while the showcase was the
+only thing with a third segment and silently wrong the moment the journal wanted one.
 
-⚠️ **Do not move that pseudo-element onto `.menu__name`.** A `width: 100%` leader
-inside the name makes the name span fill the row and pushes the dots onto a line of
-their own underneath. That was the first version.
+⚠️ **It is a real ARIA tablist**, not buttons that look like tabs: `role="tablist"`,
+`role="tab"`, `aria-selected`, `aria-controls`, a `tabpanel` labelled by its tab,
+roving tabindex, and arrow keys plus Home/End. Without it a screen reader announces
+five plain buttons with no hint that they are alternatives or which one is showing.
+`aria-orientation` is set from `matchMedia` to match the layout, because the tabs sit
+beside the page on a wide screen and above it below 34rem — **keep that breakpoint in
+step with the `.journal` grid in panel.css.**
 
-⚠️ **The menu is a DRAFT and every line of it is sourced, not invented.** No made-up
-friends, no guessed hobbies, no favourite foods she has never mentioned. The tennis
-ball launcher is a school project and deliberately does NOT appear as "she plays
-tennis" — that is the exact kind of inference left out. The items most worth replacing
-are under "Friends and people", which names groups rather than the people she would
-actually name.
+⚠️ **Focus after a tab change goes to the TAB, not the page** — otherwise the next
+arrow key scrolls the page instead of moving tabs. `journalTabWanted` carries that
+intent into `openPanel`, and is cleared on any other path so a cold load of
+`#/interior/life/places` still focuses the Close button, which is where opening a
+dialog belongs.
 
-### The Projects showcase
+⚠️ **The ruled page is a BASELINE GRID and every element on it must stay on the grid.**
+`--rule` is the spacing; every text element sets `line-height: var(--rule)` and every
+margin is 0 or a whole multiple of it. The first version let each element keep its own
+line-height and margins: body text happened to align, headings did not, and the error
+accumulated down the page until the rules struck through the middle of words. A
+heading is just a bigger font on the same grid. Add an element without this treatment
+and you must turn the ruling off.
 
-`#/interior/projects/arcadium` is a real, shareable route — the router parses a THIRD
-hash segment for it (`route.item`).
+### ⚠️ School does not go in Life
 
-⚠️ **Opening a project refills the panel IN PLACE.** `openPanel(id, item)` compares
-against `filledId` and only tears the dialog down when the panel itself changes.
-Closing and reopening would make a screen reader announce the whole dialog again and
-would bounce focus out to the table button and back on every step between the index
-and a project.
+Asked for directly: *"i should not be seeing academic school clubs on there they
+should have their own tab section for clubs"*. Makers Club, Science Club for Girls,
+the CADodile team and the Red Vest job were all in the Life panel and have been taken
+out. None of it was lost — each already had a proper home:
 
-⚠️ **On a project's page the panel title becomes the PROJECT's name**, and the project
-renders no heading of its own. `#panel-title` is the dialog's `aria-labelledby`
-target, so leaving it as "Projects" told a screen-reader user they were in a dialog
-called Projects while it displayed Arcadium. The first version had both, which showed
-as two identical titles stacked.
+| was in Life | belongs in |
+|---|---|
+| Makers Club, Science Club for Girls | **Experience** → "Clubs and volunteering" |
+| Student Helper (Red Vest) | **Experience** → "Work" |
+| CADodile | **Projects** |
 
-⚠️ **An unknown slug renders the index**, not an error — a stale link should land you
-on the list, the same way an unknown panel id lands you in a plain room.
+Before adding anything to Life, ask whether it is coursework, a club or a job. If it
+is, it goes in Experience or Projects. A browser check asserts that none of those
+names appears anywhere in Life and that they are all still findable in Experience.
 
-Cards with no photograph show **"No photos yet"**, not the project's initial. The
-initial was the first version, and because two projects begin with T the grid showed
-two tiles reading "T", which looks like a rendering bug rather than an absence.
+⚠️ **There is no Friends tab, and that is deliberate.** Every fact this repo holds
+about the people in Jingwen's life is a club, a team or a job — all of which she has
+now said do not belong here — so a Friends tab could only be invented. It goes in the
+moment she writes four lines for it.
 
 ### Which words on this site are whose
 

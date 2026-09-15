@@ -510,28 +510,39 @@ export const panels = {
     outro: 'Each image holds a sense of presence — a reminder of the headspace, energy, and quiet meaning that existed in that instant. A landscape washed in light, or an ordinary moment made extraordinary: photography lets me relive the world as I experienced it.',
   },
 
-  /* The Life panel is a MENU, laid out like the board behind the counter — asked
-   * for directly: sections, items, and a note in the price column.
+  /* The Life panel is a JOURNAL with tabs down the side — asked for directly, in
+   * place of a single long menu where everything stacked below everything else.
    *
-   * ⚠️ THIS IS A DRAFT and it is the one panel on the site whose words are not
-   * Jingwen's. Everything in it is sourced from somewhere verifiable — the resume,
-   * her own photographs, the artwork in this repo — because the alternative is
-   * inventing a personality for her, which is worse than an empty panel. She asked
-   * for a draft to edit, so: EDIT IT. The items that are most worth replacing are
-   * the ones under "Friends and people", which describes groups she is part of
-   * rather than the people she would actually name.
+   * ⚠️ NO SCHOOL. Makers Club, Science Club for Girls, the CADodile team and the
+   * Red Vest job were all in here and have been taken out: "i should not be seeing
+   * academic school clubs on there". They are not lost — every one of them already
+   * appears in its proper place:
    *
-   * Item shape: `name` is the dish, `note` is the price column, `body` is the
-   * one-line description under it. `note` is optional.
+   *   Makers Club, Science Club for Girls -> Experience, "Clubs and volunteering"
+   *   Student Helper (Red Vest)           -> Experience, "Work"
+   *   CADodile                            -> Projects
    *
-   * ⚠️ Nothing here is a joke at her expense or a claim she has not made. No
-   * invented favourite foods, no invented friends, no guessed hobbies. The tennis
-   * ball launcher is a school project and does NOT mean she plays tennis; that is
-   * exactly the kind of inference left out. */
+   * Before adding anything here, ask whether it belongs to her coursework, her
+   * clubs or her jobs. If it does, it goes in Experience or Projects, not here.
+   *
+   * ⚠️ There is no "Friends" tab, and its absence is deliberate rather than an
+   * oversight. Every fact this repo holds about the people in Jingwen's life is a
+   * club, a team or a job — all of which she has just said do not belong here — so a
+   * Friends tab could only be invented. It goes in the moment she writes four lines
+   * for it.
+   *
+   * ⚠️ Still a DRAFT, and still sourced rather than invented: her resume, her own
+   * photographs, and the artwork in this repo. No made-up favourites, no guessed
+   * hobbies. The tennis ball launcher is a school project and deliberately does NOT
+   * appear as "she plays tennis".
+   *
+   * `slug` is the third URL segment — #/interior/life/hobbies — so a tab is
+   * shareable and Back steps between tabs. Same mechanism the Projects showcase
+   * uses. An unrecognised slug falls back to the first tab. */
   life: {
     title: 'Life',
-    kind: 'menu',
-    intro: 'Everything that is not coursework, served daily.',
+    kind: 'journal',
+    intro: 'Everything that is not coursework.',
     portrait: {
       slug: 'jingwen-portrait',
       width: 480,
@@ -540,79 +551,87 @@ export const panels = {
       name: 'Jingwen Huang',
       role: 'Proprietor',
     },
-    sections: [
+    tabs: [
       {
-        title: 'Friends and people',
-        items: [
+        slug: 'hobbies',
+        label: 'Hobbies',
+        entries: [
           {
-            name: 'Makers Club',
-            note: '40+ members',
-            body: 'I ran it. Most of the job was talking people into starting the thing they had been describing for three weeks.',
+            title: 'Photography',
+            when: 'Fujifilm X-S20',
+            body: [
+              'Mostly landscapes, and mostly early. The ones I keep almost always needed me to be standing somewhere cold before the sun came up.',
+              'I shoot it fairly flat and leave it alone afterwards. The point is to get back the colour that was actually there, not a better one.',
+            ],
           },
           {
-            name: 'Science Club for Girls',
-            note: 'weekly, K–8',
-            body: 'An after-school club where I hand tools to people who have not used them before. They ask much better questions than adults do.',
+            title: 'Drawing and painting',
+            when: 'acrylic, oil, mixed media',
+            body: [
+              'Older than the engineering. It is where the architectural drawing sets came from — the habit of deciding what someone should look at first, and in what order.',
+            ],
           },
           {
-            name: 'The CADodile five',
-            note: 'one semester',
-            body: 'A five-person team, a laser cutter, and a servo that kept flinging candy everywhere. We got it working the week of the showcase.',
+            title: 'Making things that are not assignments',
+            when: 'ongoing',
+            body: [
+              'Laser cutter, 3D printer, CNC router, and a great deal of plywood. Hand-painting the finished enclosure is the part I like most, and the part nobody schedules time for.',
+            ],
           },
           {
-            name: 'First-years at the Makerspace',
-            note: 'red vest',
-            body: 'Usually the same conversation: it will not break if you use it, here is how, go on.',
+            title: 'Building this',
+            when: 'first website',
+            body: [
+              'I had not written a website before this one. No framework, on purpose — I wanted to know what was actually happening rather than what a library was doing on my behalf.',
+            ],
           },
         ],
       },
       {
-        title: 'Hobbies',
-        items: [
+        slug: 'places',
+        label: 'Places',
+        entries: [
           {
-            name: 'Photography',
-            note: 'Fujifilm X-S20',
-            body: 'Mostly landscapes, mostly early. The good ones need you to be standing somewhere cold before the sun is up.',
+            title: 'Los Angeles',
+            when: 'home',
+            body: [
+              'The clock in the top corner keeps Los Angeles time, and the four views through the window are all from here: the Hollywood Sign in the morning, Santa Monica at noon, Laguna at sunset, Griffith after dark.',
+              'Laguna is in Orange County rather than Los Angeles, which is why the label gives you the coordinates and lets you decide what to call it.',
+            ],
           },
           {
-            name: 'Getting above the fog line',
-            note: 'before sunrise',
-            body: 'Worth the alarm about one time in three. The other two you drive home in cloud.',
+            title: 'Boston',
+            when: 'term time',
+            body: [
+              'The other half of the year, and the reason the clock in the corner is the one I have to do arithmetic on.',
+            ],
           },
           {
-            name: 'Making things that are not assignments',
-            note: 'ongoing',
-            body: 'Laser cutter, 3D printer, CNC router, a lot of plywood. Hand-painting the enclosure is the part I like most.',
-          },
-          {
-            name: 'Drawing and painting',
-            note: 'acrylic, oil',
-            body: 'Older than the engineering. It is where the architectural drawing sets came from.',
-          },
-          {
-            name: 'This website',
-            note: 'first one',
-            body: 'I had not written a site before. No framework, on purpose — I wanted to know what was actually happening.',
+            title: 'Above the fog line',
+            when: 'before sunrise',
+            body: [
+              'Worth the alarm about one morning in three. The other two you drive back down through cloud and have nothing to show for it.',
+            ],
           },
         ],
       },
       {
-        title: 'Small things',
-        items: [
+        slug: 'small-things',
+        label: 'Small things',
+        entries: [
           {
-            name: 'Junnie',
-            note: 'orange tabby',
-            body: 'He is in the artwork twice: outside by the fountain, and again inside. Usually watching the fish.',
+            title: 'Junnie',
+            when: 'orange tabby',
+            body: [
+              'He is in the artwork twice — outside by the fountain, and again inside the shop. Usually watching the fish, never catching one.',
+            ],
           },
           {
-            name: 'A budget that holds',
-            note: '$86.57',
-            body: 'The whole CADodile prototype. I am unreasonably pleased about this.',
-          },
-          {
-            name: 'Los Angeles and Boston',
-            note: 'both',
-            body: 'The clock in the corner is set to Los Angeles. That is where the landmarks in the window come from.',
+            title: 'Peachy Sweets',
+            when: 'the sign won',
+            body: [
+              'The shop in the painting came back with a name over the door, and it was not the one in my spec. A visitor reads the sign rather than the plan, so the sign won and the site is called after it.',
+            ],
           },
         ],
       },

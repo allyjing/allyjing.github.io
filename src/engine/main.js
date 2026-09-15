@@ -44,10 +44,11 @@ updateChrome(time);
  * button leave the panel rather than the site (R10). */
 bindPanel(
   () => navigate('interior'),
-  /* Opening a project, and going back to the list, are both route changes. Passing
-   * null for the item drops the third segment, which is what makes "All projects"
-   * a Back-able step rather than a silent DOM swap. */
-  (slug) => navigate('interior', 'projects', slug),
+  /* Opening a project, going back to the list, and switching a tab in the Life
+   * journal are all route changes. Passing null for the item drops the third
+   * segment, which is what makes "All projects" a Back-able step rather than a
+   * silent DOM swap. */
+  (panelId, slug) => navigate('interior', panelId, slug),
 );
 
 /* The photo lightbox inside the Photography panel. Bound once here rather than when

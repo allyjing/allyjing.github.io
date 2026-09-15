@@ -26,7 +26,7 @@ suite fails.
 | `tables-layout.mjs` | the five place settings: sprites decode, dessert and drink share a baseline, no two table buttons overlap, and the phone menu drops the plate and the drink |
 | `gallery-lightbox.mjs` | the photo grid is TWO columns with large thumbnails, sets carry her descriptions and technical notes, the lightbox opens on the thumbnail that was clicked, arrows wrap across sets, and Escape closes the lightbox WITHOUT closing the panel |
 | `projects-showcase.mjs` | the card index, opening a project as a route change without tearing the dialog down, the dialog being titled by the project, browser Back stepping out of a project, cold deep links, an unknown slug falling back to the index, and cards going one-up on a phone |
-| `time-freeze-and-panels.mjs` | cycling the clock changes nothing indoors — card, bar, close button, bubble, plate, tint, filter — and all five panels hold real content |
+| `time-freeze-and-panels.mjs` | cycling the clock changes nothing indoors — card, bar, close button, bubble, plate, tint, filter — all five panels hold real content, the Life journal is a real ARIA tablist with routed tabs and arrow keys, and **no academic club appears in Life while all of them remain findable in Experience** |
 | `lightbox-a11y.mjs` | tab order and trap, backdrop click, measured contrast on the dark mat, and that the exterior still re-themes |
 | `walking-and-doors.mjs` | Jingwen walks on a real pointer event, walking to the door goes inside, and nothing covers the way out |
 

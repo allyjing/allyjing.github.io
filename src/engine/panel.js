@@ -29,11 +29,22 @@ let opener = null;
  * project inside the panel already on screen" from "open a different panel". */
 let filledId = null;
 
-/* Set by bindPanel. Opening a project is a ROUTE change, not a direct DOM call —
- * that is what makes #/interior/projects/arcadium shareable and Back step out of the
- * project rather than out of the site (R10). Held here as a callback so this module
- * still owns no knowledge of the router. */
+/* Set by bindPanel. Opening a project, or a tab in the journal, is a ROUTE change
+ * rather than a direct DOM call — that is what makes #/interior/projects/arcadium
+ * and #/interior/life/places shareable, and Back step out of them rather than out of
+ * the site (R10). Held here as a callback so this module still owns no knowledge of
+ * the router.
+ *
+ * ⚠️ It takes the PANEL ID as well as the item. It used to take only the item and
+ * main.js hardcoded 'projects', which was fine while the showcase was the only thing
+ * with a third segment and silently wrong the moment the journal wanted one too. */
 let onOpenItem = () => {};
+
+/* Set when a tab was chosen by click or arrow key, so openPanel knows to return
+ * focus to the tab strip rather than to the page after refilling. Cleared as soon
+ * as it is used — a cold load of #/interior/life/places must NOT steal focus from
+ * the close button, which is where opening a dialog should put it. */
+let journalTabWanted = null;
 
 export function isOpen() {
   return !el('panel').hidden;
@@ -109,8 +120,8 @@ function fill(panel, item) {
     fillGallery(body, panel);
   } else if (panel.kind === 'showcase') {
     fillShowcase(body, panel, item);
-  } else if (panel.kind === 'menu') {
-    fillMenu(body, panel);
+  } else if (panel.kind === 'journal') {
+    fillJournal(body, panel, item);
   } else {
     fillEntries(body, panel);
   }
@@ -309,7 +320,7 @@ function fillShowcase(body, panel, slug) {
     text.append(summary);
 
     card.append(text);
-    card.addEventListener('click', () => onOpenItem(entry.slug));
+    card.addEventListener('click', () => onOpenItem('projects', entry.slug));
     cell.append(card);
     grid.append(cell);
   }
@@ -326,7 +337,7 @@ function fillProject(body, entry) {
   back.type = 'button';
   back.className = 'showcase__back';
   back.textContent = showcaseChrome.back;
-  back.addEventListener('click', () => onOpenItem(null));
+  back.addEventListener('click', () => onOpenItem('projects', null));
   body.append(back);
 
   const header = document.createElement('header');
@@ -407,64 +418,130 @@ function fillProject(body, entry) {
   }
 }
 
-/* --- the menu ------------------------------------------------------------- */
+/* --- the journal ---------------------------------------------------------- */
 
-/* The Life panel, laid out like the board behind the counter: a portrait at the
- * head, then sections of items with a note where a price would go.
+/* The Life panel: a portrait at the head, tabs down the SIDE, and one page of
+ * entries at a time. Asked for directly, replacing a single column where every
+ * section stacked below the last.
  *
- * The leader dots between an item and its note are drawn in CSS, not typed into the
- * text — a row of literal periods is read out one by one by a screen reader, and it
- * cannot stretch to fit the column. See .menu__item in panel.css. */
-function fillMenu(body, panel) {
+ * The tab is the third URL segment — #/interior/life/places — so a tab is
+ * shareable and the browser Back button steps between tabs. Same mechanism the
+ * Projects showcase uses for a project.
+ *
+ * Built as a real ARIA tablist: roving tabindex, arrow keys, Home and End. A row of
+ * buttons that merely look like tabs makes a screen reader announce "button" five
+ * times with no indication that they are alternatives to each other or which one is
+ * showing. */
+function fillJournal(body, panel, slug) {
   if (panel.portrait) body.append(portraitHeader(panel.portrait));
 
-  for (const section of panel.sections) {
-    const block = document.createElement('section');
-    block.className = 'menu__section';
+  /* An unrecognised slug falls back to the first tab rather than an empty page —
+   * a stale link should land you somewhere real. */
+  const current = panel.tabs.find((tab) => tab.slug === slug) || panel.tabs[0];
+
+  const layout = document.createElement('div');
+  layout.className = 'journal';
+
+  const list = document.createElement('div');
+  list.className = 'journal__tabs';
+  list.setAttribute('role', 'tablist');
+  list.setAttribute('aria-label', panel.title);
+
+  /* aria-orientation must match what the visitor SEES, because it is what tells a
+   * screen reader which arrow keys to advertise. The tabs sit beside the page on a
+   * wide screen and above it on a phone — the same breakpoint as the .journal grid
+   * in panel.css, so keep the two in step. The handler below accepts both axes
+   * regardless, which costs nothing and forgives the mismatch if they ever drift. */
+  const stacked = window.matchMedia('(max-width: 34rem)').matches;
+  list.setAttribute('aria-orientation', stacked ? 'horizontal' : 'vertical');
+
+  panel.tabs.forEach((tab) => {
+    const isCurrent = tab === current;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'journal__tab';
+    button.id = `tab-${tab.slug}`;
+    button.textContent = tab.label;
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-selected', String(isCurrent));
+    button.setAttribute('aria-controls', `tabpage-${tab.slug}`);
+
+    /* Roving tabindex: ONE tab is in the page's tab order and the arrows move
+     * between them. Leaving every tab focusable makes Tab walk through all of them
+     * before reaching the page, which is the thing the pattern exists to avoid. */
+    button.tabIndex = isCurrent ? 0 : -1;
+
+    button.addEventListener('click', () => openTab(panel, tab.slug));
+    list.append(button);
+  });
+
+  /* Arrow keys move between tabs and activate as they go — the tab's content is
+   * already here, so there is nothing to be gained by making the visitor confirm. */
+  list.addEventListener('keydown', (event) => {
+    const keys = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+    const at = panel.tabs.findIndex((tab) => tab === current);
+    let next = null;
+
+    if (event.key in keys) {
+      next = (at + keys[event.key] + panel.tabs.length) % panel.tabs.length;
+    } else if (event.key === 'Home') {
+      next = 0;
+    } else if (event.key === 'End') {
+      next = panel.tabs.length - 1;
+    }
+    if (next === null) return;
+
+    /* preventDefault matters: Up and Down would otherwise scroll the panel body
+     * underneath while the selection moves, and Home/End would jump it to an end. */
+    event.preventDefault();
+    openTab(panel, panel.tabs[next].slug);
+  });
+
+  const page = document.createElement('div');
+  page.className = 'journal__page';
+  page.id = `tabpage-${current.slug}`;
+  page.setAttribute('role', 'tabpanel');
+  page.setAttribute('aria-labelledby', `tab-${current.slug}`);
+
+  /* The page is focusable so it can be scrolled by keyboard, and because focus has
+   * to have somewhere to land when a visitor tabs off the tablist. */
+  page.tabIndex = 0;
+
+  for (const entry of current.entries) {
+    const article = document.createElement('article');
+    article.className = 'journal__entry';
 
     const heading = document.createElement('h3');
-    heading.className = 'menu__heading';
-    heading.textContent = section.title;
-    block.append(heading);
+    heading.className = 'journal__title';
+    heading.textContent = entry.title;
+    article.append(heading);
 
-    const list = document.createElement('ul');
-    list.className = 'menu__list';
-
-    for (const item of section.items) {
-      const row = document.createElement('li');
-      row.className = 'menu__item';
-
-      const line = document.createElement('p');
-      line.className = 'menu__line';
-
-      const name = document.createElement('span');
-      name.className = 'menu__name';
-      name.textContent = item.name;
-      line.append(name);
-
-      /* The note is optional, but the dots are drawn by the name's ::after, so a
-       * row without one still gets its leader and the column stays straight. */
-      if (item.note) {
-        const note = document.createElement('span');
-        note.className = 'menu__note';
-        note.textContent = item.note;
-        line.append(note);
-      }
-      row.append(line);
-
-      if (item.body) {
-        const description = document.createElement('p');
-        description.className = 'menu__body';
-        description.textContent = item.body;
-        row.append(description);
-      }
-
-      list.append(row);
+    if (entry.when) {
+      const when = document.createElement('p');
+      when.className = 'journal__when';
+      when.textContent = entry.when;
+      article.append(when);
     }
 
-    block.append(list);
-    body.append(block);
+    paragraphs(article, entry.body, 'journal__body');
+    page.append(article);
   }
+
+  layout.append(list, page);
+  body.append(layout);
+}
+
+/* Changing tab is a route change, so it is shareable and Back-able. `journalTabWanted`
+ * tells openPanel to put focus back on the tab strip after the refill — without it
+ * focus lands on the page and the next arrow key scrolls instead of moving tabs. */
+function openTab(panel, slug) {
+  journalTabWanted = slug;
+  onOpenItem(panelIdOf(panel), slug);
+}
+
+function panelIdOf(panel) {
+  return Object.keys(panels).find((id) => panels[id] === panel) || null;
 }
 
 /* The portrait and the two lines beside it. */
@@ -597,13 +674,18 @@ export function openPanel(id, item = null) {
   filledId = id;
 
   if (reuse) {
-    /* Focus goes to the scroll region holding the new content. #panel-body already
-     * carries tabindex="0" for the keyboard scrolling requirement, so it can take
-     * focus without adding another tab stop. Focusing the Back button instead would
-     * be wrong on the way back OUT of a project, where no Back button exists. */
-    el('panel-body').focus();
+    /* A tab was chosen: focus goes back to the newly selected tab so the arrow keys
+     * keep working. Anything else — opening a project, going back to the index —
+     * focuses the scroll region holding the new content. #panel-body already carries
+     * tabindex="0" for keyboard scrolling, so it can take focus without adding
+     * another tab stop, and focusing the Back button instead would be wrong on the
+     * way back OUT of a project, where no Back button exists. */
+    const tab = journalTabWanted && document.getElementById(`tab-${journalTabWanted}`);
+    journalTabWanted = null;
+    (tab || el('panel-body')).focus();
     return true;
   }
+  journalTabWanted = null;
 
   opener = document.getElementById(`table-${id}`);
   if (opener) opener.setAttribute('aria-expanded', 'true');

@@ -285,9 +285,8 @@
 }
 
 /* =========================================================================
- * THE LIFE MENU
- * Laid out like the board behind the counter: a portrait at the head, then
- * sections of items with a note where a price would go.
+ * THE LIFE JOURNAL
+ * A portrait at the head, tabs down the SIDE, and one page at a time.
  * ========================================================================= */
 
 .portrait {
@@ -327,83 +326,125 @@
   color: var(--ink-soft);
 }
 
-.menu__section { margin-bottom: var(--space-8); }
+/* Tabs beside the page, not above it. The column is a fixed width so the page does
+   not resize as you move between tabs with different label lengths. */
+.journal {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
 
-.menu__heading {
-  margin: 0 0 var(--space-4);
+.journal__tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  /* The tabs stay put while the page scrolls. #panel-body is the scroll container,
+     so sticky here sticks to the top of that, which is what you want in a long
+     entry — the way back to the other tabs is always on screen. */
+  position: sticky;
+  top: 0;
+}
+
+/* Each tab is a notebook divider: square on the side that meets the page, rounded
+   on the side that sticks out. */
+.journal__tab {
+  appearance: none;
+  padding: var(--space-2) var(--space-3);
+  min-height: var(--tap-min);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  text-align: left;
+  border: 2px solid var(--hairline);
+  border-right-width: 0;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+/* The selected tab joins the page: same background, and the border on the page side
+   is removed so the two read as one surface rather than two stacked boxes. */
+.journal__tab[aria-selected='true'] {
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-weight: 700;
+  border-color: var(--surface-trim);
+  box-shadow: inset 3px 0 0 var(--accent-berry);
+}
+
+.journal__tab:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+  /* Above the page, so the ring is not clipped by the panel's overflow. */
+  position: relative;
+}
+
+/* The page, ruled like a notebook — the journal conceit, and a repeating gradient
+   rather than an image, so it costs nothing and re-themes with the tokens.
+   
+   ⚠️ EVERYTHING ON THIS PAGE IS ON A BASELINE GRID OF --rule, and it has to be, or
+   the ruling is worse than no ruling at all. The first version let each element keep
+   its own line-height and its own margins: the body text happened to line up, the
+   headings did not, and the error accumulated down the page until the rules were
+   striking through the middle of words.
+   
+   So: every text element here sets `line-height: var(--rule)`, and every margin is
+   0 or a whole multiple of --rule. A heading is simply a bigger font on the same
+   grid. If you add an element, give it the same treatment or turn the ruling off. */
+.journal__page {
+  --rule: 1.6rem;
+
+  padding: var(--space-4);
+  border: 2px solid var(--surface-trim);
+  border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  background-color: var(--surface-raised);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent calc(var(--rule) - 1px),
+    var(--hairline) calc(var(--rule) - 1px),
+    var(--hairline) var(--rule)
+  );
+  /* Offset by the padding, so the first rule lands under the first line of text
+     rather than part-way through it. */
+  background-position: 0 var(--space-4);
+  background-repeat: repeat;
+}
+
+.journal__page:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+}
+
+/* One whole rule between entries keeps the grid. */
+.journal__entry { margin: 0 0 var(--rule); }
+.journal__entry:last-child { margin-bottom: 0; }
+
+.journal__title {
+  margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  line-height: var(--leading-tight);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  line-height: var(--rule);        /* a bigger font, the SAME grid */
   color: var(--ink);
 }
 
-.menu__list {
+.journal__when {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.menu__item { margin-bottom: var(--space-4); }
-
-/* The name, the leader dots, and the note, on one line.
-   
-   ⚠️ The dots are DRAWN, not typed. A row of literal periods in the text is read out
-   one by one by a screen reader — "dot dot dot dot dot" between every item and its
-   note — and it cannot stretch to fit a column whose width depends on the text either
-   side. A repeating radial-gradient on a flexible pseudo-element does both correctly:
-   it is decorative, so assistive technology skips it, and it fills exactly the gap
-   that is left. */
-.menu__line {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin: 0;
-}
-
-.menu__name {
-  flex: 0 1 auto;
-  font-family: var(--font-ui);
-  font-weight: 700;
-  color: var(--ink);
-}
-
-/* The leader: a flexible pseudo-element on the LINE, which takes whatever space is
-   left between the name and the note.
-   
-   ⚠️ Do not put it on .menu__name instead. A `width: 100%` pseudo-element inside the
-   name makes the name span fill the row, which pushes the dots onto a line of their
-   own underneath — which is exactly what the first version did. */
-.menu__line::after {
-  content: '';
-  flex: 1 1 auto;
-  align-self: end;
-  height: 0.55em;
-  background-image: radial-gradient(circle, var(--hairline) 1px, transparent 1.2px);
-  background-position: bottom;
-  background-size: 0.5em 0.5em;
-  background-repeat: repeat-x;
-}
-
-/* The note sits after the leader, so it must come later in the paint order than the
-   ::after above. `order` puts it there without changing the DOM. */
-.menu__note {
-  order: 1;
-  flex: 0 0 auto;
   font-size: var(--text-sm);
+  line-height: var(--rule);
   font-variant-numeric: tabular-nums;
   color: var(--accent-berry);
-  white-space: nowrap;
 }
 
-.menu__body {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-sm);
-  line-height: var(--leading-body);
-  color: var(--ink-soft);
+.journal__body {
+  margin: 0 0 var(--rule);
+  line-height: var(--rule);
   text-wrap: pretty;
 }
+
+.journal__body:last-child { margin-bottom: 0; }
 
 /* =========================================================================
  * THE PROJECTS SHOWCASE
@@ -718,9 +759,39 @@
   .project__facts dt { margin-top: var(--space-2); }
 }
 
-/* The menu's portrait shrinks on a phone, where 7rem beside two lines of text
-   leaves the name wrapping awkwardly. */
-@media (max-width: 30rem) {
+/* On a phone the portrait shrinks, and the side tabs move ABOVE the page — a 9rem
+   column beside a 390px viewport leaves the page about 150px wide, which is roughly
+   four words per line. They stay a tablist; only the direction changes, and
+   aria-orientation follows in panel.js. */
+@media (max-width: 34rem) {
   .portrait__image { width: 5.5rem; height: 5.5rem; }
   .portrait__name { font-size: var(--text-lg); }
+
+  .journal {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .journal__tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;        /* sticky is meaningless once they are a row on top */
+    gap: var(--space-1);
+  }
+
+  .journal__tab {
+    flex: 1 1 auto;
+    text-align: center;
+    border-right-width: 2px;
+    border-bottom-width: 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .journal__tab[aria-selected='true'] {
+    box-shadow: inset 0 3px 0 var(--accent-berry);
+  }
+
+  .journal__page {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
 }

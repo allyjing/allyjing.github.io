@@ -102,55 +102,116 @@ const exp = panels.find(p=>p.id==='experience');
 ok('Experience groups work and clubs together',
    exp.groups.length===2 && /Clubs/i.test(exp.groups[1]), exp.groups.join(' | '));
 
-// --- the Life menu
+// --- the Life journal
 await goto('http://localhost:8000/#/interior/life');
-await waitFor("document.querySelector('.portrait__image')", {label:'portrait'});
-const menu = await evaluate(`
+await waitFor("document.querySelectorAll('.journal__tab').length===3", {label:'journal tabs'});
+const jr = await evaluate(`
   const img=document.querySelector('.portrait__image');
-  const rows=[...document.querySelectorAll('.menu__item')];
-  const line=document.querySelector('.menu__line');
-  const name=line.querySelector('.menu__name').getBoundingClientRect();
-  const note=line.querySelector('.menu__note').getBoundingClientRect();
-  const leader=getComputedStyle(line,'::after');
+  const tabs=[...document.querySelectorAll('.journal__tab')];
+  const list=document.querySelector('[role=tablist]');
+  const page=document.querySelector('.journal__page');
+  const t0=tabs[0].getBoundingClientRect(), pr=page.getBoundingClientRect();
   return {
-    headings: [...document.querySelectorAll('.menu__heading')].map(function(h){return h.textContent;}),
-    rows: rows.length,
-    withNote: document.querySelectorAll('.menu__note').length,
-    withBody: document.querySelectorAll('.menu__body').length,
+    labels: tabs.map(function(b){return b.textContent;}),
+    roles: tabs.every(function(b){return b.getAttribute('role')==='tab';}),
+    listRole: list.getAttribute('role'),
+    orientation: list.getAttribute('aria-orientation'),
+    selected: tabs.filter(function(b){return b.getAttribute('aria-selected')==='true';}).length,
+    controls: tabs.every(function(b){return document.getElementById(b.getAttribute('aria-controls'))!==null || b.getAttribute('aria-selected')==='false';}),
+    roving: tabs.map(function(b){return b.tabIndex;}).join(','),
+    pageRole: page.getAttribute('role'),
+    pageLabelled: document.getElementById(page.getAttribute('aria-labelledby'))!==null,
+    // tabs beside the page, not above it, on a wide screen
+    beside: t0.right <= pr.left + 2,
+    tappable: tabs.every(function(b){var r=b.getBoundingClientRect();return r.height>=44;}),
     portraitDecoded: img.naturalWidth,
     portraitAlt: img.alt,
-    portraitSrc: img.currentSrc.split('/').pop(),
-    portraitRound: getComputedStyle(img).borderRadius,
-    portraitSquare: Math.abs(img.getBoundingClientRect().width - img.getBoundingClientRect().height) < 1,
-    proprietor: (document.querySelector('.portrait__role')||{}).textContent,
-    // name and note must sit on ONE line with the note to the right of the name
-    sameLine: Math.abs(name.top - note.top) < 12,
-    noteAfterName: note.left > name.right,
-    leaderDrawn: leader.backgroundImage !== 'none',
-    /* No literal dots typed into the text.
-       ⚠️ The backslash is DOUBLED because this regex lives inside a JS template
-       literal. \\. there collapses to a bare . before the page ever sees it, and
-       /.{4,}/ matches any four characters — so this "found literal periods" in
-       perfectly clean text. Every backslash in an evaluate() string needs doubling. */
-    literalDots: /\\.{4,}/.test(document.getElementById('panel-body').textContent),
+    entries: document.querySelectorAll('.journal__entry').length,
+    // one page at a time: the other tabs' content must NOT be in the DOM
+    onlyOnePage: document.querySelectorAll('.journal__page').length===1,
   };
 `);
-ok('menu has the three sections asked for', menu.headings.length===3, menu.headings.join(' | '));
-ok('twelve menu items', menu.rows===12, String(menu.rows));
-ok('every item has a note and a description',
-   menu.withNote===12 && menu.withBody===12, `${menu.withNote} notes, ${menu.withBody} bodies`);
-ok('portrait decoded', menu.portraitDecoded>0, `${menu.portraitDecoded}px, ${menu.portraitSrc}`);
-ok('portrait has real alt text', (menu.portraitAlt||'').length>20, menu.portraitAlt);
-ok('portrait is a round square', menu.portraitSquare && /999|50%/.test(menu.portraitRound),
-   menu.portraitRound);
-ok('portrait names her role', menu.proprietor==='Proprietor', menu.proprietor);
-ok('name and note share one line', menu.sameLine && menu.noteAfterName);
-/* Two assertions, not one with an && — a combined check reported the wrong reason
-   for the failure and sent me looking at the CSS when the test's own regex was
-   broken. One cause per line. */
-ok('leader dots are drawn in CSS', menu.leaderDrawn, menu.leaderDrawn ? 'gradient' : 'no background-image');
-ok('no literal periods typed into the copy', !menu.literalDots,
-   menu.literalDots ? 'found a run of periods' : 'clean');
+ok('three journal tabs', jr.labels.length===3, jr.labels.join(' | '));
+ok('a real tablist, not buttons that look like one',
+   jr.listRole==='tablist' && jr.roles && jr.pageRole==='tabpanel' && jr.pageLabelled);
+ok('exactly one tab selected', jr.selected===1, String(jr.selected));
+ok('roving tabindex', jr.roving==='0,-1,-1', jr.roving);
+ok('tabs sit BESIDE the page on a wide screen', jr.beside);
+ok('aria-orientation matches the layout', jr.orientation==='vertical', jr.orientation);
+ok('tabs are tappable', jr.tappable);
+ok('one page at a time', jr.onlyOnePage);
+ok('portrait decoded with real alt text',
+   jr.portraitDecoded>0 && (jr.portraitAlt||'').length>20, jr.portraitAlt);
+
+// switching tab is a route change, and focus follows
+await evaluate(`document.querySelectorAll('.journal__tab')[1].click();`);
+await waitFor("location.hash==='#/interior/life/places'", {label:'tab route'});
+const sw = await evaluate(`
+  return {hash: location.hash,
+          focus: document.activeElement.id,
+          selected: document.querySelector('[aria-selected=true]').textContent,
+          heading: (document.querySelector('.journal__title')||{}).textContent,
+          panelOpen: !document.getElementById('panel').hidden};
+`);
+ok('a tab is a shareable route', sw.hash==='#/interior/life/places', sw.hash);
+ok('the panel is refilled, not reopened', sw.panelOpen);
+ok('focus follows to the chosen tab', sw.focus==='tab-places', sw.focus);
+ok('the page actually changed', sw.selected==='Places' && sw.heading==='Los Angeles',
+   `${sw.selected} / ${sw.heading}`);
+
+// arrow keys move between tabs
+await key('ArrowDown');
+await waitFor("location.hash==='#/interior/life/small-things'", {label:'arrow to next tab'});
+const arrow = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
+ok('arrow keys move between tabs', arrow==='Small things', arrow);
+await key('ArrowDown');
+await waitFor("location.hash==='#/interior/life'  || location.hash==='#/interior/life/hobbies'", {label:'wrap'});
+const wrapped = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
+ok('...and wrap round', wrapped==='Hobbies', wrapped);
+
+// a cold deep link to a tab
+await goto('http://localhost:8000/#/interior/life/small-things');
+await waitFor("document.querySelector('[aria-selected=true]')", {label:'cold tab'});
+const cold = await evaluate(`
+  return {selected: document.querySelector('[aria-selected=true]').textContent,
+          focus: document.activeElement.className,
+          heading: (document.querySelector('.journal__title')||{}).textContent};
+`);
+ok('a tab URL works on a cold load', cold.selected==='Small things', cold.selected);
+ok('...and opening the dialog still focuses Close, not a tab',
+   cold.focus==='panel__close', cold.focus);
+
+// an unknown tab falls back to the first
+await goto('http://localhost:8000/#/interior/life/nope');
+await waitFor("document.querySelector('[aria-selected=true]')", {label:'fallback tab'});
+const bad = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
+ok('an unknown tab falls back to the first', bad==='Hobbies', bad);
+
+// ⚠️ the whole point of this change: no school in Life
+const school = await evaluate(`
+  const seen=[];
+  for (const slug of ['hobbies','places','small-things']) {
+    location.hash='#/interior/life/'+slug;
+    await new Promise(r=>setTimeout(r,350));
+    seen.push(document.querySelector('.journal__page').textContent);
+  }
+  const text=seen.join(' ');
+  const words=['Makers Club','Science Club','CADodile','Red Vest','Makerspace','makerspace'];
+  return {hits: words.filter(function(w){return text.indexOf(w)>=0;})};
+`);
+ok('no academic clubs anywhere in Life', school.hits.length===0,
+   school.hits.length ? school.hits.join(', ') : 'clean');
+
+// ...and they are still findable where they belong
+await goto('http://localhost:8000/#/interior/experience');
+await waitFor("document.querySelectorAll('.entrygroup').length===2", {label:'experience groups'});
+const moved = await evaluate(`
+  const t=document.getElementById('panel-body').textContent;
+  return {clubs: t.indexOf('Makers Club')>=0 && t.indexOf('Science Club for Girls')>=0,
+          work: t.indexOf('Red Vest')>=0};
+`);
+ok('the clubs still live in Experience', moved.clubs);
+ok('the Red Vest job still lives in Experience', moved.work);
 
 console.log(out.join('\n'));
 close();
