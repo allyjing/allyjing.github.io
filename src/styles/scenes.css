@@ -451,8 +451,12 @@
      11% box — about 85px at 1400x800; the sprite is 62% of a 10% box, about 89px.
 
      ⚠️ Re-measure if a table moves, if the sprite aspect changes, or if the bubble's
-     type size changes. All three feed the stack height. */
-  width: 10%;
+     type size changes. All three feed the stack height.
+     
+     ⚠️ The 10% is only a FALLBACK now. renderer.js sets --table-w per table from the
+     painted table's own width at that depth, which is what gives the room its
+     perspective — see scenes.js. */
+  width: var(--table-w, 10%);
 }
 
 /* --- the place setting ----------------------------------------------------
@@ -489,19 +493,24 @@
    table top of roughly 147px — the plate hung off the table and onto the wall behind
    it.
 
-   27% rather than the 31% that merely made the numbers fit. At 31% the setting was
-   almost exactly as wide as the table it stood on, and the button is centred on a
-   hand-read coordinate rather than on the painted table's true centre, so a fraction
-   of a percent of error still put the plate over the edge. The margin absorbs that.
+   ⚠️ It is a share of the TABLE'S OWN WIDTH, and each table's width is now the
+   painted table's width at that depth — see scenes.js. So this one number scales the
+   whole room's place settings together while perspective is handled by the table
+   widths: a far setting comes out about 31px tall and a near one about 74px.
 
-   Every other table has room to spare, which is the right trade: a setting that
-   overflows its table is obviously wrong, while one with slack just looks like a
-   table with space on it. Re-check Experience if a sprite is regenerated wider. */
+   30%, and Experience is what caps it: the croissant and the coffee mug are both
+   broad sprites and its painted table is the SMALLEST of the five, so that pair is
+   the binding constraint. At 30% it spans about 97px of a 117px table, which leaves
+   10px of margin each side — and the margin matters, because the button is centred
+   on a hand-read coordinate rather than on the painted table's true centre. Raising
+   this further starts putting the croissant's plate over the table edge.
+
+   Re-check Experience if a sprite is regenerated wider. */
 .setting {
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 27%;
+  padding-bottom: 30%;
 }
 
 .setting__row {

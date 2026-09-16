@@ -179,9 +179,30 @@ export const scenes = {
     tables: tables.map((table, i) => ({
       ...table,
       /* Read off the new artwork 2026-09-14, in the table order in content.js:
-       * experience, projects, photography, life, arts. */
-      ...[{ x: 37, y: 54 }, { x: 52, y: 60 }, { x: 67, y: 54 },
-          { x: 40, y: 70 }, { x: 73, y: 70 }][i],
+       * experience, projects, photography, life, arts.
+       *
+       * `width` is the PAINTED TABLE'S OWN WIDTH at that spot, as a percentage of
+       * the artwork, measured off the render on 2026-09-16. It is what gives the
+       * room its perspective: the two back tables are 117px across and the two front
+       * ones are 273px at a 1680px stage, a ratio of 2.33. Before this every table
+       * button was a flat 10%, so a croissant on a far table was WIDER than the table
+       * under it while the same croissant on a near table looked like a crumb.
+       *
+       * ⚠️ These are measurements, not a formula. A linear perspective model in y was
+       * tried and does not fit — the painted tables are not all the same physical
+       * size, so 54, 60 and 70 map to 117, 142 and 273 rather than to anything a
+       * single vanishing point produces. Re-measure if the artwork changes; do not
+       * interpolate.
+       *
+       * ⚠️ Life is 15.5 rather than its measured 16.25. At the true width its button
+       * overlapped Projects' by a 6px sliver, and Life is later in the DOM, so that
+       * sliver of the Projects button would have opened Life instead. The clamp is
+       * 0.75% — invisible, since the place setting only spans about half the table
+       * anyway — and it keeps the buttons provably disjoint, which a browser check
+       * asserts. Do not raise it back without re-checking the overlap. */
+      ...[{ x: 37, y: 54, width: 6.96 }, { x: 52, y: 60, width: 8.45 },
+          { x: 67, y: 54, width: 6.90 }, { x: 40, y: 70, width: 15.5 },
+          { x: 73, y: 70, width: 16.25 }][i],
     })),
 
     actors: [],

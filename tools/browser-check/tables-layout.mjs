@@ -88,6 +88,28 @@ ok('Life is tiramisu, not the bolo bao',
 ok('exactly one sprite suppresses the CSS plate',
    sprites.plated.filter(Boolean).length===1,
    sprites.ids.filter((id,i)=>sprites.plated[i]).join(',') || 'none');
+/* ⚠️ PERSPECTIVE. The room is drawn in perspective — the two near tables are 273px
+   across and the two far ones 117px — so a place setting that is the same size on
+   every table is wrong in both directions at once: it overflows the far tables and
+   looks like a crumb on the near ones. Each table's button is sized from its painted
+   table's width, so the settings must scale with depth. */
+const persp = await evaluate(`
+  return [...document.querySelectorAll('.table')].map(function(b){
+    return {id:b.id.replace('table-',''),
+            y:parseFloat(b.style.top),
+            w:Math.round(b.getBoundingClientRect().width),
+            h:Math.round(b.querySelector('img.dessert').getBoundingClientRect().height)};
+  });
+`);
+const near = persp.filter(t=>t.y>=70);
+const far  = persp.filter(t=>t.y<=54);
+ok('near tables are wider than far ones',
+   Math.min(...near.map(t=>t.w)) > Math.max(...far.map(t=>t.w)) * 1.5,
+   persp.map(t=>t.id+':'+t.w).join(' '));
+ok('desserts scale with depth, not one flat size',
+   Math.min(...near.map(t=>t.h)) > Math.max(...far.map(t=>t.h)) * 1.5,
+   persp.map(t=>t.id+':'+t.h+'px').join(' '));
+
 ok('every place setting fits its table',
    sprites.fit.every(f=>f.span <= f.table),
    sprites.fit.map((f,i)=>sprites.ids[i]+':'+Math.round(f.span)+'/'+Math.round(f.table)).join(' '));

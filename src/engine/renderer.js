@@ -187,6 +187,16 @@ function renderTables(items, onOpen) {
     button.style.left = `${item.x}%`;
     button.style.top = `${item.y}%`;
 
+    /* The painted table's own width at this depth, which is what gives the room its
+     * perspective — see the note in scenes.js.
+     *
+     * Set as a CUSTOM PROPERTY rather than as `style.width`, deliberately. An inline
+     * width would beat the phone-menu rule in ui.css, where a docked table shrink-
+     * wraps its label and has no business being 16% of the viewport. A custom
+     * property leaves the decision in CSS, which is the same trick ui.css already
+     * uses to ignore the inline left/top. */
+    if (item.width) button.style.setProperty('--table-w', `${item.width}%`);
+
     /* aria-haspopup tells a screen reader this opens a dialog rather than
      * navigating; aria-expanded tracks whether it currently is open. */
     button.setAttribute('aria-haspopup', 'dialog');

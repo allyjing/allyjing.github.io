@@ -220,12 +220,40 @@ then rendered at full size. A padding-bottom box cannot be influenced by its con
 and the absolutely positioned `.setting__row` resolves against the padding box, which
 is definite.
 
-⚠️ **`padding-bottom` on `.setting` is set by the WIDEST PAIR**, which is Experience —
-the croissant and the coffee mug are both broad. It is 27%, not the 31% that merely
-made the numbers fit: at 31% the setting was as wide as the table it stood on, and the
-button is centred on a hand-read coordinate rather than the painted table's true
-centre, so a fraction of a percent of error still put the plate over the edge. A
-browser check asserts every setting fits its table.
+#### ⚠️ The room is in PERSPECTIVE and the tables are not the same size
+
+The two near tables are **273px** across and the two far ones **117px** at a 1680px
+stage — a ratio of 2.33. Every table button used to be a flat 10%, so the same
+croissant was WIDER than the far table under it and looked like a crumb on the near
+one. Asked about directly: *"everything behind is big and the ones infront are
+small"*.
+
+Each table now carries its **painted table's own width** in `scenes.js`, measured off
+the render, and `renderer.js` passes it as `--table-w`. Since `.setting` sizes from
+the table's width, perspective falls out of that: a far setting is about 31px tall and
+a near one about 74px.
+
+⚠️ **Those widths are measurements, not a formula.** A linear perspective model in `y`
+was tried and does not fit — the painted tables are not all the same physical size, so
+y 54, 60 and 70 map to 117, 142 and 273 rather than to anything one vanishing point
+produces. Re-measure if the artwork changes; do not interpolate.
+
+⚠️ **`--table-w` is a CUSTOM PROPERTY, not `style.width`.** An inline width would beat
+the phone-menu rule in `ui.css`, where a docked table shrink-wraps its label and has
+no business being 16% of the viewport. Same trick `ui.css` already uses to ignore the
+inline `left`/`top`.
+
+⚠️ **Life is clamped to 15.5% from its measured 16.25%.** At the true width its button
+overlapped Projects' by a 6px sliver, and Life is later in the DOM, so that sliver of
+the Projects button would have opened Life. The clamp is invisible — the setting only
+spans about half the table — and keeps the buttons provably disjoint.
+
+⚠️ **`padding-bottom` on `.setting` is capped by EXPERIENCE**, which has the widest
+pair (croissant plus coffee mug) on the SMALLEST painted table. At 30% that pair spans
+about 97px of a 117px table, leaving 10px of margin each side — and the margin matters,
+because the button is centred on a hand-read coordinate rather than the painted table's
+true centre. Browser checks assert that near tables are wider than far ones, that
+desserts scale with depth, and that every setting fits its table.
 
 ⚠️ **`ui.css` must undo the aspect box in the phone menu.** There the table has no
 width of its own once the pill shrink-wraps its label, so the box collapses to nothing
