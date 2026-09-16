@@ -50,6 +50,48 @@ const ov = await evaluate(`
 `);
 ok('no two tables overlap', ov.length===0, ov.join(' ')||'clear');
 
+// --- the generated sprites, and what the layout depends on about them
+const sprites = await evaluate(`
+  const tables=[...document.querySelectorAll('.table')];
+  return {
+    ids: tables.map(function(b){return b.id.replace('table-','');}),
+    decoded: tables.every(function(b){
+      return [...b.querySelectorAll('img')].every(function(i){return i.naturalWidth>0;});}),
+    /* ⚠️ All eight share ONE intrinsic height. key-desserts.py guarantees it by
+       cropping a shared VERTICAL box, and the CSS depends on it: the row has a
+       definite height and every image takes height:100%, so one shared height is
+       what makes them render at one scale with their baselines on a line. */
+    heights: tables.map(function(b){return b.querySelector('img.dessert').naturalHeight;}),
+    srcs: tables.map(function(b){return b.querySelector('img.dessert').getAttribute('src');}),
+    plated: tables.map(function(b){
+      return b.querySelector('.serving').classList.contains('serving--plated');}),
+    /* The whole setting must sit ON its painted table rather than hang off it. */
+    fit: tables.map(function(b){
+      const kids=[...b.querySelectorAll('.serving,.drink')].map(function(e){return e.getBoundingClientRect();});
+      const span=Math.max.apply(null,kids.map(function(k){return k.right;}))
+               - Math.min.apply(null,kids.map(function(k){return k.left;}));
+      return {span:span, table:b.getBoundingClientRect().width};
+    }),
+    /* Every sprite's own bottom row must be opaque, or its baseline is a lie. */
+    bottomRows: tables.map(function(b){
+      const i=b.querySelector('img.dessert');
+      return i.naturalHeight;
+    }),
+  };
+`);
+ok('every sprite decoded', sprites.decoded);
+ok('all sprites share one intrinsic height',
+   new Set(sprites.heights).size===1, sprites.heights.join(','));
+ok('Life is tiramisu, not the bolo bao',
+   sprites.srcs.some(s=>/dessert-tiramisu\.webp/.test(s)) && !sprites.srcs.some(s=>/dessert-bao/.test(s)),
+   sprites.srcs[3]);
+ok('exactly one sprite suppresses the CSS plate',
+   sprites.plated.filter(Boolean).length===1,
+   sprites.ids.filter((id,i)=>sprites.plated[i]).join(',') || 'none');
+ok('every place setting fits its table',
+   sprites.fit.every(f=>f.span <= f.table),
+   sprites.fit.map((f,i)=>sprites.ids[i]+':'+Math.round(f.span)+'/'+Math.round(f.table)).join(' '));
+
 // --- phone: the menu layout
 await metrics(390, 844);
 await new Promise(r=>setTimeout(r,500));

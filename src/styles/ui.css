@@ -262,19 +262,30 @@
   .serving::after { display: none; }
   .drink { display: none; }
 
-  /* In the menu the setting is one small icon beside a label, not a place setting,
-     so it shrink-wraps to the dessert instead of filling a table box. */
+  /* ⚠️ .setting is an ASPECT BOX in the wide layout — height 0 plus a padding-bottom
+     that is a share of the table's width. In the menu the table has no width of its
+     own once the pill shrink-wraps its label, so that box collapses to nothing and
+     takes the dessert icon with it. Undo the whole mechanism here: no padding, a
+     real height, and the row back in normal flow. */
   .setting {
     width: auto;
+    height: auto;
+    padding-bottom: 0;
+  }
+
+  .setting__row {
+    position: static;
     gap: 0;
   }
 
-  /* The dessert is sized as a fraction of the table box, which has no width of its
-     own once the pill shrink-wraps its label. Give it one; `aspect-ratio` from the
-     base rule keeps the sprite from distorting, so only the width is set here. */
-  .serving { flex: 0 0 auto; }
+  /* In the menu the dessert is one small icon beside a label, not a place setting,
+     so it is sized directly rather than by the row's height. */
+  .serving { flex: 0 0 auto; height: auto; }
 
-  .dessert { width: var(--space-8); }
+  .dessert {
+    height: auto;
+    width: var(--space-8);
+  }
 
   /* A menu item that bobs reads as a glitch rather than as a balloon over a table,
      and five of them bobbing out of phase makes the whole column jitter. */

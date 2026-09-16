@@ -98,7 +98,7 @@ export const tables = [
   { id: 'experience', label: 'Experience', dessert: 'Croissant' },
   { id: 'projects', label: 'Projects', dessert: 'Souffle' },
   { id: 'photography', label: 'Photography', dessert: 'Macarons' },
-  { id: 'life', label: 'Life', dessert: 'Bolo bao' },
+  { id: 'life', label: 'Life', dessert: 'Tiramisu' },
   { id: 'arts', label: 'Arts', dessert: 'Layer cake' },
 ];
 
@@ -107,16 +107,22 @@ export const tables = [
  * exacting and collapses if rushed, for Projects; macarons are colour matched in
  * rows like a contact sheet, for Photography.
  *
- * These are IMAGES now, not CSS shapes. The previous version drew each dessert from
- * two pseudo-elements, which could manage a silhouette but not lamination on a
- * croissant or a crackled crust on a bao — and those are the marks that say which
- * dessert it is. Drawn by assets/source/draw-desserts.py; see the note there about
- * the palette having to be kept in step with tokens.css by hand. */
+ * GENERATED art, keyed and cropped by assets/source/key-desserts.py from the prompts
+ * in assets/PROMPTS.md §10-17. They replaced a set drawn in code, which replaced a
+ * set of CSS pseudo-elements before that.
+ *
+ * These are `.webp`, not `.png`: they carry alpha and soft shading, which is the
+ * worst case for PNG — the keyed masters were 140-355 KB each for something drawn at
+ * about 50px. key-desserts.py exports them at 240px tall in WebP, under 14 KB each.
+ *
+ * ⚠️ Life is TIRAMISU, not the bolo bao PRD D2 names. Swapped on Jingwen's say-so —
+ * "i switched bolo bun to tiramisu bc i like tiramisu more" — which also voids the
+ * milk-tea pairing's original reasoning; see tableDrink below. */
 export const dessertSprite = {
   experience:  'dessert-croissant',
   projects:    'dessert-souffle',
   photography: 'dessert-macarons',
-  life:        'dessert-bao',
+  life:        'dessert-tiramisu',
   arts:        'dessert-cake',
 };
 
@@ -124,12 +130,23 @@ export const dessertSprite = {
  * a drink on every table makes five identical place settings and the eye stops
  * reading them as separate tables, which is the one thing the room has to do.
  *
- * The pairings are the ones a bakery would actually serve — coffee with the
- * croissant, milk tea with the bolo bao (the Hong Kong cafe pairing the bun comes
- * from), matcha with the cake. Projects and Photography get none; a souffle and a
- * plate of macarons are each busy enough on their own.
+ * The pairings are ones a bakery would actually serve: coffee with the croissant,
+ * matcha with the cake, and bubble milk tea with the tiramisu.
+ *
+ * ⚠️ That last one used to be milk tea with a bolo bao, which is the Hong Kong cafe
+ * pairing the bun comes from. The bun is now tiramisu, so that reasoning is gone and
+ * the pairing is only "these two look good together" — tiramisu is already a coffee
+ * dessert, and the coffee cup is taken by Experience. Worth revisiting if a fourth
+ * drink is ever generated.
  *
  * An id missing from here means no drink. Do not add an entry with a falsy value. */
+/* Sprites that were generated WITH a plate already drawn in, so the CSS plate has to
+ * be turned off for them — two plates is worse than either. The prompts ask for no
+ * plate; a generator does what it likes. Check a new sprite before adding it here. */
+export const dessertHasOwnPlate = {
+  life: true,          // the tiramisu arrived on a blue plate
+};
+
 export const tableDrink = {
   experience: 'drink-coffee',
   life:       'drink-milk-tea',

@@ -420,7 +420,7 @@ and a fluted white cup reads as a paper muffin case — ask for smooth straight 
 Check: the ruffled foot is what says macaron rather than sandwich cookie. If it vanishes,
 add "prominent ruffled foot, exaggerated".
 
-### 13. `sprites/dessert-bao.png` — Life
+### 13. `sprites/dessert-tiramisu.png` — Life
 
 > A single bolo bao, a Hong Kong pineapple bun, seen from the side at a slight angle. A
 > round golden bun with a pale crackled sugar-cookie crust over its top two-thirds, the
@@ -484,18 +484,22 @@ mistake rather than as variety.
 
 ### After you generate: how to drop them in
 
-Save each one as a PNG into `assets/source/generated/`, named for the sprite it replaces:
+Save each one into `assets/source/generated/`, named for the sprite it replaces. **Any
+image extension is fine** — PNG, JPEG, WebP — the script globs for the name and converts:
 
 ```
-assets/source/generated/dessert-croissant.png
-assets/source/generated/dessert-souffle.png
-assets/source/generated/dessert-macarons.png
-assets/source/generated/dessert-bao.png
-assets/source/generated/dessert-cake.png
-assets/source/generated/drink-coffee.png
-assets/source/generated/drink-milk-tea.png
-assets/source/generated/drink-matcha.png
+assets/source/generated/dessert-croissant.jpeg
+assets/source/generated/dessert-souffle.jpeg
+assets/source/generated/dessert-macarons.jpeg
+assets/source/generated/dessert-tiramisu.jpeg
+assets/source/generated/dessert-cake.jpeg
+assets/source/generated/drink-coffee.jpeg
+assets/source/generated/drink-milk-tea.jpeg
+assets/source/generated/drink-matcha.jpeg
 ```
+
+These are the MASTERS and they are committed. Without them the pipeline cannot be re-run,
+and `source/` is where untouched generation output lives — see the folder table above.
 
 Then:
 
@@ -504,8 +508,17 @@ python3 assets/source/key-desserts.py
 ```
 
 That keys out the magenta, measures where each drawing actually ends, shifts all eight onto
-one baseline, crops them to a single shared box, and writes them over the current sprites.
-It prints the aspect ratio to put in `--sprite-aspect` in `scenes.css`.
+one baseline, and crops them — a **shared vertical box** so every baseline lands on the same
+row, and a **tight horizontal box per sprite** so nothing floats in empty width. Nothing to
+paste into the CSS afterwards; `.setting` is built for exactly that shape.
+
+⚠️ **The key colour is SAMPLED from each image's border, not assumed to be `#FF00FF`.**
+Every prompt asks for pure magenta and no generator delivers it — the first real set came
+back between 68 and 94 away from it. Ask for magenta anyway; the script copes.
+
+⚠️ **If a sprite comes back with a plate drawn into it**, add its table id to
+`dessertHasOwnPlate` in `content.js` so the CSS plate switches off. Two plates is worse than
+either. The tiramisu arrived on a blue one.
 
 ⚠️ **It refuses a partial set.** The baseline and the crop box are computed across all
 eight at once, so processing three of them would put those three on a different baseline
@@ -514,6 +527,10 @@ first time round.
 
 ⚠️ **You do not have to replace all eight in one go**, but you do have to keep all eight
 source files present. Leave the ones you are happy with in `generated/` and re-run.
+
+The output is `assets/sprites/<name>.webp` at 240px tall, under 14 KB each. WebP because
+these carry alpha and soft shading, which is the worst case for PNG — the keyed masters
+were 140-355 KB apiece for something drawn on screen at about 50px.
 
 ---
 

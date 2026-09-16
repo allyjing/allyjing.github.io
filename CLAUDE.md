@@ -185,6 +185,109 @@ closing only the outer one leaves a photograph floating over an empty room.
 
 ### The desserts are sprites, with a drink on three tables
 
+`assets/sprites/dessert-*.png` and `drink-*.png` — **generated art**, from the prompts
+in `assets/PROMPTS.md` §10-17, keyed and cropped by `assets/source/key-desserts.py`.
+They replaced a set drawn in code, which replaced CSS pseudo-elements before that.
+`draw-desserts.py` stays as the fallback if a generation goes wrong; whatever is in
+`assets/sprites/` is the source of truth, not either script.
+
+**Life is TIRAMISU**, not the bolo bao PRD D2 names — swapped on Jingwen's say-so.
+That also voids the milk-tea pairing's original reasoning (it was the Hong Kong cafe
+pairing the bun came from); the pairing stands on looks alone now.
+
+Three of the five tables carry a drink — three, not five, so the settings do not
+become five identical rows.
+
+#### What the layout depends on about the sprites
+
+⚠️ **Every sprite is the SAME HEIGHT and its OWN WIDTH.** `key-desserts.py` crops a
+shared VERTICAL box — which is what puts every baseline on the same row — and a tight
+HORIZONTAL box per sprite. So `.setting__row` is given a definite height and the
+images take `height: 100%; width: auto`: one scale for all eight, each taking only the
+width it needs, and `align-items: end` standing a croissant and a glass on one line
+with no per-sprite nudge.
+
+A shared horizontal box was the first version and was wrong. A generator frames a wide
+croissant edge to edge and a narrow glass with half the frame empty, so the drinks
+rendered at a third of their proper size and the CSS plate — which sizes to the
+sprite's box, not to the sprite — floated out past the dessert on it.
+
+⚠️ **`.setting` is an ASPECT BOX — `height: 0` plus `padding-bottom` — and
+`aspect-ratio` does NOT work in its place.** The images ask for `height: 100%`; against
+an aspect-ratio height that is circular, so they fall back to their intrinsic 516px,
+which becomes the container's min-content height and drags it to 516px. Every sprite
+then rendered at full size. A padding-bottom box cannot be influenced by its contents,
+and the absolutely positioned `.setting__row` resolves against the padding box, which
+is definite.
+
+⚠️ **`padding-bottom` on `.setting` is set by the WIDEST PAIR**, which is Experience —
+the croissant and the coffee mug are both broad. It is 27%, not the 31% that merely
+made the numbers fit: at 31% the setting was as wide as the table it stood on, and the
+button is centred on a hand-read coordinate rather than the painted table's true
+centre, so a fraction of a percent of error still put the plate over the edge. A
+browser check asserts every setting fits its table.
+
+⚠️ **`ui.css` must undo the aspect box in the phone menu.** There the table has no
+width of its own once the pill shrink-wraps its label, so the box collapses to nothing
+and takes the dessert icon with it.
+
+⚠️ **Some generations come back WITH a plate drawn in** — the tiramisu did — and the
+CSS draws one too. `dessertHasOwnPlate` in content.js turns the CSS plate off for
+those. Check a new sprite before adding it.
+
+### Which words on this site are whose
+
+This matters more than it sounds and `content.js` says it at the top too:
+
+- **Jingwen's resume** — the Experience entries and the project bullets.
+- **Jingwen's own writing, verbatim from `jingwen.lovable.app`** — both panel intros,
+  the Photography set descriptions and technical notes, and the project
+  About/Challenge/Result prose. Do not paraphrase these; her voice is the thing they
+  are there for.
+- **Written for this site** — per-photo captions, the one-line card summaries, and the
+  section headings over her prose.
+- **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
+
+⚠️ **The CNC Milling entry is deliberately thin.** The old site's write-up for it was
+generated filler and its three photographs were stock images of an industrial 5-axis
+mill, not her Forest router. Only the verifiable part was kept.
+
+⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
+things verifiable elsewhere in the repo and on the resume, because nothing on the old site
+covered it. Replace it rather than building on it.
+
+⚠️ **Arts has no artwork on purpose, and this is not an oversight to fix.** The old site's
+Arts and Architecture sections were illustrated with stock and AI-generated placeholders —
+a head made of stones, a hand drawing over a render, two "paintings" that are neither hers
+nor paintings — and the copy around them was written to match those images rather than her
+work. Only the architectural drawing-set description survived, because it is specific and
+credibly hers. The panel says plainly that the pieces are not shown yet. **Do not fill it
+from that site; ask for photographs of the real work.**
+
+### The photo gallery and the lightbox
+
+Photography is the one panel with `kind: 'gallery'`. `engine/panel.js` branches on `kind`
+and reads `photos` instead of `entries`; the two shapes never mix.
+
+- `engine/photos.js` turns a slug into paths. Files are `assets/photos/<slug>-<width>.webp`
+  at the three widths in `photoWidths`. **A missing width is a 404, not a fallback.**
+- Thumbnails are lazy, with `srcset` + `sizes`, and `width`/`height` from the data so a
+  six-photo grid does not reflow as each one lands.
+- `engine/lightbox.js` owns the full-frame view. It is a **sibling** of `#panel`, not a
+  child, and that is load-bearing: the panel's focus trap queries its own subtree, so a
+  nested lightbox would be caught by that trap and by the panel's Escape handler at once.
+
+⚠️ **Escape belongs to the topmost dialog.** `panel.js` asks `isLightboxOpen()` and stands
+down — in both its Escape handler and its Tab trap. Without that, one Escape inside a
+photograph closed the panel underneath it too and dumped the visitor back into the room.
+Do not rely on listener registration order for this; it is an explicit check.
+
+⚠️ **`closePanel()` calls `closeLightbox()` first.** A panel can close from under an open
+lightbox — the browser Back button on `#/interior/photography` does exactly that — and
+closing only the outer one leaves a photograph floating over an empty room.
+
+### The desserts are sprites, with a drink on three tables
+
 `assets/sprites/dessert-*.png` and `drink-*.png`.
 
 ⚠️ **These are being REPLACED with generated art.** Jingwen was not happy with the

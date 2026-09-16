@@ -457,99 +457,127 @@
 
 /* --- the place setting ----------------------------------------------------
 
-   SPRITES, not CSS shapes. The eight images are drawn by
-   assets/source/draw-desserts.py and are all cropped to ONE shared content box,
-   which is what the layout below depends on: every sprite has the same aspect
-   ratio and its artwork sits on the bottom edge of its own file. So
-   `align-items: end` alone lines the bottom of a croissant up with the bottom of
-   the glass next to it, and one plate offset is right for all five desserts.
+   GENERATED sprites, keyed and cropped by assets/source/key-desserts.py.
 
-   ⚠️ If the sprites are re-rendered with a different content box, --sprite-aspect
-   below has to change with it. The script prints the value to use. */
+   ⚠️ They are all the SAME HEIGHT and each its OWN WIDTH, and this layout depends
+   on exactly that. The script crops a shared vertical box — which is what puts every
+   sprite's baseline on the same row — and a tight horizontal box per sprite.
+
+   So the row is given a definite height and the images take `height: 100%;
+   width: auto`. That makes every sprite render at ONE scale, lets each take only the
+   width it needs, and makes `align-items: end` stand a croissant and a glass on the
+   same line without a single per-sprite nudge.
+
+   The previous version sized by WIDTH against one shared box. It looked fine for the
+   desserts and badly wrong for the drinks: a glass occupies about a third of a shared
+   frame, so it rendered a third the size it should, and the plate — which sizes to
+   the sprite's box, not to the sprite — floated out well past the dessert on it. */
+/* An ASPECT BOX: height 0 plus a padding-bottom, so the row's height is a share of
+   the TABLE's width and owes nothing to the images inside it.
+
+   ⚠️ `aspect-ratio` here does not work and was tried first. The images ask for
+   `height: 100%`; against an aspect-ratio height that is circular, so they fall back
+   to their intrinsic 516px, which becomes the container's min-content height and
+   drags it up to 516px. Every sprite then rendered at full size. A padding-bottom
+   box cannot be influenced by its contents, and an absolutely positioned child
+   resolves against the PADDING box, which is definite.
+
+   This one number sets how big every place setting is. Raise it and they all grow.
+
+   ⚠️ It is set by the WIDEST PAIR, which is Experience: the croissant and the coffee
+   mug are both broad sprites, and at 38% they spanned about 174px against a painted
+   table top of roughly 147px — the plate hung off the table and onto the wall behind
+   it.
+
+   27% rather than the 31% that merely made the numbers fit. At 31% the setting was
+   almost exactly as wide as the table it stood on, and the button is centred on a
+   hand-read coordinate rather than on the painted table's true centre, so a fraction
+   of a percent of error still put the plate over the edge. The margin absorbs that.
+
+   Every other table has room to spare, which is the right trade: a setting that
+   overflows its table is obviously wrong, while one with slack just looks like a
+   table with space on it. Re-check Experience if a sprite is regenerated wider. */
 .setting {
-  --sprite-aspect: 1.1368;        /* 324 / 285, printed by draw-desserts.py */
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 27%;
+}
 
+.setting__row {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: end;               /* every sprite stands on the same line */
   justify-content: center;
   gap: 4%;
-  width: 100%;
 }
 
-/* The dessert and the plate under it. Sized as a share of the table box rather
-   than of the viewport, so the setting scales with the painted table it sits on. */
+/* The dessert and the plate under it. Shrink-wraps the dessert, so the plate is
+   sized against the pastry rather than against the whole table box. */
 .serving {
   position: relative;
-  flex: 0 0 62%;
+  flex: 0 0 auto;
+  height: 100%;                   /* resolves: .setting__row has a definite height */
 }
 
-/* A plate under each dessert, one per dessert rather than one per table. Without
-   it a dessert reads as a shape pasted onto the table; with it, it reads as
+/* A plate under each dessert, one per dessert rather than one per table.
+   Without it a dessert reads as a shape pasted onto the table; with it, it reads as
    something served.
 
    The plate used to be `.table::after`, a single ellipse for the whole table. That
-   only worked while the table held exactly one thing — once a drink stood beside
-   the dessert, the one plate stretched under both of them and the drink appeared to
-   be standing in it. */
+   only worked while the table held exactly one thing — once a drink stood beside the
+   dessert, the one plate stretched under both of them and the drink appeared to be
+   standing in it. */
 .serving::after {
   content: '';
   position: absolute;
 
   /* The plate's MIDDLE sits on the dessert's feet, which is what makes the dessert
      look like it is standing on the plate rather than behind it. The sprite's
-     baseline is the bottom edge of its own file (draw-desserts.py guarantees that),
-     so 'the dessert's feet' is just the bottom of .serving — and the plate has to
-     hang below it by half its own height.
-
-     -13% with aspect-ratio 3.1 does that: .serving is 1/1.1368 as tall as it is
-     wide, the plate is 84% as wide, so half the plate is about 13.5% of .serving's
-     height. Get this wrong in the other direction and the dessert floats. */
-  bottom: -13%;
+     baseline is the bottom edge of its own file — key-desserts.py guarantees that —
+     so 'the dessert's feet' is just the bottom of .serving, and the plate hangs
+     below it by half its own height. */
+  bottom: -7%;
   left: 50%;
   translate: -50% 0;
 
-  /* 84%, not the 104% this started at. A plate wider than the thing on it stops
-     reading as a plate and becomes a white puddle under the table — which is
-     exactly what a 104% plate under a croissant looked like. */
-  width: 84%;
-  aspect-ratio: 3.1;
+  /* Against the dessert's own width now that .serving shrink-wraps it. A plate wider
+     than the thing on it stops reading as a plate and becomes a white puddle. */
+  width: 104%;
+  aspect-ratio: 3.4;
   border: 2px solid var(--ink);
   border-radius: 50%;
   background: var(--dessert-plate);
+
   /* -1 is LOCAL: behind this pseudo-element's own parent content, i.e. behind the
      dessert standing on the plate. It is not a layer and deliberately not a --z-*
      token — the layer stack orders whole layers, and this orders two things inside
-     one of them. Carried over from the rule this replaced. */
+     one of them. */
   z-index: -1;
 }
+
+/* ⚠️ Some sprites came back WITH a plate already drawn in. The prompts ask for none,
+   because the CSS draws one that re-themes with the room — but a generator does what
+   it likes, and two plates is worse than either. `hasOwnPlate` in content.js turns
+   the drawn one off for those. */
+.serving--plated::after { content: none; }
 
 .dessert,
 .drink {
   display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: var(--sprite-aspect);
+  /* Height-driven: see the note on .setting. Do NOT set a width here. */
+  height: 100%;
+  width: auto;
   /* The art is deliberately smooth. `pixelated` fights the brief — see CLAUDE.md. */
   image-rendering: auto;
   filter: drop-shadow(0 1px 1px var(--shadow-cast));
 }
 
-/* The drink is narrower than the dessert and gets no plate: a glass stands on the
-   table, and a saucer under every one of them made the settings fussy.
-
-   ⚠️ `min-width: 0` IS LOAD-BEARING. A flex item defaults to `min-width: auto`,
-   which for a REPLACED element resolves to its own intrinsic size — so the image
-   ignored `flex-basis: 30%` and took the full width of the setting. It was not
-   subtle: the drink came out 201px wide beside a 124px dessert, and because its
-   height follows its width, it made the whole button 232px tall instead of 160px
-   and pushed three of the five tables into overlapping each other.
-
-   .serving does not need this because it is a <span>, whose min-content width is
-   small. Any image put directly into a flex row here will need it. */
-.drink {
-  flex: 0 0 30%;
-  min-width: 0;
-}
+/* The drink gets no plate: a glass stands on the table, and a saucer under every one
+   of them made the settings fussy. It needs no width rule either — it is narrower
+   than a dessert because its sprite is narrower, which is the point. */
+.drink { flex: 0 0 auto; }
 
 /* The floating label above each painted table. It names the panel the table opens;
    the whole .table stack around it is the button, so this is the visible part of a

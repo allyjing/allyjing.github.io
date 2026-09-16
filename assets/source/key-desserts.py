@@ -33,7 +33,7 @@ near magenta: the closest is the berry filling #B84A6E, whose green channel sits
 away from zero. Do not copy these thresholds to art with a magenta-ish subject; see
 make-cutout-mask.py, where exactly that cost a hole in the bougainvillea.
 """
-import sys, os, subprocess
+import sys, os, glob, subprocess
 from collections import deque
 
 # png.py lives beside this script. Resolve it relative to THIS FILE so the script
@@ -48,19 +48,24 @@ OUT_DIR = os.path.normpath(os.path.join(HERE, '..', 'sprites'))
 
 NAMES = [
     'dessert-croissant', 'dessert-souffle', 'dessert-macarons',
-    'dessert-bao', 'dessert-cake',
+    'dessert-tiramisu', 'dessert-cake',
     'drink-coffee', 'drink-milk-tea', 'drink-matcha',
 ]
 
-# How far from pure magenta still counts as background. Generated backgrounds are
-# never perfectly flat — JPEG-ish ringing and the generator's own dithering push it
-# around by a few levels — but they are nowhere near the subject.
+# How far from THIS IMAGE'S OWN background colour still counts as background.
+#
+# ⚠️ The key colour is SAMPLED from each image's border, not assumed to be #FF00FF.
+# Every prompt asks for pure magenta and no generator delivers it: the first real set
+# came back between 68 and 94 away from it on at least one channel — (234, 68, 220),
+# (227, 94, 201), and so on. A fixed key with a sane tolerance failed to seed the
+# flood fill at all on six of the eight, and the "fix" of widening the tolerance
+# until it worked would have pushed it far enough to start eating rose pink.
+# Sampling costs nothing and survives whatever the next generator does.
 TOLERANCE = 60
 
-# A pixel is only background if it is BOTH near-magenta and reachable from the frame
-# edge. Kept generous because the fill cannot leak into the subject: it stops at the
-# outline, which every prompt asks for explicitly.
-KEY = (255, 0, 255)
+# What the sampled background must roughly BE, or the image is not keyable and we
+# should say so rather than silently return a blank sprite.
+EXPECT_MAGENTA_GAP = 40      # red and blue must each clear green by this much
 
 # Tighter than TOLERANCE, for the two passes that test colour WITHOUT the safety of
 # connectivity to the frame edge.
@@ -68,6 +73,26 @@ POCKET_TOL = 45
 FRINGE_GAP = 60
 
 WORK = 1024          # everything is scaled to this before keying, for one crop box
+
+# What the sprites are actually EXPORTED at, in pixels tall. They render about 50px
+# high on a desktop, so this is roughly 2x for a retina screen with headroom. The
+# keyed masters are ~516px tall and 140-355 KB each as PNG, which is ten times more
+# image than the page ever shows; at 240px in WebP they are a tenth of that.
+#
+# ⚠️ Every sprite keeps the SAME height here, because that is what the layout is
+# built on — see the note on .setting in scenes.css.
+EXPORT_H = 240
+
+
+def source_for(name):
+    """The master for one sprite, whatever extension it was saved with.
+
+    Generators hand back JPEG as often as PNG, and renaming a JPEG to .png to satisfy
+    a hardcoded extension leaves a file that lies about what it is. Glob instead.
+    """
+    found = [f for f in sorted(glob.glob(os.path.join(IN_DIR, name + '.*')))
+             if not os.path.basename(f).startswith('.')]
+    return found[0] if found else None
 
 
 def to_png(path):
@@ -78,13 +103,32 @@ def to_png(path):
     return out
 
 
-def key_magenta(w, h, nch, px):
+def sample_key(w, h, nch, px):
+    """The background colour, taken as the median of the image's border pixels.
+
+    Median rather than mean: a subject that touches an edge drags a mean toward
+    itself, while the median ignores it as long as most of the border is background.
+    """
+    reds, greens, blues = [], [], []
+    step = max(1, w // 200)
+    for x in range(0, w, step):
+        for y in (0, h - 1):
+            i = (y * w + x) * nch
+            reds.append(px[i]); greens.append(px[i + 1]); blues.append(px[i + 2])
+    for y in range(0, h, step):
+        for x in (0, w - 1):
+            i = (y * w + x) * nch
+            reds.append(px[i]); greens.append(px[i + 1]); blues.append(px[i + 2])
+    mid = len(reds) // 2
+    return (sorted(reds)[mid], sorted(greens)[mid], sorted(blues)[mid])
+
+
+def key_magenta(w, h, nch, px, key):
     """RGBA bytes with the background removed, plus the two pass counts."""
     def is_key(i):
-        r, g, b = px[i], px[i + 1], px[i + 2]
-        return (abs(r - KEY[0]) < TOLERANCE
-                and abs(g - KEY[1]) < TOLERANCE
-                and abs(b - KEY[2]) < TOLERANCE)
+        return (abs(px[i] - key[0]) < TOLERANCE
+                and abs(px[i + 1] - key[1]) < TOLERANCE
+                and abs(px[i + 2] - key[2]) < TOLERANCE)
 
     background = bytearray(w * h)          # 1 where the pixel is background
     queue = deque()
@@ -129,7 +173,8 @@ def key_magenta(w, h, nch, px):
         if not background[i]:
             s = i * nch
             r, g, b = px[s], px[s + 1], px[s + 2]
-            if r > 255 - POCKET_TOL and g < POCKET_TOL and b > 255 - POCKET_TOL:
+            if (abs(r - key[0]) < POCKET_TOL and abs(g - key[1]) < POCKET_TOL
+                    and abs(b - key[2]) < POCKET_TOL):
                 background[i] = 1
                 pockets += 1
 
@@ -207,25 +252,34 @@ def main():
                          'none, because the baseline and the crop box are computed '
                          'across the whole set.')
 
-    missing = [n for n in NAMES if not os.path.exists(os.path.join(IN_DIR, n + '.png'))]
+    sources = {n: source_for(n) for n in NAMES}
+    missing = [n for n in NAMES if sources[n] is None]
     if missing:
         raise SystemExit(
-            'missing from ' + IN_DIR + ':\n  ' + '\n  '.join(n + '.png' for n in missing) +
-            '\n\nAll eight must be present. Keep the ones you are happy with in place and '
-            're-run; see assets/PROMPTS.md sections 10-17.')
+            'missing from ' + IN_DIR + ':\n  ' + '\n  '.join(n + '.*' for n in missing) +
+            '\n\nAll eight must be present — any image extension is fine. Keep the ones '
+            'you are happy with in place and re-run; see assets/PROMPTS.md sections 10-17.')
 
     keyed = []
     for name in NAMES:
-        src = to_png(os.path.join(IN_DIR, name + '.png'))
+        src = to_png(sources[name])
         w, h, nch, px = read_png(src)
-        rgba, pockets, fringe = key_magenta(w, h, nch, px)
+
+        key = sample_key(w, h, nch, px)
+        if not (key[0] > key[1] + EXPECT_MAGENTA_GAP and key[2] > key[1] + EXPECT_MAGENTA_GAP):
+            raise SystemExit(
+                f'{name}: the border is rgb{key}, which is not a magenta background.\n'
+                f'Every sprite needs to be generated on flat magenta — see '
+                f'assets/PROMPTS.md sections 10-17.')
+
+        rgba, pockets, fringe = key_magenta(w, h, nch, px, key)
         box = alpha_box(rgba, w, h)
         if box[2] < 0:
-            raise SystemExit(f'{name}: everything keyed out. Is the background really '
-                             f'magenta? Try lowering TOLERANCE.')
+            raise SystemExit(f'{name}: everything keyed out against rgb{key}. '
+                             f'Lower TOLERANCE.')
         covered = ((box[2] - box[0]) * (box[3] - box[1])) / float(w * h)
-        print(f'{name:20} {w}x{h}  subject {covered * 100:5.1f}%  '
-              f'pockets {pockets:6d}  fringe {fringe:5d}')
+        print(f'{name:20} {w}x{h}  key rgb{key}  subject {covered * 100:5.1f}%  '
+              f'pockets {pockets:5d}  fringe {fringe:5d}')
         if covered > 0.98:
             print(f'  ⚠️  almost nothing keyed out — check the background colour')
         keyed.append([name, rgba, w, h])
@@ -242,31 +296,65 @@ def main():
             print(f'{k[0]:20} baseline shift {dy:+d}px')
         k[1] = shift_rows(k[1], k[2], k[3], dy)
 
-    # ---- one crop box ----------------------------------------------------
+    # ---- crop: shared VERTICALLY, tight HORIZONTALLY ---------------------
+    #
+    # ⚠️ The vertical box is shared and the horizontal box is NOT, and the split is
+    # the whole trick.
+    #
+    # Shared vertically is what a common baseline means: every sprite ends on the
+    # same row, so `align-items: end` alone stands a croissant and a glass on one
+    # line.
+    #
+    # Shared horizontally was the first version and it was wrong. The generator
+    # frames a wide croissant edge to edge and a narrow glass with half the frame
+    # empty, so one shared box left the drinks occupying 33% of their own width —
+    # they rendered tiny, and the CSS plate, which sizes to the sprite's box, floated
+    # out well past the dessert sitting on it. Cropping each to its own content fixes
+    # both at once.
+    #
+    # Everything therefore ends up the SAME HEIGHT and a DIFFERENT WIDTH, which is
+    # what .setting in panel-side CSS expects: it gives the row a definite height and
+    # the images take `height: 100%; width: auto`, so they all render at one scale.
     boxes = [alpha_box(k[1], k[2], k[3]) for k in keyed]
     margin = 8
-    x0 = max(0, min(b[0] for b in boxes) - margin)
     y0 = max(0, min(b[1] for b in boxes) - margin)
-    x1 = min(width - 1, max(b[2] for b in boxes) + margin)
     y1 = min(height - 1, max(b[3] for b in boxes) + 2)
-    cw, ch = x1 - x0 + 1, y1 - y0 + 1
-    print(f'\nshared crop: x {x0}..{x1}  y {y0}..{y1}  -> {cw}x{ch}')
+    ch = y1 - y0 + 1
+    print(f'\nshared vertical box: y {y0}..{y1}  ({ch}px tall)')
 
-    for name, rgba, w, h in keyed:
+    for (name, rgba, w, h), box in zip(keyed, boxes):
+        x0 = max(0, box[0] - margin)
+        x1 = min(w - 1, box[2] + margin)
+        cw = x1 - x0 + 1
         out = bytearray()
         for y in range(y0, y1 + 1):
             start = (y * w + x0) * 4
             out += rgba[start:start + cw * 4]
-        path = os.path.join(OUT_DIR, name + '.png')
-        write_rgba(path, cw, ch, bytes(out))
-        print(f'{name:20} {cw}x{ch}  {os.path.getsize(path):7d} bytes')
+        # Write the full-size keyed PNG, then downscale and encode WebP from it.
+        # WebP because these need alpha and a PNG of a soft-shaded illustration is
+        # enormous; cwebp keeps the transparency and drops the weight by ~10x.
+        master = os.path.join(OUT_DIR, name + '.master.png')
+        write_rgba(master, cw, ch, bytes(out))
+
+        final = os.path.join(OUT_DIR, name + '.webp')
+        subprocess.run(['sips', '-s', 'format', 'png', '--resampleHeight', str(EXPORT_H),
+                        master, '--out', master],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(['cwebp', '-quiet', '-q', '86', '-alpha_q', '100', '-m', '6',
+                        master, '-o', final],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        os.remove(master)
+
+        ew = max(1, round(cw * EXPORT_H / ch))
+        print(f'{name:20} {ew:4d}x{EXPORT_H}  {os.path.getsize(final):7d} bytes')
 
     tmp = os.path.join(IN_DIR, '.converted.png')
     if os.path.exists(tmp):
         os.remove(tmp)
 
-    print(f'\n--sprite-aspect for scenes.css: {cw} / {ch} = {cw / ch:.4f}')
-    print('Put that number in .setting in src/styles/scenes.css, then look at the room.')
+    print('\nAll eight are the same height and their own width, which is what the'
+          '\n.setting rule in src/styles/scenes.css is built for — nothing to paste.'
+          '\nRun the room and look at it.')
 
 
 if __name__ == '__main__':

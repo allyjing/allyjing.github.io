@@ -6,7 +6,7 @@
 
 import { getScene } from '../data/scenes.js';
 import { landmarkForTime, backdropImage } from '../data/landmarks.js';
-import { backdropAlt, dessertSprite, tableDrink } from '../data/content.js';
+import { backdropAlt, dessertSprite, dessertHasOwnPlate, tableDrink } from '../data/content.js';
 import { applyCoverBox } from './layout.js';
 
 function el(id) {
@@ -202,32 +202,43 @@ function renderTables(items, onOpen) {
     const setting = document.createElement('span');
     setting.className = 'setting';
 
+    /* An inner row, because .setting itself is an ASPECT BOX — height: 0 plus a
+     * padding-bottom, which is the only way to get a height that depends on the
+     * table's width and NOT on the images inside it. `aspect-ratio` was tried and
+     * loses: the images ask for `height: 100%`, that is circular, so they fall back
+     * to their intrinsic 516px and drag the container up to match. The row is
+     * absolutely positioned against the padding box, which IS definite. */
+    const row = document.createElement('span');
+    row.className = 'setting__row';
+
     /* .serving is what carries the plate, in CSS. The dessert image is inside it so
      * the plate is sized against the dessert rather than against the whole table
      * box — a table with a drink is wider, and a plate scaled to that would run out
      * from under the dessert it is supposed to be holding. */
     const serving = document.createElement('span');
-    serving.className = 'serving';
+    /* A sprite that already has a plate drawn into it suppresses the CSS one. */
+    serving.className = dessertHasOwnPlate[item.id] ? 'serving serving--plated' : 'serving';
 
     const dessert = document.createElement('img');
     dessert.className = 'dessert';
-    dessert.src = `assets/sprites/${dessertSprite[item.id]}.png`;
+    dessert.src = `assets/sprites/${dessertSprite[item.id]}.webp`;
     /* Decorative: the button's own label already names what this table is, and the
      * dessert is a picture of the label rather than extra information. The dessert's
      * NAME is still offered as a title for anyone who hovers. */
     dessert.alt = '';
     dessert.title = item.dessert;
     serving.append(dessert);
-    setting.append(serving);
+    row.append(serving);
+    setting.append(row);
 
     /* Three of the five tables have a drink; the rest have no entry at all. */
     const drink = tableDrink[item.id];
     if (drink) {
       const glass = document.createElement('img');
       glass.className = 'drink';
-      glass.src = `assets/sprites/${drink}.png`;
+      glass.src = `assets/sprites/${drink}.webp`;
       glass.alt = '';
-      setting.append(glass);
+      row.append(glass);
     }
 
     button.append(bubble, setting);
