@@ -339,6 +339,184 @@ images. None of it was carried over, and the Arts panel is text-only until there
 photographs of the real pieces. **Check provenance before reusing anything else from
 there.**
 
+## 10–17. The desserts and drinks — GENERATE THESE
+
+The eight sprites in `assets/sprites/dessert-*.png` and `drink-*.png` were drawn in code
+(see the section after this one). Jingwen did not like them, so they are being replaced
+with generated art. **These prompts produce drop-in replacements.**
+
+### Before you generate
+
+Paste **[SHARED STYLE LINE]** — the block near the top of this file — into every one of
+the eight prompts, unchanged. That line is what makes eight separate generations look like
+one set, and it is the single most common thing to skip.
+
+Five rules that apply to all eight, and they are in every prompt below for a reason:
+
+1. **Flat magenta `#FF00FF` background.** Same convention as the character sprites.
+   Generated alpha comes out ragged; magenta keys cleanly because nothing in a pastry is
+   that colour.
+2. **NO PLATE, no table, no placemat, no cast shadow on the ground.** The plate is drawn
+   in CSS underneath the sprite and re-themes with the room. A generated plate would sit
+   on top of the drawn one and you would see both.
+3. **The item sits on an invisible flat surface**, with its base near the bottom of the
+   frame. The script that processes these aligns all eight on one baseline, and it can
+   only do that if each one HAS a base rather than floating.
+4. **Light from the upper left**, shade to the lower right, on every single one. This is
+   the thing that makes a set read as a set.
+5. **Square frame, 1024x1024 or larger, one item, centred.** They are seen at about 90px
+   on screen, so ask for bold readable shapes rather than fine detail — fine detail turns
+   to mush at that size. Generate large anyway; downscaling hides flaws.
+
+The colours to name, taken from `src/styles/tokens.css`. Say the hex AND the description —
+generators handle "warm golden tan" better than a bare hex, and the hex keeps it honest:
+
+| what | hex | say it as |
+|---|---|---|
+| baked pastry | `#E8C489` | warm golden tan |
+| icing, macaron shells | `#E9A7B4` | soft rose pink |
+| cream, ramekin, frosting | `#FBF7F4` | warm off-white |
+| jam, filling | `#B84A6E` | deep berry |
+| outlines | `#3E3038` | soft dark plum-brown, never pure black |
+| milk tea, coffee | `#D9A06B` | warm milky caramel |
+| matcha | `#A8C48A` | soft muted green |
+
+---
+
+### 10. `sprites/dessert-croissant.png` — Experience
+
+> A single croissant, seen from the side at a slight three-quarter angle, resting on an
+> invisible flat surface. Plump crescent shape with two tapered curled tips and three or
+> four clearly visible rolls of laminated pastry across its body. Warm golden tan
+> (#E8C489) with a slightly deeper tan on the underside. Soft dark plum-brown outline
+> (#3E3038), never pure black. Light from the upper left, shade on the lower right. No
+> plate, no table, no crumbs, no cast shadow. Centred on a flat solid magenta (#FF00FF)
+> background. [SHARED STYLE LINE]
+
+Check: can you still tell it is laminated at thumbnail size? The rolls are the whole point
+— without them it is a tan crescent moon.
+
+### 11. `sprites/dessert-souffle.png` — Projects
+
+> A chocolate-free vanilla souffle risen in a plain white ceramic ramekin, seen from the
+> side. The ramekin is warm off-white (#FBF7F4) with straight sides and a small foot; the
+> risen souffle top is warm golden tan (#E8C489) and domes generously OVER the rim on both
+> sides. A light dusting of icing sugar on top. Soft dark plum-brown outline (#3E3038).
+> Light from the upper left. No plate, no table, no cast shadow. Centred on a flat solid
+> magenta (#FF00FF) background. [SHARED STYLE LINE]
+
+Check: the dome must **overhang the rim**. Level with the rim reads as a collapsed souffle,
+and a fluted white cup reads as a paper muffin case — ask for smooth straight sides.
+
+### 12. `sprites/dessert-macarons.png` — Photography
+
+> Two French macarons, seen from the side, one lying flat in front and one leaning behind
+> it. Soft rose pink shells (#E9A7B4) with the characteristic ruffled foot around the
+> bottom edge of each shell, and a thick deep berry (#B84A6E) filling squeezing slightly
+> out between them. Soft dark plum-brown outline (#3E3038). Light from the upper left. No
+> plate, no table, no cast shadow. Centred on a flat solid magenta (#FF00FF) background.
+> [SHARED STYLE LINE]
+
+Check: the ruffled foot is what says macaron rather than sandwich cookie. If it vanishes,
+add "prominent ruffled foot, exaggerated".
+
+### 13. `sprites/dessert-bao.png` — Life
+
+> A single bolo bao, a Hong Kong pineapple bun, seen from the side at a slight angle. A
+> round golden bun with a pale crackled sugar-cookie crust over its top two-thirds, the
+> crust broken into a clear irregular craquelure pattern with a few bold cracks rather than
+> many fine ones. Warm golden tan (#E8C489) bun, paler crust. Soft dark plum-brown outline
+> (#3E3038). Light from the upper left. No plate, no table, no cast shadow. Centred on a
+> flat solid magenta (#FF00FF) background. [SHARED STYLE LINE]
+
+Check: **asymmetric cracks**. A symmetric pair high on the bun sits exactly where eyebrows
+go and the whole thing reads as a face. This has happened.
+
+### 14. `sprites/dessert-cake.png` — Arts
+
+> A single slice of layer cake standing upright, seen square from the side so the
+> cross-section faces the viewer. Three layers of warm golden tan sponge (#E8C489)
+> separated by two bands of deep berry jam (#B84A6E), with a swagged layer of warm
+> off-white frosting (#FBF7F4) across the top and a small soft rose pink (#E9A7B4) berry
+> resting on it. Soft dark plum-brown outline (#3E3038). Light from the upper left. No
+> plate, no fork, no table, no cast shadow. Centred on a flat solid magenta (#FF00FF)
+> background. [SHARED STYLE LINE]
+
+Check: the cross-section is the point — a slice seen from an angle loses the stripes that
+make it readable at 90px.
+
+### 15. `sprites/drink-coffee.png` — beside the croissant
+
+> A single ceramic coffee cup seen from the side, slightly above eye level so a shallow
+> ellipse of the drink surface is visible at the top. Warm off-white cup (#FBF7F4), gently
+> tapered, with a rounded handle on the right that clearly JOINS the cup body at both ends.
+> Warm milky caramel coffee (#D9A06B) visible in the mouth of the cup. Soft dark plum-brown
+> outline (#3E3038). Light from the upper left. No saucer, no spoon, no table, no steam, no
+> cast shadow. Centred on a flat solid magenta (#FF00FF) background. [SHARED STYLE LINE]
+
+Check: the handle must **meet the cup**. A detached arc beside the body reads as a letter C
+next to a tumbler. Say "handle attached to the cup" twice if you have to.
+
+### 16. `sprites/drink-milk-tea.png` — beside the bolo bao
+
+> A tall clear glass of bubble milk tea seen from the side. Warm milky caramel tea
+> (#D9A06B) filling most of the glass, a layer of dark round tapioca pearls resting in the
+> bottom, and a wide soft rose pink (#E9A7B4) straw entering from the top right and
+> continuing down into the drink. The glass is clear, so the straw and the pearls show
+> through it. Soft dark plum-brown outline (#3E3038). Light from the upper left. No coaster,
+> no table, no condensation droplets, no cast shadow. Centred on a flat solid magenta
+> (#FF00FF) background. [SHARED STYLE LINE]
+
+### 17. `sprites/drink-matcha.png` — beside the layer cake
+
+> A tall clear glass of iced matcha latte seen from the side. Soft muted green matcha
+> (#A8C48A) filling most of the glass, a wide soft rose pink (#E9A7B4) straw entering from
+> the top right, and a single small green leaf garnish resting on the rim. The glass is
+> clear, so the straw shows through it. Soft dark plum-brown outline (#3E3038). Light from
+> the upper left. No coaster, no table, no cast shadow. Centred on a flat solid magenta
+> (#FF00FF) background. [SHARED STYLE LINE]
+
+Check 16 and 17 together: they must be **the same glass**, same width and same rim. They
+sit on different tables but a visitor sees both, and two different glasses read as a
+mistake rather than as variety.
+
+---
+
+### After you generate: how to drop them in
+
+Save each one as a PNG into `assets/source/generated/`, named for the sprite it replaces:
+
+```
+assets/source/generated/dessert-croissant.png
+assets/source/generated/dessert-souffle.png
+assets/source/generated/dessert-macarons.png
+assets/source/generated/dessert-bao.png
+assets/source/generated/dessert-cake.png
+assets/source/generated/drink-coffee.png
+assets/source/generated/drink-milk-tea.png
+assets/source/generated/drink-matcha.png
+```
+
+Then:
+
+```bash
+python3 assets/source/key-desserts.py
+```
+
+That keys out the magenta, measures where each drawing actually ends, shifts all eight onto
+one baseline, crops them to a single shared box, and writes them over the current sprites.
+It prints the aspect ratio to put in `--sprite-aspect` in `scenes.css`.
+
+⚠️ **It refuses a partial set.** The baseline and the crop box are computed across all
+eight at once, so processing three of them would put those three on a different baseline
+than the rest — which is exactly the bug that made the croissant hover above its plate the
+first time round.
+
+⚠️ **You do not have to replace all eight in one go**, but you do have to keep all eight
+source files present. Leave the ones you are happy with in `generated/` and re-run.
+
+---
+
 ## The desserts and drinks are DRAWN, not generated
 
 `assets/sprites/dessert-*.png` and `drink-*.png` are the one set of assets in this project

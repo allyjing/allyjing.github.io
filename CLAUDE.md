@@ -185,8 +185,17 @@ closing only the outer one leaves a photograph floating over an empty room.
 
 ### The desserts are sprites, with a drink on three tables
 
-`assets/sprites/dessert-*.png` and `drink-*.png`, drawn by
-`assets/source/draw-desserts.py`. They replaced a pair of CSS pseudo-elements per dessert:
+`assets/sprites/dessert-*.png` and `drink-*.png`.
+
+⚠️ **These are being REPLACED with generated art.** Jingwen was not happy with the
+drawn ones (2026-09-15). The eight prompts are `assets/PROMPTS.md` §10-17, and
+`assets/source/key-desserts.py` turns her generations into drop-in sprites: it keys
+the magenta, puts all eight on one baseline, crops them to one shared box and prints
+the `--sprite-aspect` to paste into `scenes.css`. **Both scripts stay** —
+`draw-desserts.py` is the fallback if a generation goes wrong, and neither is the
+live source of truth on its own; whatever is in `assets/sprites/` is.
+
+The drawn version, for reference, came from `assets/source/draw-desserts.py`. They replaced a pair of CSS pseudo-elements per dessert:
 a silhouette can manage a rounded shape and a line, but not lamination on a croissant or a
 crackled crust on a bao, and those are the marks that say which dessert it is.
 
