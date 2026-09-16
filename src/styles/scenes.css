@@ -527,7 +527,12 @@
 .serving {
   position: relative;
   flex: 0 0 auto;
-  height: 100%;                   /* resolves: .setting__row has a definite height */
+
+  /* 100% of the row, which has a definite height — see .setting. --sprite-scale is a
+     per-dessert correction for a sprite the generator drew at the wrong size relative
+     to the set; renderer.js sets it from dessertScale in content.js, and it defaults
+     to 1 for everything that does not need it. */
+  height: calc(100% * var(--sprite-scale, 1));
 }
 
 /* A plate under each dessert, one per dessert rather than one per table.

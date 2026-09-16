@@ -261,6 +261,7 @@ def main():
             'you are happy with in place and re-run; see assets/PROMPTS.md sections 10-17.')
 
     keyed = []
+    fills = {}
     for name in NAMES:
         src = to_png(sources[name])
         w, h, nch, px = read_png(src)
@@ -346,7 +347,32 @@ def main():
         os.remove(master)
 
         ew = max(1, round(cw * EXPORT_H / ch))
+        box = alpha_box(out, cw, ch)
+        fills[name] = (box[3] - box[1] + 1) / ch
         print(f'{name:20} {ew:4d}x{EXPORT_H}  {os.path.getsize(final):7d} bytes')
+
+    # ---- how tall is each drawing INSIDE the shared frame ----------------
+    #
+    # ⚠️ WORTH READING BEFORE YOU SHIP A REGENERATION. The frame height is shared so
+    # the generator's own sense of relative size survives: a tall glass is meant to
+    # fill it, a squat tiramisu is not.
+    #
+    # What goes wrong is a dessert drawn nearly as tall as the DRINK IT SHARES A TABLE
+    # WITH. The cake came back at 82% against a 97% glass and rendered the size of a
+    # tumbler. `dessertScale` in content.js corrects it per sprite; nothing here can.
+    #
+    # Reported as plain numbers rather than with a warning flag, on purpose. A flag
+    # comparing every dessert to the tallest drink fired on three of the five while
+    # only one was wrong — the souffle and the macarons share their tables with
+    # nothing, so there is no drink for them to look oversized against. The pairings
+    # live in `tableDrink` in content.js; read them with these numbers.
+    print('\nhow much of the frame each drawing fills')
+    for name in NAMES:
+        # split on the hyphen rather than slicing a fixed width: 'dessert-' is eight
+        # characters and 'drink-' is six, so a fixed slice turned coffee into 'ffee'.
+        kind, _, item = name.partition('-')
+        print(f'  {kind:8} {item:12} {fills[name] * 100:4.0f}%')
+    print('  a dessert close to the drink on ITS OWN table is the one to correct')
 
     tmp = os.path.join(IN_DIR, '.converted.png')
     if os.path.exists(tmp):

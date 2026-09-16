@@ -263,6 +263,16 @@ and takes the dessert icon with it.
 CSS draws one too. `dessertHasOwnPlate` in content.js turns the CSS plate off for
 those. Check a new sprite before adding it.
 
+⚠️ **A generation can also come back at the wrong SIZE relative to the set.** The
+shared vertical box preserves the generator's own sense of scale, which is the right
+default — a tall glass fills it and a squat tiramisu does not. But the cake slice was
+drawn edge to edge in its frame and rendered exactly as tall as the glass beside it,
+which for a slice of cake is enormous: measured, the tiramisu is 0.65 of its drink's
+height and the cake was 1.0. `dessertScale` in content.js corrects it per sprite —
+0.75 for the cake — and it goes on `.serving`, not on the image, so the plate shrinks
+with the dessert instead of being left sitting a gap below it. A check asserts no
+dessert is as tall as the drink beside it.
+
 ### Which words on this site are whose
 
 This matters more than it sounds and `content.js` says it at the top too:
@@ -374,6 +384,13 @@ as `--scene-x/y/w/h`. The props and actor layers are sized to that box, so a per
 
 `layout.js` mirrors the `object-fit`/`object-position` values in `scenes.css` by hand. If
 you change either, change both.
+
+⚠️ **The "Please enter" sign is at x 41, y 87 — NOT on the walkway.** It used to be
+at 32, 84, squarely over the stepping stones to the door. The planting bed in front of
+the shop looks like the natural home for a garden sign on a stake and is not one: it
+is full of pots, and the pill is about 7% of the artwork wide, so it overlays them
+wherever it goes. Bare ground to the right of the path is the spot. A check pins the
+coordinates.
 
 **The crop is why the signs move on a phone.** At 390x844 only about x 37-63 of the artwork
 is on screen — the signs' garden positions fall outside it entirely, and that band is

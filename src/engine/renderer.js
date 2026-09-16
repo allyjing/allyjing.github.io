@@ -6,7 +6,8 @@
 
 import { getScene } from '../data/scenes.js';
 import { landmarkForTime, backdropImage } from '../data/landmarks.js';
-import { backdropAlt, dessertSprite, dessertHasOwnPlate, tableDrink } from '../data/content.js';
+import { backdropAlt, dessertSprite, dessertHasOwnPlate, dessertScale,
+         tableDrink } from '../data/content.js';
 import { applyCoverBox } from './layout.js';
 
 function el(id) {
@@ -228,6 +229,14 @@ function renderTables(items, onOpen) {
     const serving = document.createElement('span');
     /* A sprite that already has a plate drawn into it suppresses the CSS one. */
     serving.className = dessertHasOwnPlate[item.id] ? 'serving serving--plated' : 'serving';
+
+    /* A height correction for a sprite the generator drew at the wrong size relative
+     * to the rest of the set — see dessertScale in content.js. It goes on .serving
+     * rather than on the image, so the PLATE shrinks with the dessert: the plate is
+     * positioned against .serving's bottom edge, and scaling only the image would
+     * leave the plate sitting a gap below it. */
+    const scale = dessertScale[item.id];
+    if (scale) serving.style.setProperty('--sprite-scale', String(scale));
 
     const dessert = document.createElement('img');
     dessert.className = 'dessert';

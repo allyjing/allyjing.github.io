@@ -157,6 +157,22 @@ ok('the page has its spiral binding', jr.spiral);
 ok('aria-orientation matches the layout', jr.orientation==='vertical', jr.orientation);
 ok('tabs are tappable', jr.tappable);
 ok('one page at a time', jr.onlyOnePage);
+/* ⚠️ The portrait is a FACE at 112px and it must have real resolution behind it. It
+   used to ship a 240px file, which on a 2x screen left 7% of headroom over the 224
+   device pixels needed — and a face downscaled from a 1700px crop in one step and
+   encoded lossily at that size looked soft. The smallest file is 480 now. */
+const res = await evaluate(`
+  const i=document.querySelector('.portrait__image');
+  const r=i.getBoundingClientRect();
+  /* ⚠️ Backslashes DOUBLED: this is inside a JS template literal, so \\d would
+     collapse to a bare d and the regex would never match. Trap 11 in the README,
+     and it caught me a second time here. */
+  const m=i.currentSrc.match(/-(\\d+)\\.webp$/);
+  return {css:Math.round(r.width), file:m?Number(m[1]):0};
+`);
+ok('portrait has at least 2x the pixels of its box',
+   res.file >= res.css * 2, `${res.file}px file for a ${res.css}px box`);
+
 ok('portrait decoded with real alt text',
    jr.portraitDecoded>0 && (jr.portraitAlt||'').length>20, jr.portraitAlt);
 

@@ -28,7 +28,7 @@ suite fails.
 | `projects-showcase.mjs` | the card index, opening a project as a route change without tearing the dialog down, the dialog being titled by the project, browser Back stepping out of a project, cold deep links, an unknown slug falling back to the index, and cards going one-up on a phone |
 | `time-freeze-and-panels.mjs` | cycling the clock changes nothing indoors — card, bar, close button, bubble, plate, tint, filter — all five panels hold real content, the Life journal is a real ARIA tablist with routed tabs and arrow keys, and **no academic club appears in Life while all of them remain findable in Experience** |
 | `lightbox-a11y.mjs` | tab order and trap, backdrop click, measured contrast on the dark mat, and that the exterior still re-themes |
-| `walking-and-doors.mjs` | Jingwen walks on a real pointer event, walking to the door goes inside, and nothing covers the way out |
+| `walking-and-doors.mjs` | Jingwen walks on a real pointer event, walking to the door goes inside, nothing covers the way out, and the "Please enter" sign stands clear of the walkway |
 
 ## Assert geometry, not existence
 
@@ -76,11 +76,16 @@ list under "Run it"; the short version:
    than the guess — intermittently, which is the worst way to fail. Use `waitFor(...)`,
    which polls for the condition and names it in the error if it never arrives.
 
-11. **Double every backslash inside an `evaluate()` string.** Those are JS template
+11. **Check where the previous assertions LEFT the page.** A block appended to
+   `walking-and-doors` looked for the garden signs after the checks above had already
+   walked through the door — there are no signs inside the bakery, so four assertions
+   failed on scenery that was perfectly fine. Navigate explicitly rather than
+   inheriting whatever state the last block happened to end in.
+12. **Double every backslash inside an `evaluate()` string.** Those are JS template
    literals, so `\.` collapses to a bare `.` before the page ever sees it — a check for
    `/\.{4,}/` became `/.{4,}/`, which matches *any* four characters, and reported
    "literal periods found" in perfectly clean copy.
-12. **One cause per assertion.** That same check was written as `a && !b`, so when it
+13. **One cause per assertion.** That same check was written as `a && !b`, so when it
    failed it named the wrong reason and sent me reading CSS that was fine. If an
    assertion can fail two ways, make it two assertions.
 

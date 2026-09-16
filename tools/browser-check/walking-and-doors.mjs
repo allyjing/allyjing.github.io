@@ -1,4 +1,4 @@
-import { evaluate, goto, metrics, send, close } from './drive.mjs';
+import { evaluate, goto, metrics, send, waitFor, close } from './drive.mjs';
 const out=[]; const ok=(n,p,d='')=>out.push(`${p?'PASS':'FAIL'}  ${n}${d?'  — '+d:''}`);
 
 await metrics(1400, 900);
@@ -52,6 +52,35 @@ const back = await evaluate(`
 ok('Back outside control exists', back.found);
 ok('...bottom-right and tappable', back.bottomRight && back.tappable);
 ok('...and nothing covers it', /back outside/i.test(back.onTop||''), back.onTop||'');
+
+// --- the "Please enter" sign must not sit on the walkway
+//
+// ⚠️ Back OUTSIDE first. By this point the checks above have walked to the door and
+// gone in, and there are no garden signs inside the bakery — without this the whole
+// block failed on "the enter sign exists" while the sign was perfectly fine.
+await goto('http://localhost:8000/#/exterior');
+await waitFor("[...document.querySelectorAll('.sign')].some(function(e){return /please enter/i.test(e.textContent);})",
+              {label:'the enter sign'});
+const sign = await evaluate(`
+  const s=[...document.querySelectorAll('.sign')].find(function(e){
+    return /please enter/i.test(e.textContent);});
+  if(!s) return {found:false};
+  const r=s.getBoundingClientRect();
+  const others=[...document.querySelectorAll('.sign')].filter(function(e){return e!==s;})
+    .map(function(e){return e.getBoundingClientRect();});
+  const clash=others.some(function(o){
+    return r.left<o.right && o.left<r.right && r.top<o.bottom && o.top<r.bottom;});
+  return {found:true, left:s.style.left, top:s.style.top, clash:clash,
+          onScreen: r.left>=0 && r.right<=innerWidth && r.top>=0 && r.bottom<=innerHeight,
+          tappable: r.width>=44 && r.height>=44};
+`);
+ok('the enter sign exists', sign.found);
+/* Coordinates, not pixels: the sign was moved OFF the stepping stones deliberately
+   and the only durable way to assert that is to pin where it stands. See scenes.js. */
+ok('...stands clear of the walkway, right of the path',
+   sign.left === '41%' && sign.top === '87%', `${sign.left}, ${sign.top}`);
+ok('...does not collide with the other signs', sign.clash === false);
+ok('...is on screen and tappable', sign.onScreen && sign.tappable);
 
 console.log(out.join('\n'));
 close();

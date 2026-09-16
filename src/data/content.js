@@ -140,6 +140,23 @@ export const dessertSprite = {
  * drink is ever generated.
  *
  * An id missing from here means no drink. Do not add an entry with a falsy value. */
+/* A per-sprite height correction, for when the generator drew something at the wrong
+ * size relative to the rest of the set.
+ *
+ * key-desserts.py crops one shared VERTICAL box, which is the right default: a tall
+ * glass fills it and a squat tiramisu does not, so the generator's own sense of
+ * relative size is preserved. But the cake slice came back drawn edge to edge in its
+ * frame, so it rendered exactly as tall as the glass beside it — measured, the
+ * tiramisu is 0.65 of its drink's height and the cake was 1.0 of its own. A slice of
+ * cake that tall is enormous.
+ *
+ * 1 means "as the generator drew it". Only list a sprite that needs correcting, and
+ * correct it here rather than by re-cropping — the shared box is what keeps every
+ * baseline on one row. */
+export const dessertScale = {
+  arts: 0.75,        // the cake slice, which came back as tall as a tumbler
+};
+
 /* Sprites that were generated WITH a plate already drawn in, so the CSS plate has to
  * be turned off for them — two plates is worse than either. The prompts ask for no
  * plate; a generator does what it likes. Check a new sprite before adding it here. */
@@ -162,10 +179,16 @@ export const tableDrink = {
  * `assets/photos/<slug>-<width>.webp` and a missing one is a 404, not a fallback. */
 export const photoWidths = [480, 960, 1600];
 
-/* The portrait in the Life menu is drawn at about 7rem and never opens in the
- * lightbox, so it gets its own, much smaller pair. Exporting it at 1600 like a
- * gallery photograph would ship 180 KB nobody ever sees. */
-export const portraitWidths = [240, 480];
+/* The portrait in the Life menu is drawn at 7rem — 112px — and never opens in the
+ * lightbox, so it gets its own pair rather than the gallery's three widths.
+ *
+ * ⚠️ These used to be 240 and 480 and it looked soft. At 240 the arithmetic only just
+ * works: a 112px box on a 2x screen needs 224 device pixels, so the browser served
+ * the 240 file with 7% of headroom, and a FACE downscaled from a 1700px crop in one
+ * step and encoded lossily at that size shows it. 480 is the smallest file now, which
+ * covers up to a 4x screen, and a whole 34 KB is not worth being stingy about for the
+ * one photograph of her on the site. */
+export const portraitWidths = [480, 720];
 
 /* The portrait is a fixed 7rem square on a wide card and 5.5rem on a phone; it never
  * grows with the viewport, so `sizes` is a plain length rather than a vw fraction. */

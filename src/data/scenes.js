@@ -118,7 +118,16 @@ export const scenes = {
     signs: [
       { id: 'linkedin', ...signs.linkedin, x: 8, y: 87 },   // left of the potted plants
       { id: 'email', ...signs.email, x: 88, y: 91 },
-      { id: 'enter', ...doors.enter, x: 32, y: 84 },        // right at the door
+      /* ⚠️ NOT on the walkway. It used to sit at x 32, y 84, which put it squarely
+       * over the stepping stones leading to the door — asked about directly: "its in
+       * front of the walkway, i dont really like that". Moved to the bare ground to
+       * the RIGHT of the path: still the first thing you read on the way in, but the
+       * stones are clear.
+       *
+       * The planting bed in front of the shop looks like the natural home for a
+       * garden sign on a stake and is not one — it is full of pots, and the pill is
+       * about 7% of the artwork wide, so it overlays them wherever you put it. */
+      { id: 'enter', ...doors.enter, x: 41, y: 87 },
     ],
 
     decor: [],

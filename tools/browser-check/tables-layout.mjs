@@ -110,6 +110,30 @@ ok('desserts scale with depth, not one flat size',
    Math.min(...near.map(t=>t.h)) > Math.max(...far.map(t=>t.h)) * 1.5,
    persp.map(t=>t.id+':'+t.h+'px').join(' '));
 
+/* The per-sprite height correction is applied where it is declared.
+ *
+ * ⚠️ This asserts the MECHANISM, not the appearance, and the distinction bit once.
+ * Every sprite shares one frame height by design, and .serving/.drink both take
+ * `height: 100%`, so comparing the img BOXES gives 1.0 everywhere regardless of what
+ * is drawn inside them — an assertion that "no dessert is as tall as its drink" read
+ * as a failure on two tables that look perfectly fine. How much of its frame a sprite
+ * actually fills is a property of the FILE; key-desserts.py reports it at generation
+ * time, which is where it can be acted on. */
+const scaled = await evaluate(`
+  return [...document.querySelectorAll('.table')].map(function(b){
+    const s=b.querySelector('.serving');
+    return {id:b.id.replace('table-',''),
+            scale: getComputedStyle(s).getPropertyValue('--sprite-scale').trim() || '1',
+            ratio: +(s.getBoundingClientRect().height /
+                     b.querySelector('.setting__row').getBoundingClientRect().height).toFixed(2)};
+  });
+`);
+ok('the cake carries its height correction',
+   scaled.find(t=>t.id==='arts').scale === '0.75', scaled.map(t=>t.id+':'+t.scale).join(' '));
+ok('...and it actually shortens the serving',
+   scaled.every(t=>Math.abs(t.ratio - parseFloat(t.scale)) < 0.03),
+   scaled.map(t=>t.id+':'+t.ratio).join(' '));
+
 ok('every place setting fits its table',
    sprites.fit.every(f=>f.span <= f.table),
    sprites.fit.map((f,i)=>sprites.ids[i]+':'+Math.round(f.span)+'/'+Math.round(f.table)).join(' '));
