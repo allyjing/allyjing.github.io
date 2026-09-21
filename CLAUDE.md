@@ -433,10 +433,17 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   furniture; the only things placed are a dessert on each table and the bubble above it.
 
   The interior has to hold its own against the exterior, which gets a changing sky and a
-  landmark for free. Three things do that work: the bubbles use the **same board as the
-  garden signs** so the two rooms read as one shop; each dessert sits on a **plate**, so it
-  reads as served rather than as a shape pasted on; and **daylight from the window** spills
-  the current `--sky-top` across the floor, so the room knows what time it is.
+  landmark for free. Two things do that work: the bubbles use the **same board as the
+  garden signs** so the two rooms read as one shop, and each dessert sits on a **plate**,
+  so it reads as served rather than as a shape pasted on.
+
+  ⚠️ This used to claim a third thing — *"daylight from the window spills the current
+  `--sky-top` across the floor, so the room knows what time it is"*. **There is no such
+  element and there never was in the shipped code.** `--sky-top` is read by exactly one
+  rule, the `.layer--sky` gradient in `scenes.css`, which indoors sits behind the opaque
+  room image. The claim also contradicted the paragraph directly below it. Removed
+  2026-09-21 after a computed-style diff over every element in the document confirmed
+  nothing indoors moves with the clock.
 
   ⚠️ **Nothing indoors changes with the time of day**, including the buttons, the desserts
   and the chrome. Done by REBINDING the flipping tokens on `.stage[data-scene='interior']`
@@ -452,6 +459,42 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   indoors, so there is no case where this wrongly freezes an outdoor overlay. **Keep it as
   ONE selector list with ONE copy of the bindings** — a second copy is how the ramekin got
   missed the first time.
+
+  ⚠️ **Naming `.panel` there freezes the panel's CARD; it does not freeze what is drawn
+  ON the card.** The list must also carry every token those contents use. It was missing
+  `--surface-raised` and `--surface-sunken`, and at night the journal page, the project
+  cards, the back button, the photo thumbnails, the technical notes and the coverless
+  project tile all went navy inside a lit panel — the project titles disappeared into
+  their own cards. Fixed 2026-09-21 with `--room-raised` / `--room-sunken`.
+
+  **The night block of `tokens.css` is the checklist.** Twenty-three tokens flip after
+  dark and they fall into exactly three groups:
+
+  - **Sixteen are rebound** and must stay that way: `--surface-wall`, `--surface-trim`,
+    `--surface-raised`, `--surface-sunken`, `--ink`, `--ink-soft`, `--hairline`,
+    `--chrome-bg`, `--chrome-ink`, `--accent-berry`, `--on-accent`, `--shadow-cast`,
+    `--panel-scrim`, `--dessert-bake`, `--dessert-glaze`, `--dessert-plate`.
+  - **Six are scene environment** — `--sky-top`, `--sky-bottom`, `--light-tint`,
+    `--scene-filter`, `--ground`, `--window-glow` — and are absent on purpose. Indoors
+    the tint layer is `display: none`, the scene filter is `none`, and `--sky-top` /
+    `--sky-bottom` are read only by `.layer--sky`, which sits behind the opaque room
+    image. None of the six is ever painted indoors.
+  - **`--surface-roof` is the one real gap**, and it is why the journal dividers use
+    `--room-tab-1..4` rather than the obvious pastel. Give it a `--room-*` stand-in
+    before using it indoors, or pick a different token.
+
+  Before using any token inside the room or a panel, find it in that split.
+
+  ⚠️ **Sampling the container is not a test of this.** The browser check asserted on the
+  panel's card, bar and close button and passed for weeks while everything laid on top of
+  them went navy — those three were the parts that were already right. `time-freeze-and-
+  panels.mjs` now also samples `.journal__page`, `.showcase__card`, `.showcase__cover--none`,
+  `.gallery__open` and `.photoset__notes` across the four clock states. **Assert on what is
+  drawn on the surface, not on the surface.**
+
+  A faster way to find the next one of these: diff `getComputedStyle` over every element
+  in the document between noon and night. Anything indoors that differs is a bug, except
+  `.layer--sky`, which is hidden behind the opaque room image.
 
   ⚠️ **The interior does not change with the time of day** — no tint, no scene filter. It
   is a lit room and looks the same at midnight as at noon; a bakery that dims at night reads
