@@ -114,6 +114,8 @@
   --room-hairline:   #E2D5D9;
   --room-ink-soft:   #6B5A62;
   --room-shadow:     rgba(62, 48, 56, 0.16);
+  --room-raised:     #FFFFFF;  /* stands in for --surface-raised */
+  --room-sunken:     #EFE7E4;  /* stands in for --surface-sunken */
 
   /* The desserts are IN the lit room, so they hold their daytime colours too. */
   --room-dessert-bake:  #E8C489;

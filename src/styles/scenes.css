@@ -392,6 +392,13 @@
 .lightbox {
   --surface-wall:  var(--room-face);
   --surface-trim:  var(--room-keyline);
+  /* The two surfaces a PANEL is built from: the journal page, the project cards and
+     the back button are --surface-raised, and the photo thumbnails, the technical
+     notes and the coverless project tile are --surface-sunken. Both were missing
+     here, so at night the panel's card stayed lit while everything laid on top of
+     it went navy. Neither is used anywhere else indoors. */
+  --surface-raised: var(--room-raised);
+  --surface-sunken: var(--room-sunken);
   --ink:           var(--room-ink);
   --ink-soft:      var(--room-ink-soft);
   --hairline:      var(--room-hairline);

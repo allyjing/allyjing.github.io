@@ -39,6 +39,51 @@ for (const k of ['panelBg','panelInk','bar','closeBg','closeInk','bubbleBg','pla
   ok(`interior ${k} does not change with the clock`, vals.size===1, [...vals].join(' | '));
 }
 
+/* --- the surfaces INSIDE a panel must not change with the clock either.
+ *
+ * The block above samples the panel's own card and bar, and it passed for weeks
+ * while everything laid ON that card went navy after dark: .journal__page, the
+ * project cards and the photo thumbnails are --surface-raised / --surface-sunken,
+ * and those two were the only time-flipping tokens missing from the interior
+ * rebinding list in scenes.css. Sampling the container is not enough — sample the
+ * things drawn on it. */
+const insides = [
+  ['life', `{
+    journalPage: cs(document.querySelector('.journal__page')).backgroundColor,
+    journalTab:  cs(document.querySelectorAll('.journal__tab')[0]).backgroundColor,
+    journalTabInk: cs(document.querySelectorAll('.journal__tab')[0]).color,
+  }`],
+  ['projects', `{
+    showcaseCard: cs(document.querySelector('.showcase__card')).backgroundColor,
+    showcaseCardBorder: cs(document.querySelector('.showcase__card')).borderTopColor,
+    showcaseNoCover: cs(document.querySelector('.showcase__cover--none')).backgroundColor,
+  }`],
+  ['photography', `{
+    thumbBg: cs(document.querySelector('.gallery__open')).backgroundColor,
+    photoNotes: cs(document.querySelector('.photoset__notes')).backgroundColor,
+  }`],
+];
+
+for (const [panel, shape] of insides) {
+  await goto(`http://localhost:8000/#/interior/${panel}`);
+  await waitFor(`document.querySelector('#panel-body').children.length`);
+  const seen = await evaluate(`
+    const cs = getComputedStyle;
+    const read = () => Object.assign({ time: document.body.dataset.time }, ${shape});
+    const seen = [read()];
+    const clock = document.querySelector('.chrome--clock');
+    for (let i=0;i<4;i++){ clock.click(); await new Promise(r=>setTimeout(r,700)); seen.push(read()); }
+    return seen;
+  `);
+  ok(`${panel}: the clock cycled all four states`, new Set(seen.map(s=>s.time)).size===4,
+     seen.map(s=>s.time).join(' '));
+  for (const k of Object.keys(seen[0])) {
+    if (k === 'time') continue;
+    const vals = new Set(seen.map(s=>s[k]));
+    ok(`${panel}: ${k} does not change with the clock`, vals.size===1, [...vals].join(' | '));
+  }
+}
+
 // --- lightbox focus trap with a REAL Tab (programmatic focus does not fire :focus-visible)
 await goto('http://localhost:8000/#/interior/photography');
 await evaluate(`document.querySelectorAll('.gallery__open')[0].click(); await new Promise(r=>setTimeout(r,400));`);
