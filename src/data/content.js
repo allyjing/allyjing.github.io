@@ -59,14 +59,24 @@ export const signs = {
     ariaLabel: `Copy Jingwen's email address, ${contact.email}`,
     copied: 'Copied!',
   },
-};
 
-/* The recruiter escape hatch (R23). Visible in the first viewport of every scene,
- * above every game layer, always. */
-export const resume = {
-  label: 'Resume',
-  href: 'resume.html',
-  ariaLabel: "Jingwen's resume, a plain text page",
+  /* ⚠️ THIS IS THE ONLY RESUME LINK ON THE SITE NOW. It is mounted TWICE by
+   * scenes.js — as a second board on the LinkedIn post outdoors, and on the
+   * checkout counter indoors — which is what replaced the top-right corner link.
+   * See "The recruiter escape hatch is a sign now" in CLAUDE.md before touching it.
+   *
+   * It points at `resume.html`, the plain no-JavaScript page (R24), NOT at a PDF.
+   * An earlier version of this board pointed at `assets/jingwen-huang-resume.pdf`,
+   * which does not exist in the repo — a 404 for exactly the visitor the link is
+   * there for. If a PDF is added later it goes BESIDE this, not in place of it.
+   *
+   * No leading slash, and the target is lowercase — GitHub Pages serves from Linux
+   * and is case-sensitive. */
+  resume: {
+    label: 'Resume',
+    href: 'resume.html',
+    ariaLabel: "Jingwen's resume, a plain text page",
+  },
 };
 
 /* The clock (R26) shows TWO things: the visitor's real wall-clock time, which keeps
@@ -87,7 +97,12 @@ export const chrome = {
 
 /* The bakery door, and the way back out (R9). */
 export const doors = {
-  enter: { label: 'Please enter', href: '#/interior', ariaLabel: 'Go inside the bakery' },
+  /* The arrow is part of the LABEL rather than a CSS pseudo-element, so it lives in
+   * the data with every other piece of copy. It points RIGHT because the sign stands
+   * on the grass to the LEFT of the door (sign x 23, door x 36-41) — asked for
+   * directly, *"pointing right"*. Flip it if the sign ever crosses the path. Screen
+   * readers read `ariaLabel` instead, so nobody hears "right arrow". */
+  enter: { label: 'Please enter →', href: '#/interior', ariaLabel: 'Go inside the bakery' },
   exit: { label: 'Back outside', href: '#/exterior', ariaLabel: 'Go back outside' },
 };
 

@@ -167,8 +167,21 @@ Numbered so they can be checked off. Each should be verifiable by looking at the
   a test message before this ships.
 
 ### The recruiter escape hatch
-- **R23** A persistent link labelled **Resume** sits in the top-right of every scene, above
-  all game layers, visible in the first viewport without scrolling or interaction.
+- **R23** A link labelled **Resume** is visible in the first viewport of every scene,
+  above all game layers, without scrolling or interaction.
+
+  ⚠️ **AMENDED 2026-09-29, on Jingwen's say-so.** This used to specify the *top-right
+  corner of every scene*, as persistent chrome. That link is gone. The resume is a
+  **sign inside each scene** now: a second board under LinkedIn on the garden post
+  outdoors, and a card standing on the checkout counter indoors. Asked for directly —
+  *"remove the resume button on my personal website and add a section under the linkedin
+  sign for the resume"*, and for the interior, *"put the resume next to the checkout
+  coutner"*.
+
+  What the requirement still holds down is unchanged and is checked: one press, no
+  scrolling, first viewport, both scenes, and it survives the portrait dock. What it no
+  longer dictates is the corner. Both boards are the same `signs.resume` object, so
+  there is exactly one href on the site. Do not restore the corner link as a third copy.
 - **R24** `/resume.html` is a standalone semantic HTML page: name, contact, education,
   experience, projects, skills. It loads with no JavaScript and no sprite assets.
 - **R25** The game page links to the resume; the resume links back to the game.

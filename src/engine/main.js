@@ -2,9 +2,12 @@
  *
  * Boot. Wires the router, the renderer, movement and the chrome together.
  *
- * Both scenes are complete: the exterior with its signs, clock, location label,
- * resume link and four time states, and the interior with its five table buttons
- * and the overlay panel each of them opens.
+ * Both scenes are complete: the exterior with its four garden signs, clock, location
+ * label and four time states, and the interior with its five table buttons, the
+ * overlay panel each of them opens, and the resume card on the checkout counter.
+ *
+ * The resume used to be a corner chrome link and is a sign in each scene now — see
+ * "The recruiter escape hatch is a sign now" in CLAUDE.md.
  */
 
 import { site } from '../data/content.js';

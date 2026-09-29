@@ -1,6 +1,7 @@
 /* Repo path: src/styles/ui.css
  *
- * The persistent chrome (clock, location label, resume link) and the garden signs.
+ * The persistent chrome (clock, location label, the way out of the interior) and the
+ * signs standing in the scenes.
  *
  * Everything here uses --chrome-bg / --chrome-ink rather than the surface tokens.
  * Those two flip with the theme, which is what keeps this readable at night without
@@ -58,15 +59,6 @@
 
 .stage:not([data-scene='interior']) .chrome--back { display: none; }
 
-.chrome--resume {
-  top: var(--space-4);
-  right: var(--space-4);
-  background: var(--accent-berry);
-  border-color: var(--accent-berry);
-  color: var(--on-accent);       /* never plain white: at night that measures 2.42:1 */
-  font-weight: 700;
-}
-
 .clock__time {
   font-variant-numeric: tabular-nums;   /* so the width does not jitter as digits change */
   font-weight: 700;
@@ -121,6 +113,104 @@
      contact details. */
   filter: var(--scene-filter);
   transition: filter var(--dur-timeshift) var(--ease-soft);
+}
+
+/* ONE LARGER BOARD carrying two links, not two boards stacked on one post. Asked
+   for directly: *"just have one large sign instead of like having 2 boxes
+   together"*. The post used to mount LinkedIn and Resume as two separate pills with
+   a gap between them, which read as two signs that happened to land next to each
+   other rather than as the shop's one contact board.
+
+   ⚠️ The face goes on THIS element and not on `.sign`. The stake is `.sign::after`,
+   which is the post's last flex child — paint the post and the stake ends up inside
+   the board. renderer.js builds this wrapper for exactly that reason.
+
+   `align-items: stretch` is what squares the narrower link up to the wider one, so
+   neither needs a fixed width. */
+.sign__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: var(--space-1);
+
+  /* The same face .sign__board wears: cream, dark outline, rose keyline set in from
+     the edge. Matched to the painted PEACHY SWEETS board above the door. */
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-lg);
+  background: var(--surface-wall);
+  box-shadow:
+    inset 0 0 0 2px var(--surface-trim),
+    0 var(--space-1) var(--space-2) var(--shadow-cast);
+}
+
+/* Inside the panel a link is text on the board, not a box of its own. */
+.sign__panel .sign__board {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  box-shadow: none;
+}
+
+/* A rule in the keyline colour between the links. Two names on one board still have
+   to read as two controls, and a gap alone does not say that. Only BETWEEN them —
+   never above the first. --ink on --surface-trim measures 8.30:1 by day and 9.35:1
+   at night, so the hover fill below is safe in both. */
+.sign__panel .sign__board + .sign__board {
+  border-top: 2px solid var(--surface-trim);
+}
+
+/* THE WAY IN. Every other board on the site is a cream shop sign that blends into
+   the painting on purpose; this one is the opposite and is meant to be. Asked for
+   directly: *"readjust the welcome in sign to soemthing more protuding and clear"*.
+
+   Berry fill with --on-accent lettering is the same pairing the "Back outside"
+   control uses, so the two doors of the building match. ⚠️ Never plain white here —
+   --on-accent flips dark after sunset, and white on the night berry measures 2.42:1.
+   This pairing holds 4.95:1 in both themes (.claude/rules/design.md).
+
+   The inset keyline is --on-accent too, standing in for the rose keyline the cream
+   boards carry. --surface-trim on berry would all but disappear. */
+.sign--enter .sign__board {
+  background: var(--accent-berry);
+  border-color: var(--accent-berry);
+  color: var(--on-accent);
+  font-size: var(--text-base);   /* one step up from the cream boards' --text-sm */
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 2px var(--on-accent),
+    0 var(--space-1) var(--space-3) var(--shadow-cast);
+}
+
+/* The global focus ring is --accent-berry, which is this board's own fill. */
+.sign--enter .sign__board:focus-visible {
+  outline-color: var(--on-accent);
+}
+
+/* ⚠️ A SHORTER stake than the other signs, which is the opposite of what a bigger
+   board wants — and it is the position that decides this, not the board.
+
+   It stood out on the open dirt on a --space-8 stake. It now stands on the strip of
+   grass under the bay window, which is only about 4% of the artwork tall: pots above
+   it, stepping stones below. A tall stake there lifts the board up into the planter
+   box. Short keeps the whole sign inside the grass. See scenes.js for the band. */
+.sign--enter::after {
+  height: var(--space-3);
+}
+
+/* INDOORS, on the checkout counter. The stake is the one thing that cannot come
+   along: a tapered spike is driven into grass, and this card stands on a wooden
+   counter beside the till. It gets a flat base instead — wider than the stake and
+   half its height, which reads as the foot of a card holder seen edge-on.
+
+   It keeps the cream board face. The berry treatment above is for the ONE control
+   that moves you between scenes; spending it on a second thing in the same shop
+   would stop it meaning that. */
+.sign--counter::after {
+  width: 22px;
+  height: var(--space-1);
+  margin-top: 0;
+  border-radius: var(--radius-sm);
+  clip-path: none;               /* no taper: a base, not a spike */
 }
 
 .sign__board {
@@ -201,6 +291,13 @@
     flex-direction: row;
     /* Chrome is not lit by the scene, and must not be dimmed by the night wash. */
     filter: none;
+  }
+
+  /* The stake is gone here, but the contact panel still holds two links, and the row
+     direction above would stand them side by side and push the pair off the edge.
+     Keep them stacked so the dock stays one link per line, like every other sign. */
+  .sign__panel {
+    flex-direction: column;
   }
 
   .sign::after { display: none; }
@@ -301,10 +398,26 @@
                 background-color var(--dur-timeshift) var(--ease-soft),
                 color var(--dur-timeshift) var(--ease-soft);
   }
-  .sign__board:hover, .sign__board:focus-visible,
-  .chrome--resume:hover, .chrome--resume:focus-visible {
+  .sign__board:hover, .sign__board:focus-visible {
     transform: scale(1.04);
     box-shadow: 0 var(--space-1) var(--space-4) var(--accent-berry);
+  }
+
+  /* A berry glow around a berry board is invisible. The enter sign lights up in
+     --on-accent instead, which is the one colour guaranteed to read against it in
+     both themes. */
+  .sign--enter .sign__board:hover, .sign--enter .sign__board:focus-visible {
+    box-shadow: 0 var(--space-1) var(--space-4) var(--on-accent);
+  }
+
+  /* A link INSIDE the contact panel must not grow or cast its own shadow — it is
+     painted on a board, and a board does not have one of its two lines float off it.
+     It fills with the keyline colour instead, which reads at AAA against --ink in
+     both themes. */
+  .sign__panel .sign__board:hover, .sign__panel .sign__board:focus-visible {
+    transform: none;
+    box-shadow: none;
+    background: var(--surface-trim);
   }
 
   .chrome--clock:hover, .chrome--clock:focus-visible,

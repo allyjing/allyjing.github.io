@@ -116,18 +116,60 @@ export const scenes = {
      * positions are off-screen entirely — the scene is cropped to fill and only a
      * narrow band survives — so ui.css docks them into a corner instead. */
     signs: [
-      { id: 'linkedin', ...signs.linkedin, x: 8, y: 87 },   // left of the potted plants
-      { id: 'email', ...signs.email, x: 88, y: 91 },
-      /* ⚠️ NOT on the walkway. It used to sit at x 32, y 84, which put it squarely
-       * over the stepping stones leading to the door — asked about directly: "its in
-       * front of the walkway, i dont really like that". Moved to the bare ground to
-       * the RIGHT of the path: still the first thing you read on the way in, but the
-       * stones are clear.
+      /* ⚠️ ONE post carrying ONE LARGER BOARD with two links on it. Asked for
+       * directly, twice: first *"i would like the resume button to be right under
+       * linkedin and on the same sign as it"*, and then, when that shipped as two
+       * pills stacked on one stake, *"just have one large sign instead of like
+       * having 2 boxes together"*.
        *
-       * The planting bed in front of the shop looks like the natural home for a
-       * garden sign on a stake and is not one — it is full of pots, and the pill is
-       * about 7% of the artwork wide, so it overlays them wherever you put it. */
-      { id: 'enter', ...doors.enter, x: 41, y: 87 },
+       * This is the only sign with a `boards` list; the rest describe their single
+       * link inline. renderer.js wraps a list in `.sign__panel`, which is the board;
+       * the order here is the order down it, so LinkedIn is on top and Resume under.
+       *
+       * ⚠️ It is one post because there is not room for two. The patch is squeezed
+       * from both ends: the terracotta pots sit above it, and BELOW it the location
+       * label is viewport chrome at --z-ui that paints straight over anything in the
+       * artwork. Two separate posts needed two stakes and an 8-unit gap, and even
+       * then the lower stake disappeared behind the label on a short window. One
+       * post spends a single stake on both boards and fits where two did not.
+       *
+       * y is where the ONE stake enters the ground. The walkable polygon's left edge
+       * runs from [3,98] to [16,90], putting the ground at x=8 at about y=95, so 88
+       * is clear of it and she never stands on the post.
+       *
+       * Re-measure BOTH ends if you move it: the boards are a fixed 70px while y is
+       * a percentage, so the post's reach up into the pots grows as the window
+       * shrinks, while its stake closes on the location label. Measured clearance
+       * over the label at 88 runs 48px at 1600x900 down to 7px at 900x562, which is
+       * the shortest window still above the 8:5 dock breakpoint. */
+      { id: 'contact', x: 8, y: 88, boards: [signs.linkedin, signs.resume] },
+      { id: 'email', ...signs.email, x: 88, y: 91 },
+      /* ⚠️ ON THE GRASS under the bay window, pointing RIGHT at the door. Asked for
+       * directly: *"i would like the please enter sign to be on the grass next to
+       * the bakeries window pointing right"*.
+       *
+       * The two before it were both on the bare dirt — x 32 y 84 sat on the stepping
+       * stones ("its in front of the walkway, i dont really like that"), and x 37
+       * y 88 cleared them but read as a sign for the fountain.
+       *
+       * Measured off a 5% grid rendered over the live scene on 2026-09-29:
+       *   bay window        x 21-30,  y 49-65
+       *   planter box       x 21.5-30.3, y 66.3-73.5
+       *   CLEAR GRASS       x 19-28,  y 73.8-77.8   <- the sign stands here
+       *   first stone       x 21.8+,  y 78.4+
+       *   door              x 36-41,  y 52-74       <- what the arrow points at
+       *
+       * ⚠️ That grass band is only about 4% of the artwork tall, which is why this
+       * sign has a SHORTER stake than every other one — see `.sign--enter::after` in
+       * ui.css. A --space-8 stake here lifts the board up into the planter box.
+       *
+       * ⚠️ The board is fixed PIXELS while x/y are percentages, so it covers more of
+       * the painting as the window shrinks. Where the board actually lands:
+       *   1600x900  x 18.4-27.6, y 71.4-76.4 — in the grass, on the planter's rim
+       *   900x562   x 15.6-30.4, y 67.4-75.5 — over most of the planter box
+       * The second is the smallest window still in the wide layout and is accepted.
+       * Re-screenshot BOTH if you raise the stake or the type size. */
+      { id: 'enter', ...doors.enter, x: 23, y: 78, variant: 'enter' },
     ],
 
     decor: [],
@@ -165,7 +207,32 @@ export const scenes = {
      * It suits this room: the five tables ARE the content, and a character walking
      * between them mostly stood in front of them. */
     walkable: [],
-    signs: [],
+
+    /* ⚠️ The interior has a sign now, and for years of commits it did not — a
+     * browser check still carries a comment saying there are none in here.
+     *
+     * It is the resume, and it is here because the top-right corner link was
+     * removed: asked for directly, *"put the resume next to the checkout coutner"*.
+     * Outdoors the same board hangs under LinkedIn. Both are `signs.resume`, so
+     * there is one href and it cannot drift between the two scenes.
+     *
+     * x/y is the COUNTER TOP just right of the painted cash register, measured off
+     * the artwork (1376x768) on 2026-09-29: the counter's top runs x 22.1-29.7 and
+     * its surface is at y 55. The card stands on that surface, the same way the
+     * boards outdoors stand on their stake.
+     *
+     * ⚠️ x is 27, not the counter's centre and not 28. The board is fixed PIXELS on
+     * a counter measured in percentages, so it is about 5.6% wide at 1600x900 and
+     * wider on a smaller window. At 28 its right edge overhung the counter's front
+     * corner and the card floated over the wainscot behind; at the counter's true
+     * centre it buries the till. 27 tucks it against the register with both edges
+     * still on wood. Re-screenshot at a SMALL window if the type size changes.
+     *
+     * `variant: 'counter'` swaps the stake for a flat base. A tapered spike driven
+     * into a wooden counter reads as a mistake; see ui.css. */
+    signs: [
+      { id: 'resume', ...signs.resume, x: 27, y: 55, variant: 'counter' },
+    ],
 
     /* Pressing back walks you back out. There is no character to move, so this is a
      * key binding rather than a walk: see bindBackKeys in engine/input.js. */

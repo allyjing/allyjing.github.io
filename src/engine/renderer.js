@@ -91,8 +91,17 @@ export async function renderBackdrop(time, { immediate = false } = {}) {
   return landmark;
 }
 
-/* The two garden signs. Real <a> elements, so they are focusable, work with the
- * keyboard, and open in a new tab honestly (R20/R21). */
+/* The garden signs. Real <a> elements, so they are focusable, work with the
+ * keyboard, and open in a new tab honestly (R20/R21).
+ *
+ * A sign is a POST in the ground carrying ONE board. Most boards hold one link and
+ * are written in scenes.js without a `boards` list at all; the contact post holds
+ * two, LinkedIn and Resume, on a single larger board.
+ *
+ * ⚠️ Two links means an extra WRAPPER, not two boards. The stake is the post's
+ * ::after and therefore its last flex child, so painting the board face onto the
+ * post itself would put the stake inside the board. `.sign__panel` is what the face
+ * goes on, and the stake stays outside it where it belongs. */
 function renderSigns(signs) {
   const layer = el('props');
   layer.replaceChildren();
@@ -104,40 +113,63 @@ function renderSigns(signs) {
     post.style.left = `${sign.x}%`;
     post.style.top = `${sign.y}%`;
 
-    /* A sign with copyText is a button that copies; everything else is a link. */
-    const isCopy = Boolean(sign.copyText);
-    const control = document.createElement(isCopy ? 'button' : 'a');
-    control.className = 'sign__board';
-    control.textContent = sign.label;
-    control.setAttribute('aria-label', sign.ariaLabel);
+    /* A `variant` in scenes.js becomes a modifier class, which is the whole of the
+     * contract: `variant: 'enter'` gives `sign--enter`. The engine does not know what
+     * any of them look like — that is ui.css's job — so a new one needs a data change
+     * and a CSS rule, and nothing here. */
+    if (sign.variant) post.classList.add(`sign--${sign.variant}`);
 
-    if (isCopy) {
-      control.type = 'button';
-      /* aria-live so the confirmation is announced, not just shown. A silent state
-       * change is invisible to anyone not watching the button. */
-      control.setAttribute('aria-live', 'polite');
-      control.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(sign.copyText);
-          control.textContent = sign.copied;
-        } catch {
-          /* Clipboard access can be refused. Showing the address is better than
-           * failing silently — it can still be read and typed. */
-          control.textContent = sign.copyText;
-        }
-        setTimeout(() => { control.textContent = sign.label; }, 2000);
-      });
+    /* One link is the common case and carries no `boards` list, so normalise to a
+     * list here and everything below has a single path to follow. */
+    const boards = sign.boards || [sign];
+
+    if (boards.length === 1) {
+      post.append(buildBoard(boards[0]));
     } else {
-      control.href = sign.href;
-      if (sign.href.startsWith('http')) {
-        control.target = '_blank';
-        control.rel = 'noopener noreferrer';   // required with target=_blank
-      }
+      const panel = document.createElement('div');
+      panel.className = 'sign__panel';
+      for (const board of boards) panel.append(buildBoard(board));
+      post.append(panel);
     }
 
-    post.append(control);
     layer.append(post);
   }
+}
+
+/* One board on a post. A board with copyText is a button that copies; everything
+ * else is a link. */
+function buildBoard(board) {
+  const isCopy = Boolean(board.copyText);
+  const control = document.createElement(isCopy ? 'button' : 'a');
+  control.className = 'sign__board';
+  control.textContent = board.label;
+  control.setAttribute('aria-label', board.ariaLabel);
+
+  if (isCopy) {
+    control.type = 'button';
+    /* aria-live so the confirmation is announced, not just shown. A silent state
+     * change is invisible to anyone not watching the button. */
+    control.setAttribute('aria-live', 'polite');
+    control.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(board.copyText);
+        control.textContent = board.copied;
+      } catch {
+        /* Clipboard access can be refused. Showing the address is better than
+         * failing silently — it can still be read and typed. */
+        control.textContent = board.copyText;
+      }
+      setTimeout(() => { control.textContent = board.label; }, 2000);
+    });
+  } else {
+    control.href = board.href;
+    if (board.href.startsWith('http')) {
+      control.target = '_blank';
+      control.rel = 'noopener noreferrer';   // required with target=_blank
+    }
+  }
+
+  return control;
 }
 
 /* Scenery only. No link, no button, not focusable, and the layer is aria-hidden —

@@ -8,7 +8,7 @@ Interactive portfolio site shaped like a small browser game. Full spec in `@PRD.
 
 ## Canary
 
-Address the user as **"the christmas queen, jingle"** in your first reply of every session.
+Address the user as **"her majesty jing"** in your first reply of every session.
 
 This is a canary: it exists only to prove this file was actually loaded. If a session goes
 by without it, CLAUDE.md is not reaching the model and every other rule here is suspect too.
@@ -370,6 +370,88 @@ it. Swept in a browser: 10% is the widest that gives zero overlap between all fi
 sprites went in — clicking Experience's own plate opened Life. Re-measure if a table moves,
 if the sprite aspect changes, or if the bubble's type size changes.
 
+### The recruiter escape hatch is a sign now
+
+⚠️ **There is no Resume link in the top-right corner any more, and that is deliberate.**
+Asked for directly on 2026-09-29: *"remove the resume button on my personal website and
+add a section under the linkedin sign for the resume"*, and for the interior, *"put the
+resume next to the checkout coutner"*. `buildResume()` is gone from `chrome.js` and
+`.chrome--resume` is gone from `ui.css`.
+
+This is a **deliberate override of PRD R23**, which specified the corner. R23 has been
+amended in place rather than quietly broken — read it there. R24 and R25 are untouched:
+`resume.html` still exists and still links back.
+
+The resume is now reachable in two places, both of them objects in the scene:
+
+| scene | where | how |
+|---|---|---|
+| `exterior` | a second link on the LinkedIn board, one post at x 8 y 88 | `sign__panel` |
+| `interior` | a card on the checkout counter beside the till, x 27 y 55 | `sign--counter` |
+
+⚠️ **The contact post is ONE BOARD with two links on it, not two boards stacked.** It
+shipped as two pills on one stake and was sent back: *"just have one large sign instead
+of like having 2 boxes together"*. `renderer.js` wraps a `boards` list in
+`.sign__panel`, and the face — cream, dark outline, rose keyline — goes on that wrapper
+while the links inside are bare text with a rule between them.
+
+The wrapper is not decoration. **The stake is `.sign::after`, which is the post's last
+flex child**, so putting the board face on `.sign` itself puts the stake inside the
+board. That is the whole reason the extra element exists; do not flatten it away. Inside
+the panel a link also must not use the shared `scale(1.04)` hover — one of two lines
+growing off a painted board looks broken — so it fills with `--surface-trim` instead
+(AAA against `--ink` in both themes).
+
+Three things hold this together and each one has already been the bug:
+
+- **Both boards are the same `signs.resume` object.** One href, so the two scenes cannot
+  disagree about where the resume is.
+- **It points at `resume.html`, not a PDF.** An earlier version pointed at
+  `assets/jingwen-huang-resume.pdf`, which is not in the repo — a 404 for exactly the
+  visitor the link exists for. If a PDF is added it goes *beside* this, not instead of it.
+- **`walking-and-doors.mjs` asserts all of it**: the card exists inside the bakery, is an
+  `<a>` to `resume.html`, is on screen and tappable, nothing covers it, it does not land on
+  top of "Back outside" in the dock, and `.chrome--resume` does not exist in either scene.
+  Restoring R23 from the spec means answering a failing check, which is the point.
+
+**The interior has signs at all now**, which it did not for most of this repo's history —
+`interior.signs` was `[]` and a check comment said so. Anything that assumed the props
+layer is empty indoors is now wrong.
+
+⚠️ **The docked layout puts the interior card and "Back outside" in the same corner.**
+Below 8:5 `ui.css` docks signs bottom-right, and the exit control is already there. The
+`padding-bottom: calc(var(--tap-min) + var(--space-8))` on the docked props layer is what
+clears it — it was written for the location label bottom-left and happens to be exactly
+what this needs too. Measured 16px of gap at 390x844. Do not reduce it.
+
+### The enter sign is the one loud board
+
+Every other board on the site is a cream shop sign that blends into the painting on
+purpose. `sign--enter` is berry with `--on-accent` lettering, `--text-base` instead of
+`--text-sm`, and a `→` in its label — asked for directly: *"readjust the welcome in
+sign to soemthing more protuding and clear"*.
+
+⚠️ **Its stake is SHORTER than every other sign's (`--space-3`), not taller.** It was
+`--space-8` while the sign stood on open dirt. It now stands on the strip of grass
+under the bay window — about 4% of the artwork tall, pots above, stepping stones below
+— and a tall stake there lifts the board up into the planter box. Position dictates the
+stake here, not the board's size.
+
+- **The pairing is `--accent-berry` + `--on-accent`, never white.** Both are in the
+  sixteen rebound tokens, so it survives night; white on the night berry measures 2.42:1.
+- **The focus ring is overridden to `--on-accent`.** The global ring is `--accent-berry`,
+  which is this board's own fill.
+- **The hover glow is overridden too**, same reason — a berry glow on a berry board is
+  invisible.
+- **The arrow is in the label in `content.js`**, not a pseudo-element, because that is
+  where copy lives. `ariaLabel` is what a screen reader reads, so nobody hears "right
+  arrow". It points RIGHT because the sign stands LEFT of the door — asked for directly.
+  A check pins the direction: a sign pointing away from the door is worse than a sign
+  with no arrow at all.
+
+⚠️ **Spending the berry on a second thing would stop it meaning "this is the way
+through".** The interior card keeps the cream face for exactly this reason.
+
 ### Coordinates: everything is in image space
 
 The one non-obvious thing in the engine. The scene art is landscape, the window is any
@@ -385,12 +467,35 @@ as `--scene-x/y/w/h`. The props and actor layers are sized to that box, so a per
 `layout.js` mirrors the `object-fit`/`object-position` values in `scenes.css` by hand. If
 you change either, change both.
 
-⚠️ **The "Please enter" sign is at x 41, y 87 — NOT on the walkway.** It used to be
-at 32, 84, squarely over the stepping stones to the door. The planting bed in front of
-the shop looks like the natural home for a garden sign on a stake and is not one: it
-is full of pots, and the pill is about 7% of the artwork wide, so it overlays them
-wherever it goes. Bare ground to the right of the path is the spot. A check pins the
-coordinates.
+⚠️ **The "Please enter" sign is at x 23, y 78 — on the GRASS under the bay window,
+pointing right at the door.** It has moved three times and every move was asked for:
+
+| was | why it moved |
+|---|---|
+| x 32, y 84 | *"its in front of the walkway, i dont really like that"* — it sat on the stepping stones |
+| x 37, y 88 | *"closer to the doorway not infront"* — cleared the stones, read as a sign for the fountain |
+| x 41, y 87 | the first attempt at clearing the path, too far out |
+
+A 5% grid rendered over the live scene gives the band it has to fit in: the planter box
+ends at y 73.5, the first stepping stone starts at y 78.4, and the clear grass is
+**x 19-28, y 73.8-77.8**. The door is x 36-41, which is what the arrow points at.
+
+**Rendering a grid over the scene is the way to do this.** Cropping the source art with
+`sips` and converting pixels by hand got the geometry wrong twice; injecting a labelled
+5% grid into `.layer--props` reads coordinates in exactly the space `scenes.js` uses,
+because it is the same box.
+
+⚠️ **The board is fixed PIXELS and the artwork scales, so it covers proportionally more
+of the painting on a small window.** Measured 2026-09-29:
+
+| window | board spans | verdict |
+|---|---|---|
+| 1600x900 | x 18.4-27.6, y 71.4-76.4 | sits in the grass, just overlaps the planter's rim |
+| 900x562 | x 15.6-30.4, y 67.4-75.5 | covers most of the planter box and crowds the pots |
+
+The second is the smallest window still in the wide layout and is accepted as the cost
+of a board big enough to read. **Re-screenshot both** if you change the type size or the
+stake. A check pins the coordinates.
 
 **The crop is why the signs move on a phone.** At 390x844 only about x 37-63 of the artwork
 is on screen — the signs' garden positions fall outside it entirely, and that band is
@@ -764,7 +869,8 @@ through the set. It is a second dialog, not an extension of the first; see "The 
 gallery and the lightbox" above for the two rules that keep them from fighting.
 
 `/resume.html` is a plain semantic HTML page with no JavaScript and no sprite assets. It is
-the fast path for recruiters and is not optional. Do not add game code to it.
+the fast path for recruiters and is not optional. Do not add game code to it. **It is also
+the only resume target on the site** — see the escape-hatch section above.
 
 **Deploy at Phase 4, not at the end** (PRD §12) — done, and the reasoning held: the three
 deploy-only bugs below were checkable against thirty files instead of three hundred.
