@@ -39,7 +39,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | Projects | `showcase` | six projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | Life | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
-| Arts | `entries` | her Citrus College architectural drawing set. Text only, deliberately |
+| Arts | `entries` | Catlisa, the Marin Headlands painting, and her Citrus College drawing set |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
 panel id:
@@ -153,13 +153,11 @@ mill, not her Forest router. Only the verifiable part was kept.
 things verifiable elsewhere in the repo and on the resume, because nothing on the old site
 covered it. Replace it rather than building on it.
 
-⚠️ **Arts has no artwork on purpose, and this is not an oversight to fix.** The old site's
-Arts and Architecture sections were illustrated with stock and AI-generated placeholders —
-a head made of stones, a hand drawing over a render, two "paintings" that are neither hers
-nor paintings — and the copy around them was written to match those images rather than her
-work. Only the architectural drawing-set description survived, because it is specific and
-credibly hers. The panel says plainly that the pieces are not shown yet. **Do not fill it
-from that site; ask for photographs of the real work.**
+⚠️ **Arts shows only artwork Jingwen photographed and supplied herself** (2026-10-05):
+the Catlisa ceiling tile and her in-progress Marin Headlands painting with its reference
+photo. Entries in an `entries` panel can now carry optional `body` paragraphs and `photos`;
+the lightbox walks one entry's photos, not the whole panel. The old site's Arts images were
+stock and AI placeholders — **never fill this panel from that site.**
 
 ### The photo gallery and the lightbox
 
@@ -294,13 +292,11 @@ mill, not her Forest router. Only the verifiable part was kept.
 things verifiable elsewhere in the repo and on the resume, because nothing on the old site
 covered it. Replace it rather than building on it.
 
-⚠️ **Arts has no artwork on purpose, and this is not an oversight to fix.** The old site's
-Arts and Architecture sections were illustrated with stock and AI-generated placeholders —
-a head made of stones, a hand drawing over a render, two "paintings" that are neither hers
-nor paintings — and the copy around them was written to match those images rather than her
-work. Only the architectural drawing-set description survived, because it is specific and
-credibly hers. The panel says plainly that the pieces are not shown yet. **Do not fill it
-from that site; ask for photographs of the real work.**
+⚠️ **Arts shows only artwork Jingwen photographed and supplied herself** (2026-10-05):
+the Catlisa ceiling tile and her in-progress Marin Headlands painting with its reference
+photo. Entries in an `entries` panel can now carry optional `body` paragraphs and `photos`;
+the lightbox walks one entry's photos, not the whole panel. The old site's Arts images were
+stock and AI placeholders — **never fill this panel from that site.**
 
 ### The photo gallery and the lightbox
 

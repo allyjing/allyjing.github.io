@@ -695,30 +695,59 @@ export const panels = {
   /* ⚠️ The architectural design entry is real — Jingwen's Citrus College coursework,
    * and the description is her own account of how she laid the sheet out.
    *
-   * There is deliberately NO artwork in this panel yet. The old site's Arts and
-   * Architecture sections were illustrated with stock and AI-generated placeholder
-   * images (a head made of stones, a hand drawing over a render, two "paintings"
-   * that are neither hers nor paintings), and the surrounding copy was written to
-   * match those images rather than her work. None of it is carried over. This panel
-   * stays text-only until Jingwen supplies photographs of the real pieces. */
+   * The artwork here is HER OWN, photographed by her, supplied 2026-10-05: the
+   * Catlisa ceiling tile and the Marin Headlands painting. The Catlisa story is her
+   * words with only the spelling fixed. The per-photo captions and alt text were
+   * written for this site.
+   *
+   * ⚠️ None of the old site's Arts images are carried over. They were stock and
+   * AI-generated placeholders (a head made of stones, a hand drawing over a render,
+   * two "paintings" that are neither hers nor paintings). Only add artwork she
+   * supplies herself. */
   arts: {
     title: 'Arts',
     kind: 'entries',
     intro: 'Drawing, modelling, and design work that is not an engineering deliverable.',
     entries: [
       {
+        heading: 'Catlisa',
+        meta: 'Painted ceiling tile · 2025',
+        body: [
+          'My teacher has a colorful ceiling, but not all of the tiles are filled. So I told him my concerns, and he allowed me to design something for that tile. I took the tile home and started brainstorming when my cat came in. So I turned my cat into the Mona Lisa. My teacher now has Catlisa on his ceiling to remind him of his lovely 2025 class.',
+        ],
+        photos: [
+          { slug: 'catlisa-at-home', width: 1200, height: 1600,
+            alt: 'A tall painted ceiling tile leaning against a wall at home: a cream-coloured cat in a blue and gold head wrap, on a speckled black background, with an orange tabby cat walking past on the floor beside it',
+            caption: 'Finished at home, with the model walking past.' },
+          { slug: 'catlisa-on-the-ceiling', width: 1200, height: 1600,
+            alt: 'The Catlisa tile installed in a classroom ceiling, among plain white tiles and other painted ones',
+            caption: 'In place on the classroom ceiling.' },
+          { slug: 'catlisa-with-my-teacher', width: 900, height: 1600,
+            alt: 'Jingwen and her teacher standing outside a classroom, holding the Catlisa tile between them and smiling',
+            caption: 'Handing it over to my teacher.' },
+        ],
+      },
+      {
+        heading: 'Marin Headlands',
+        meta: 'Painting on canvas · in progress',
+        body: [
+          'My most recent project: the coast at the Marin Headlands in San Francisco, painted from the reference photograph beside it.',
+        ],
+        photos: [
+          { slug: 'marin-headlands-painting', width: 1200, height: 1600,
+            alt: 'A painting on canvas of a blue bay with white surf, brown headlands and cliffs beyond it, and a dark green slope in the foreground',
+            caption: 'The painting so far.' },
+          { slug: 'marin-headlands-photo', width: 1200, height: 1600,
+            alt: 'A photograph of the Marin Headlands coast: surf rolling into a cove below green coastal scrub, with headlands under a pale blue sky',
+            caption: 'The reference photograph.' },
+        ],
+      },
+      {
         heading: 'Architectural Design',
         meta: 'Citrus College · 3D modelling, AutoCAD · 2024',
         bullets: [
           'A full drawing set, laid out so it reads in the order you need it: the site plan on top to establish the context, the floor plans below it for the internal layout and how the spaces are used, sections above those to show the vertical relationships and the interiors, and the elevations near the bottom for the external views that tie the whole thing together.',
           'Deciding the order of the sheet turned out to be most of the work — the drawings are only as good as the sequence someone reads them in.',
-        ],
-      },
-      {
-        heading: 'Paintings and model photography',
-        meta: 'Acrylic, oil, mixed media',
-        bullets: [
-          'Not shown here yet. The pieces exist but there are no photographs of them in this repo, and the images on my old site were placeholders rather than the real work.',
         ],
       },
     ],

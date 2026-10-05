@@ -628,6 +628,22 @@ function article(entry, headingTag) {
     node.append(list);
   }
 
+  /* body is optional prose, for an entry that tells a story rather than listing
+   * points — Catlisa in Arts. Plain paragraphs, after any bullets. */
+  paragraphs(node, entry.body, 'entry__body');
+
+  /* photos is optional too. Same thumbnails and lightbox as the gallery, but the
+   * lightbox arrows walk only THIS entry's photos: each entry is a separate piece
+   * of work, and stepping from one into the next would blur which is which. */
+  if (entry.photos && entry.photos.length) {
+    const grid = document.createElement('ul');
+    grid.className = 'gallery';
+    entry.photos.forEach((photo, at) => {
+      grid.append(thumbnail(photo, entry.photos, at, photoSizes));
+    });
+    node.append(grid);
+  }
+
   /* links is optional: omitted and [] both mean none. */
   if (entry.links && entry.links.length) {
     const links = document.createElement('p');

@@ -111,6 +111,13 @@
 .entry ul { margin: 0; padding-left: var(--space-6); }
 .entry li { margin-bottom: var(--space-2); }
 
+.entry__body { margin: 0 0 var(--space-3); }
+
+/* A photo grid inside an entry. `.entry ul` above is more specific than `.gallery`,
+   so without this the grid would pick up the bullet-list indent and spacing. */
+.entry .gallery { margin-top: var(--space-3); padding-left: 0; }
+.entry .gallery__item { margin-bottom: 0; }
+
 .entry__links { margin: var(--space-3) 0 0; }
 .entry__links a { color: var(--accent-berry); }
 
