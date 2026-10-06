@@ -732,13 +732,6 @@ export const panels = {
                 caption: 'On the field, through the camera\u2019s screen.' },
             ],
           },
-          {
-            title: 'Sunrise above the clouds',
-            when: 'worth the early alarm',
-            body: [
-              'Standing above the fog line and watching the sun break through, with a sea of clouds below. Most of my favorite photographs come from mornings like that.',
-            ],
-          },
         ],
       },
     ],
