@@ -67,6 +67,12 @@ the id, the route (`#/interior/life/...`), the tiramisu and the checks all still
 `.journal__page` has a `min-height` because the tabs are absolutely positioned and
 would otherwise hang below a short page. On a phone the four stay on ONE row.
 
+**Her name area** (asked for 2026-10-05): name with `(she/her)` beside it, her line
+*"Bites and pieces that make life whole"* UNDER the name (it is no longer the panel
+intro — "Bites" is a pun on her favourite treats), then her favourite pastries and
+drinks. All of it is `portrait` data in content.js. LOVER and ANYTHING are her caps.
+On a phone the favourites drop under the photo at full width.
+
 Tabs down the side, one page at a time. The tab is the **third URL segment** —
 `#/interior/life/places` — so a tab is shareable and Back steps between tabs, the same
 mechanism the Projects showcase uses.

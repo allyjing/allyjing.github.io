@@ -223,13 +223,22 @@ ok('portrait decoded with real alt text',
 
 const copy = await evaluate(`
   const body=document.getElementById('panel-body').textContent;
+  var name=document.querySelector('.portrait__name');
+  var tag=document.querySelector('.portrait__tagline');
   return {intro: (document.querySelector('.panel__intro')||{}).textContent,
+          tagline: tag ? tag.textContent : null,
+          // the tagline must come straight after her name, not up at the top
+          taglineUnderName: Boolean(tag && name && name.nextElementSibling===tag),
+          name: name ? name.textContent : null,
           role: document.querySelectorAll('.portrait__role').length,
           proprietor: body.indexOf('Proprietor')>=0,
           coursework: body.indexOf('coursework')>=0};
 `);
-ok('the intro is the line she asked for',
-   copy.intro==='Bits and pieces that make life whole', copy.intro);
+ok('her line is "Bites", not "Bits"',
+   copy.tagline==='Bites and pieces that make life whole', copy.tagline);
+ok('...and it sits under her name', copy.taglineUnderName);
+ok('...not as the panel intro up at the top', copy.intro===undefined, copy.intro);
+ok('her pronouns are beside her name', copy.name==='Jingwen Huang (she/her)', copy.name);
 ok('no job title under her name', copy.role===0 && !copy.proprietor);
 ok('the old coursework line is gone', !copy.coursework);
 

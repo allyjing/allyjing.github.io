@@ -600,13 +600,26 @@ export const panels = {
   life: {
     title: 'About me',
     kind: 'journal',
-    intro: 'Bits and pieces that make life whole',
+    /* No panel `intro` here: her line sits UNDER HER NAME as `tagline` instead,
+     * asked for directly ("it looks a bit off up at the top"). */
     portrait: {
       slug: 'jingwen-portrait',
       width: 480,
       height: 480,
       alt: 'Jingwen Huang, smiling, in front of a wall of ferns',
       name: 'Jingwen Huang',
+      pronouns: '(she/her)',
+      // "Bites", not "Bits" — a pun on the treats listed just below it. Her words.
+      tagline: 'Bites and pieces that make life whole',
+      /* Her favourites, in her words with spelling fixed. LOVER and ANYTHING are
+       * capitalised on purpose — that is her emphasis, keep it. */
+      favorites: {
+        lead: 'As you can see from the theme, I am a LOVER of cafes and bakeries. Here are some of my favorites:',
+        lists: [
+          { label: 'Pastries', items: 'Macarons, buttered croissants, and pistachio soufflés' },
+          { label: 'Drinks', items: 'Strawberry matcha lattes and peach oolong ANYTHING' },
+        ],
+      },
     },
     tabs: [
       {

@@ -581,12 +581,51 @@ function portraitHeader(portrait) {
   const name = document.createElement('p');
   name.className = 'portrait__name';
   name.textContent = portrait.name;
+
+  /* Pronouns sit on the same line as the name, smaller, so they read as part of
+   * it. Inside the same <p>, so a screen reader says them together. */
+  if (portrait.pronouns) {
+    const pronouns = document.createElement('span');
+    pronouns.className = 'portrait__pronouns';
+    pronouns.textContent = portrait.pronouns;
+    name.append(' ', pronouns);
+  }
   text.append(name);
+
+  if (portrait.tagline) {
+    const tagline = document.createElement('p');
+    tagline.className = 'portrait__tagline';
+    tagline.textContent = portrait.tagline;
+    text.append(tagline);
+  }
+
+  /* Her favourite treats and drinks: one lead sentence, then a short labelled
+   * list. A <dl> because each line IS a label and its value. */
+  header.append(text);
+
+  /* A separate block from the name, so a phone can run it full width UNDER the
+   * photo while a wide screen keeps it in the column beside it (panel.css). */
+  if (portrait.favorites) {
+    const more = document.createElement('div');
+    more.className = 'portrait__more';
+    paragraphs(more, [portrait.favorites.lead], 'portrait__lead');
+
+    const list = document.createElement('dl');
+    list.className = 'portrait__favorites';
+    for (const row of portrait.favorites.lists) {
+      const label = document.createElement('dt');
+      label.textContent = row.label;
+      const items = document.createElement('dd');
+      items.textContent = row.items;
+      list.append(label, items);
+    }
+    more.append(list);
+    header.append(more);
+  }
 
   /* No job title under the name — asked for directly. `role` is no longer read from
    * the data; delete it there too rather than leaving a key nothing consumes. */
 
-  header.append(text);
   return header;
 }
 

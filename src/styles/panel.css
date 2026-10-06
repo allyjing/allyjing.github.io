@@ -297,9 +297,14 @@
  * ========================================================================= */
 
 .portrait {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+  /* A grid rather than a row, so the favourites can move under the photo on a
+     phone. Wide: photo on the left spanning both rows; name, then favourites, in
+     the column beside it. Top-aligned, so the name lines up with the top of the
+     photo — centred, it floated halfway down. */
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  column-gap: var(--space-4);
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
   border-bottom: 2px solid var(--surface-trim);
@@ -315,7 +320,9 @@
   image-rendering: auto;   /* a photograph — never `pixelated` */
 }
 
-.portrait__text { min-width: 0; }
+.portrait__image { grid-row: 1 / span 2; }
+.portrait__text { grid-column: 2; min-width: 0; }
+.portrait__more { grid-column: 2; min-width: 0; }
 
 .portrait__name {
   margin: 0;
@@ -324,6 +331,40 @@
   line-height: var(--leading-tight);
   color: var(--ink);
 }
+
+.portrait__pronouns {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: 400;
+  color: var(--ink-soft);
+  white-space: nowrap;     /* never split "(she/" from "her)" across lines */
+}
+
+.portrait__tagline {
+  margin: var(--space-1) 0 0;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.portrait__lead {
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+/* Two rows, label on the left and the list beside it. The labels share one
+   column, so "Pastries" and "Drinks" line up and their lists start together. */
+.portrait__favorites {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+.portrait__favorites dt {
+  font-weight: 700;
+  color: var(--accent-berry);
+}
+
+.portrait__favorites dd { margin: 0; }
 
 .portrait__role {
   margin: var(--space-1) 0 0;
@@ -873,7 +914,11 @@
    four words per line. They stay a tablist; only the direction changes, and
    aria-orientation follows in panel.js. */
 @media (max-width: 34rem) {
-  .portrait__image { width: 5.5rem; height: 5.5rem; }
+  .portrait__image { width: 5.5rem; height: 5.5rem; grid-row: 1; }
+  /* Name and tagline sit beside the smaller photo; the favourites drop below it
+     and take the full width, instead of squeezing into a narrow column. */
+  .portrait__text { align-self: center; }
+  .portrait__more { grid-column: 1 / -1; }
   .portrait__name { font-size: var(--text-lg); }
 
   /* Side dividers do not fit: 2.9rem of protrusion beside a 390px viewport leaves
