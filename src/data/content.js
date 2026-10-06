@@ -612,8 +612,9 @@ export const panels = {
             title: 'Hi, I’m Jingwen',
             when: 'Los Angeles and Boston',
             body: [
-              'I’m a mechanical engineering student at Northeastern University, and I’m from Los Angeles. I also studied architectural design at Citrus College.',
-              'I speak English, Mandarin, Cantonese, and Hakka.',
+              // Her words, 2026-10-05, with grammar and spelling fixed.
+              'I’m a mechanical engineering student at Northeastern University. I previously studied architectural design at Citrus College during high school. I have an interest in manufacturing, thermodynamics, and materials. After graduation, I plan to pursue my master’s in mechanical engineering with a concentration in materials.',
+              'This is my first website. I hope you find something sweet in this bakery as you learn more about me. ♡',
             ],
           },
           {
