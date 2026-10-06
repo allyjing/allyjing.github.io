@@ -619,10 +619,9 @@ export const panels = {
           },
           {
             title: 'This bakery',
-            when: 'my first website',
+            when: 'built from scratch',
             body: [
-              'I had never built a website before this one. I made it without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
-              'The shop in the painting came back with a name over the door, Peachy Sweets, and it wasn’t the name in my plan. Visitors read the sign, not the plan, so the sign won.',
+              'I built this bakery without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
             ],
           },
         ],
