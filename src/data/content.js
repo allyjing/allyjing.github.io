@@ -603,6 +603,13 @@ export const panels = {
               'This is my first website. I hope you find something sweet in this bakery as you learn more about me. ♡',
             ],
           },
+          {
+            title: 'This bakery',
+            when: 'built from scratch',
+            body: [
+              'I built this bakery without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
+            ],
+          },
         ],
       },
       {
