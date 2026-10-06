@@ -261,17 +261,19 @@ export const panels = {
         label: 'Work',
         entries: [
           {
-            heading: 'Student Helper — Red Vest',
-            meta: 'Northeastern College of Engineering, Makerspace · Boston, MA · Jun. 2026 – Present',
+            heading: 'Student Helper (Red Vest)',
+            meta: 'Northeastern College of Engineering Makerspace · Boston, MA · Jun. 2026 – Present',
             bullets: [
-              'Mentored first-year engineering students on course projects and guided Makerspace users on fabrication equipment, including 3D printers, hand tools, and prototyping materials.',
+              'Coach 100–300 first-year engineering students through cornerstone design projects, diagnosing why builds fail, proposing alternative approaches, and fabricating custom parts to unblock them.',
+              'Train Makerspace users on safe operation of 3D printers, hand tools, and prototyping materials before they work independently.',
             ],
           },
           {
-            heading: 'Ambassador — Northeastern Oakland',
+            heading: 'Northeastern Oakland Ambassador',
             meta: 'Northeastern College of Science · Oakland, CA · Jan. 2026 – Apr. 2026',
             bullets: [
-              'Proctored missed assessments and evaluated student benefit programs, including tutoring services, to strengthen academic support across the College of Science.',
+              'Evaluated tutoring and other support programs about 4 hours a week as a student user, presenting gaps in weekly staff reviews that led the College to add course offerings and new signage.',
+              'Proctored 2 makeup assessment sessions weekly for students across the College of Science.',
             ],
           },
         ],
@@ -280,19 +282,17 @@ export const panels = {
         label: 'Clubs and volunteering',
         entries: [
           {
-            heading: 'STEM Mentor — Science Club for Girls',
-            meta: 'Amigos School · Cambridge, MA · Sep. 2026 – Present',
+            heading: 'President — Makers Club',
+            meta: 'Northeastern University · Oakland, CA · Sep. 2025 – Apr. 2026',
             bullets: [
-              'Leads weekly hands-on STEM explorations for K–8 girls in a free after-school club, guiding activities spanning engineering, physics, chemistry, and environmental science across an 8-week semester.',
-              'Serves as a near-peer role model alongside Junior Mentors and staff, building STEM confidence and literacy for students from communities underrepresented in science.',
+              'Led a 40+ member club, running ideation sessions, training members on 3D printers, laser cutters, and CNC machines, and guiding teams from concept through final fabrication.',
             ],
           },
           {
-            heading: 'President — Makers Club',
-            meta: 'Northeastern University · Sep. 2025 – Apr. 2026',
+            heading: 'STEM Mentor — Science Club for Girls',
+            meta: 'Amigos School · Cambridge, MA · Sep. 2026 – Present',
             bullets: [
-              'Managed a club of 40+ members, facilitating project ideation sessions and guiding teams from concept development through final fabrication.',
-              'Mentored members on safe operation of 3D printers, laser cutters, and CNC machines, providing access to materials and workshop space.',
+              'Lead 2-hour weekly STEM sessions for a classroom of 25 K–8 girls across an 8-week semester, teaching the program’s chemistry and crystals curriculum and the math each experiment requires.',
             ],
           },
         ],
@@ -312,12 +312,12 @@ export const panels = {
   projects: {
     title: 'Projects',
     kind: 'showcase',
-    intro: 'Six things I have designed and built. Open one to read how it went.',
+    intro: 'Five things I have designed and built. Open one to read how it went.',
     items: [
       {
         slug: 'arcadium',
         title: 'Arcadium',
-        subtitle: 'Portable arcade game',
+        subtitle: 'Portable arcade game · Most Favorited Game',
         year: '2025',
         client: 'Northeastern University',
         tools: 'Raspberry Pi Pico · Python · laser cutting · AutoCAD',
@@ -371,8 +371,8 @@ export const panels = {
           {
             title: 'What it is',
             body: [
-              'Led CAD modeling for a laser-cut, hand-painted plywood dispenser enclosure and four color-coded game boards using SolidWorks, producing assembly and exploded-view documentation for a 5-person engineering team.',
-              'Co-developed a multiplayer STEM trivia game for 5th-grade students at Melrose Leadership Academy, integrating a Raspberry Pi Zero 2 WH, servo-driven dispenser, 16×2 LCD, and WS2812B LED strip with a custom Kivy-based Python GUI.',
+              'Led CAD modeling for a 5-person team, designing a laser-cut plywood enclosure and four game boards, and producing assembly and exploded-view documentation the team built from.',
+              'Integrated a Raspberry Pi Zero 2 WH, servo dispenser, 16×2 LCD, and WS2812B LED strip behind a custom Kivy GUI, bench-testing each subsystem before deployment with 5th graders.',
             ],
           },
           {
@@ -401,39 +401,21 @@ export const panels = {
         ],
       },
       {
-        slug: 'mini-fridge',
-        title: 'Thermoelectric Mini Fridge',
-        subtitle: 'Peltier cooling with closed-loop control',
-        year: 'Aug. 2026 – Present',
-        client: 'Personal project',
-        tools: 'Arduino · Fusion · Peltier TEC module · 3D printing',
-        summary: 'A Peltier fridge built around its real bottleneck: getting heat off the hot side.',
-        sections: [
-          {
-            title: 'What it is',
-            body: [
-              'Engineered a thermoelectric cooling system around a TEC1-12706 Peltier module (127 couples, 12 V / 5.8 A, ΔTₘₐₓ > 60 °C), pairing an oversized CPU-tower hot-side heat sink with a compact cold-side sink to manage the module’s primary thermal bottleneck.',
-              'CAD-designed and fabricated an insulated plywood/acrylic enclosure with XPS foam insulation, sealing the TEC mounting plate with a foam gasket to eliminate thermal bridging and air leaks between the hot and cold sides.',
-              'Built a closed-loop temperature controller using an Arduino, IRLZ44N MOSFET, and dual DS18B20 sensors, and integrated an INA219 current/voltage sensor to log real-time power draw and validate cooling performance to steady state.',
-            ],
-          },
-        ],
-        photos: [],
-      },
-      {
         slug: 'flywheel-shooter',
         title: 'Tennis Ball Flywheel Shooter',
         subtitle: 'Motorised launcher, speed and angle adjustable',
         year: 'Feb. 2026 – Present',
-        client: 'Northeastern University',
-        tools: 'Onshape · Autodesk Fusion · CNC router · 3D printing',
+        client: 'Self-directed project',
+        tools: 'Onshape · Fusion 360 · CNC router · 3D printing · Raspberry Pi 5 · ESP32 · Python',
         summary: 'A flywheel launcher for tennis practice. Still being built.',
         sections: [
           {
             title: 'What it is',
             body: [
               'A flywheel-based tennis ball launcher designed to shoot tennis balls at adjustable speeds and angles. This project explores the mechanics of flywheel propulsion systems and applies engineering principles to create a functional, portable sports training tool.',
-              'Designed and fabricated a motorized flywheel launcher in Onshape/Fusion, iterating on flywheel geometry and housing tolerances, then manufactured components with a CNC router and 3D printer. Programmed a Raspberry Pi 5 and ESP32 in Python to control motor speed, firing mechanisms, and wireless communication between components.',
+              'Design and build a motorized flywheel test rig in Onshape and Fusion 360, iterating flywheel geometry and housing tolerances across CNC-routed and 3D-printed revisions.',
+              'Measure fit on each revision and adjust the CAD before re-manufacturing, working toward repeatable launches without a sponsor or assigned mentor.',
+              'Program a Raspberry Pi 5 and ESP32 in Python to command motor speed, sequence firing, and pass commands wirelessly between boards for remote operation.',
             ],
           },
           {

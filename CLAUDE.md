@@ -36,7 +36,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | panel | `kind` | source of the content |
 |---|---|---|
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
-| Projects | `showcase` | six projects, each with a page of its own |
+| Projects | `showcase` | five projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | Catlisa, the Marin Headlands painting, and her Citrus College drawing set |
@@ -146,6 +146,13 @@ names appears anywhere in Life and that they are all still findable in Experienc
 each thumbnail to five rules tall so it stays on the ruled grid. Captions name nobody.
 Two photos from `life/` were left out: the cat-on-laptop shot shows her ChatGPT history
 and browser tabs legibly, and the 324px dance-group photo is too small to serve.
+
+### The resume source
+
+**`~/JB applications/Resume_JingwenH.pdf` (2026-10-01) is the current resume.** It drives
+`resume.html`, the Experience panel, and the resume bullets in the CADodile and flywheel
+project pages, all verbatim. The **mini fridge was dropped** from the site with it, on
+her say-so. Its phone number is never copied in — the repo is public.
 
 ### Which words on this site are whose
 
