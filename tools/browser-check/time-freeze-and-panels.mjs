@@ -147,9 +147,9 @@ const exp = panels.find(p=>p.id==='experience');
 ok('Experience groups work and clubs together',
    exp.groups.length===2 && /Clubs/i.test(exp.groups[1]), exp.groups.join(' | '));
 
-// --- the Life journal
+// --- the About me journal (id 'life')
 await goto('http://localhost:8000/#/interior/life');
-await waitFor("document.querySelectorAll('.journal__tab').length===3", {label:'journal tabs'});
+await waitFor("document.querySelectorAll('.journal__tab').length===4", {label:'journal tabs'});
 const jr = await evaluate(`
   const img=document.querySelector('.portrait__image');
   const tabs=[...document.querySelectorAll('.journal__tab')];
@@ -189,11 +189,11 @@ const jr = await evaluate(`
     onlyOnePage: document.querySelectorAll('.journal__page').length===1,
   };
 `);
-ok('three journal tabs', jr.labels.length===3, jr.labels.join(' | '));
+ok('four journal tabs', jr.labels.join('|')==='About me|Hobbies|Locations|Absolutely adore', jr.labels.join(' | '));
 ok('a real tablist, not buttons that look like one',
    jr.listRole==='tablist' && jr.roles && jr.pageRole==='tabpanel' && jr.pageLabelled);
 ok('exactly one tab selected', jr.selected===1, String(jr.selected));
-ok('roving tabindex', jr.roving==='0,-1,-1', jr.roving);
+ok('roving tabindex', jr.roving==='0,-1,-1,-1', jr.roving);
 ok('dividers stick out past the page edge', jr.protrudes);
 ok('...and tuck behind it', jr.tucked);
 ok('the open divider stands proud of the closed ones', jr.selectedProudest);
@@ -234,8 +234,8 @@ ok('no job title under her name', copy.role===0 && !copy.proprietor);
 ok('the old coursework line is gone', !copy.coursework);
 
 // switching tab is a route change, and focus follows
-await evaluate(`document.querySelectorAll('.journal__tab')[1].click();`);
-await waitFor("location.hash==='#/interior/life/places'", {label:'tab route'});
+await evaluate(`document.querySelectorAll('.journal__tab')[2].click();`);
+await waitFor("location.hash==='#/interior/life/locations'", {label:'tab route'});
 const sw = await evaluate(`
   return {hash: location.hash,
           focus: document.activeElement.id,
@@ -243,31 +243,31 @@ const sw = await evaluate(`
           heading: (document.querySelector('.journal__title')||{}).textContent,
           panelOpen: !document.getElementById('panel').hidden};
 `);
-ok('a tab is a shareable route', sw.hash==='#/interior/life/places', sw.hash);
+ok('a tab is a shareable route', sw.hash==='#/interior/life/locations', sw.hash);
 ok('the panel is refilled, not reopened', sw.panelOpen);
-ok('focus follows to the chosen tab', sw.focus==='tab-places', sw.focus);
-ok('the page actually changed', sw.selected==='Places' && sw.heading==='Los Angeles',
+ok('focus follows to the chosen tab', sw.focus==='tab-locations', sw.focus);
+ok('the page actually changed', sw.selected==='Locations' && sw.heading==='Los Angeles',
    `${sw.selected} / ${sw.heading}`);
 
 // arrow keys move between tabs
 await key('ArrowDown');
-await waitFor("location.hash==='#/interior/life/small-things'", {label:'arrow to next tab'});
+await waitFor("location.hash==='#/interior/life/absolutely-adore'", {label:'arrow to next tab'});
 const arrow = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
-ok('arrow keys move between tabs', arrow==='Small things', arrow);
+ok('arrow keys move between tabs', arrow==='Absolutely adore', arrow);
 await key('ArrowDown');
-await waitFor("location.hash==='#/interior/life'  || location.hash==='#/interior/life/hobbies'", {label:'wrap'});
+await waitFor("location.hash==='#/interior/life'  || location.hash==='#/interior/life/about-me'", {label:'wrap'});
 const wrapped = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
-ok('...and wrap round', wrapped==='Hobbies', wrapped);
+ok('...and wrap round', wrapped==='About me', wrapped);
 
 // a cold deep link to a tab
-await goto('http://localhost:8000/#/interior/life/small-things');
+await goto('http://localhost:8000/#/interior/life/absolutely-adore');
 await waitFor("document.querySelector('[aria-selected=true]')", {label:'cold tab'});
 const cold = await evaluate(`
   return {selected: document.querySelector('[aria-selected=true]').textContent,
           focus: document.activeElement.className,
           heading: (document.querySelector('.journal__title')||{}).textContent};
 `);
-ok('a tab URL works on a cold load', cold.selected==='Small things', cold.selected);
+ok('a tab URL works on a cold load', cold.selected==='Absolutely adore', cold.selected);
 ok('...and opening the dialog still focuses Close, not a tab',
    cold.focus==='panel__close', cold.focus);
 
@@ -275,12 +275,12 @@ ok('...and opening the dialog still focuses Close, not a tab',
 await goto('http://localhost:8000/#/interior/life/nope');
 await waitFor("document.querySelector('[aria-selected=true]')", {label:'fallback tab'});
 const bad = await evaluate(`return document.querySelector('[aria-selected=true]').textContent;`);
-ok('an unknown tab falls back to the first', bad==='Hobbies', bad);
+ok('an unknown tab falls back to the first', bad==='About me', bad);
 
 // ⚠️ the whole point of this change: no school in Life
 const school = await evaluate(`
   const seen=[];
-  for (const slug of ['hobbies','places','small-things']) {
+  for (const slug of ['about-me','hobbies','locations','absolutely-adore']) {
     location.hash='#/interior/life/'+slug;
     await new Promise(r=>setTimeout(r,350));
     seen.push(document.querySelector('.journal__page').textContent);
@@ -289,7 +289,7 @@ const school = await evaluate(`
   const words=['Makers Club','Science Club','CADodile','Red Vest','Makerspace','makerspace'];
   return {hits: words.filter(function(w){return text.indexOf(w)>=0;})};
 `);
-ok('no academic clubs anywhere in Life', school.hits.length===0,
+ok('no academic clubs anywhere in About me', school.hits.length===0,
    school.hits.length ? school.hits.join(', ') : 'clean');
 
 // ...and they are still findable where they belong

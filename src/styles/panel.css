@@ -341,9 +341,10 @@
    the page's own edge is what hides the tucked half. Only the part that sticks out
    is clickable, which is also how a real divider behaves. */
 .journal {
-  --tab-out:  2.9rem;    /* how far a tab protrudes past the page */
+  --tab-out:  3.4rem;    /* how far a tab protrudes past the page */
   --tab-tuck: 1.1rem;    /* how much of it hides behind the page */
   --tab-top:  1.6rem;    /* where the first tab starts, measured from the top */
+  --tab-in:   var(--space-1);   /* how far a CLOSED tab sits back from the open one */
 
   position: relative;
   /* Room for a tab at its furthest out — the selected one, which is pushed a
@@ -359,7 +360,8 @@
 
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  /* A clear gap, so each reads as its own divider rather than one striped strip. */
+  gap: var(--space-3);
 
   /* Behind the page. .journal__page sets `position: relative` for the same reason —
      without a position it cannot take part in the stacking and the tabs paint over
@@ -386,16 +388,22 @@
   color: var(--ink);
 
   border: 2px solid var(--ink);
-  /* Square where it meets the page, rounded where it sticks out. */
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  /* Square where it meets the page, well rounded where it sticks out — the shape
+     of a plastic notebook divider. */
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   border-left: 0;
   cursor: pointer;
+
+  /* A small cast shadow lifts it off the panel, so it reads as a physical tab
+     poking out of the book rather than a stripe painted beside it.
+     --shadow-cast is in the interior rebinding list, so it does not change at night. */
+  box-shadow: 3px 3px 0 var(--shadow-cast);
 
   /* Unselected dividers sit further IN. Selection is shown as a staircase — the
      open one sticks out past its neighbours — because colour alone cannot carry it
      here: each tab is already a different colour, so there is no spare colour left
      to mean "selected". */
-  margin-right: var(--space-2);
+  margin-right: var(--tab-in);
 }
 
 /* One colour each, like the plastic dividers in the reference. */
@@ -421,7 +429,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .journal__tab { transition: margin-right var(--dur-scene) var(--ease-soft); }
   /* Hovering nudges a closed divider out, as though you were about to pull it. */
-  .journal__tab:hover { margin-right: 0; }
+  .journal__tab:hover { margin-right: 0; }   /* half way between closed and open */
   .journal__tab[aria-selected='true']:hover { margin-right: calc(var(--space-2) * -1); }
 }
 
@@ -439,6 +447,11 @@
    grid. If you add an element, give it the same treatment or turn the ruling off. */
 .journal__page {
   --rule: 1.6rem;
+
+  /* The tabs are absolutely positioned beside the page, so they do not make it any
+     taller. A short tab's page would end above the last divider and leave it
+     hanging in the air. 32rem holds all four tabs with room to spare. */
+  min-height: 32rem;
 
   /* Above the divider tabs, so its own right edge hides their tucked halves. */
   position: relative;
@@ -846,7 +859,9 @@
     position: static;        /* out of the absolute layout entirely */
     width: auto;
     flex-direction: row;
-    flex-wrap: wrap;
+    /* ONE row. Four tabs wrapping left "Absolutely adore" alone on a second row,
+       stretched across the whole page. A long label wraps INSIDE its tab instead. */
+    flex-wrap: nowrap;
     gap: var(--space-1);
     margin-bottom: calc(var(--space-1) * -1);   /* tuck under the page's top edge */
   }
@@ -857,7 +872,7 @@
        vertical-text height carrying over — left the tabs 40px tall, under the 44px
        floor this project sets for every touch target. */
     min-height: var(--tap-min);
-    padding: var(--space-2) var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--space-1) var(--space-3);
     writing-mode: horizontal-tb;     /* back to normal text */
     text-align: center;
     border-left: 2px solid var(--ink);
@@ -872,6 +887,7 @@
   }
 
   .journal__page {
+    min-height: 0;     /* the tabs are in a row above the page here, not beside it */
     border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }
 }

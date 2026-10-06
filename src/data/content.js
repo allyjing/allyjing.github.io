@@ -113,7 +113,7 @@ export const tables = [
   { id: 'experience', label: 'Experience', dessert: 'Croissant' },
   { id: 'projects', label: 'Projects', dessert: 'Souffle' },
   { id: 'photography', label: 'Photography', dessert: 'Macarons' },
-  { id: 'life', label: 'Life', dessert: 'Tiramisu' },
+  { id: 'life', label: 'About me', dessert: 'Tiramisu' },
   { id: 'arts', label: 'Arts', dessert: 'Layer cake' },
 ];
 
@@ -565,8 +565,13 @@ export const panels = {
     outro: 'Each image holds a sense of presence — a reminder of the headspace, energy, and quiet meaning that existed in that instant. A landscape washed in light, or an ordinary moment made extraordinary: photography lets me relive the world as I experienced it.',
   },
 
-  /* The Life panel is a JOURNAL with tabs down the side — asked for directly, in
-   * place of a single long menu where everything stacked below everything else.
+  /* The ABOUT ME panel (renamed from "Life" on 2026-10-05, asked for directly). Its
+   * id stays `life` so the table, sprites, routes and checks did not all have to
+   * move; only the words a visitor reads changed. Four tabs, also asked for: About
+   * me, Hobbies, Locations, Absolutely adore.
+   *
+   * It is a JOURNAL with tabs down the side — asked for directly, in place of a
+   * single long menu where everything stacked below everything else.
    *
    * ⚠️ NO SCHOOL. Makers Club, Science Club for Girls, the CADodile team and the
    * Red Vest job were all in here and have been taken out: "i should not be seeing
@@ -595,7 +600,7 @@ export const panels = {
    * shareable and Back steps between tabs. Same mechanism the Projects showcase
    * uses. An unrecognised slug falls back to the first tab. */
   life: {
-    title: 'Life',
+    title: 'About me',
     kind: 'journal',
     intro: 'Bits and pieces that make life whole',
     portrait: {
@@ -607,6 +612,28 @@ export const panels = {
     },
     tabs: [
       {
+        slug: 'about-me',
+        label: 'About me',
+        entries: [
+          {
+            title: 'Hi, I’m Jingwen',
+            when: 'Los Angeles and Boston',
+            body: [
+              'I’m a mechanical engineering student at Northeastern University, and I’m from Los Angeles. I also studied architectural design at Citrus College.',
+              'I speak English, Mandarin, Cantonese, and Hakka.',
+            ],
+          },
+          {
+            title: 'This bakery',
+            when: 'my first website',
+            body: [
+              'I had never built a website before this one. I made it without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
+              'The shop in the painting came back with a name over the door, Peachy Sweets, and it wasn’t the name in my plan. Visitors read the sign, not the plan, so the sign won.',
+            ],
+          },
+        ],
+      },
+      {
         slug: 'hobbies',
         label: 'Hobbies',
         entries: [
@@ -614,77 +641,77 @@ export const panels = {
             title: 'Photography',
             when: 'Fujifilm X-S20',
             body: [
-              'Mostly landscapes, and mostly early. The ones I keep almost always needed me to be standing somewhere cold before the sun came up.',
-              'I shoot it fairly flat and leave it alone afterwards. The point is to get back the colour that was actually there, not a better one.',
+              'I mostly shoot landscapes, and mostly early in the morning. The photos I keep almost always meant standing somewhere cold before the sun came up.',
+              'I shoot fairly flat and barely edit afterward. The point is to bring back the color that was actually there, not a better one.',
             ],
           },
           {
-            title: 'Drawing and painting',
-            when: 'acrylic, oil, mixed media',
+            title: 'Painting',
+            when: 'see the Arts table',
             body: [
-              'Older than the engineering. It is where the architectural drawing sets came from — the habit of deciding what someone should look at first, and in what order.',
+              'My most recent painting is of the Marin Headlands. Before that, I turned my cat into a famous portrait on a ceiling tile for my teacher’s classroom. Both are at the Arts table.',
             ],
           },
           {
-            title: 'Making things that are not assignments',
-            when: 'ongoing',
+            title: 'Making things',
+            when: 'outside of class, too',
             body: [
-              'Laser cutter, 3D printer, CNC router, and a great deal of plywood. Hand-painting the finished enclosure is the part I like most, and the part nobody schedules time for.',
-            ],
-          },
-          {
-            title: 'Building this',
-            when: 'first website',
-            body: [
-              'I had not written a website before this one. No framework, on purpose — I wanted to know what was actually happening rather than what a library was doing on my behalf.',
+              'I spend a lot of time around laser cutters, 3D printers, CNC routers, and a great deal of plywood. Hand-painting the finished enclosure is my favorite part, and it’s the part nobody schedules time for.',
             ],
           },
         ],
       },
       {
-        slug: 'places',
-        label: 'Places',
+        slug: 'locations',
+        label: 'Locations',
         entries: [
           {
             title: 'Los Angeles',
             when: 'home',
             body: [
-              'The clock in the top corner keeps Los Angeles time, and the four views through the window are all from here: the Hollywood Sign in the morning, Santa Monica at noon, Laguna at sunset, Griffith after dark.',
-              'Laguna is in Orange County rather than Los Angeles, which is why the label gives you the coordinates and lets you decide what to call it.',
+              'All four views through the bakery window are from home: the Hollywood Sign in the morning, Santa Monica at noon, Laguna Beach at sunset, and Griffith Observatory after dark.',
+              'Laguna Beach is actually in Orange County, which is why its label shows the coordinates and leaves the rest to you.',
             ],
           },
           {
             title: 'Boston',
-            when: 'term time',
+            when: 'school',
             body: [
-              'The other half of the year, and the reason the clock in the corner is the one I have to do arithmetic on.',
+              'Where I study at Northeastern, about three thousand miles from home.',
             ],
           },
           {
-            title: 'Above the fog line',
-            when: 'before sunrise',
+            title: 'Oakland',
+            when: 'spring 2026',
             body: [
-              'Worth the alarm about one morning in three. The other two you drive back down through cloud and have nothing to show for it.',
+              'I spent a semester on Northeastern’s Oakland campus, a few hours’ drive from home instead of a cross-country flight.',
+            ],
+          },
+          {
+            title: 'The Marin Headlands',
+            when: 'near San Francisco',
+            body: [
+              'The coastline in my most recent painting, just across the Golden Gate Bridge from San Francisco.',
             ],
           },
         ],
       },
       {
-        slug: 'small-things',
-        label: 'Small things',
+        slug: 'absolutely-adore',
+        label: 'Absolutely adore',
         entries: [
           {
             title: 'Junnie',
-            when: 'orange tabby',
+            when: 'my orange tabby',
             body: [
-              'He is in the artwork twice — outside by the fountain, and again inside the shop. Usually watching the fish, never catching one.',
+              'He appears twice in this bakery: outside by the fountain, and curled up inside the shop. Outside, he’s usually watching the fish. He has never caught one.',
             ],
           },
           {
-            title: 'Peachy Sweets',
-            when: 'the sign won',
+            title: 'Sunrise above the clouds',
+            when: 'worth the early alarm',
             body: [
-              'The shop in the painting came back with a name over the door, and it was not the one in my spec. A visitor reads the sign rather than the plan, so the sign won and the site is called after it.',
+              'Standing above the fog line and watching the sun break through, with a sea of clouds below. Most of my favorite photographs come from mornings like that.',
             ],
           },
         ],
@@ -731,7 +758,7 @@ export const panels = {
         heading: 'Marin Headlands',
         meta: 'Painting on canvas · in progress',
         body: [
-          'My most recent project: the coast at the Marin Headlands in San Francisco, painted from the reference photograph beside it.',
+          'My most recent project: the coast at the Marin Headlands, near San Francisco, painted from the reference photograph beside it.',
         ],
         photos: [
           { slug: 'marin-headlands-painting', width: 1200, height: 1600,

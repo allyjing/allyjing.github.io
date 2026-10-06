@@ -38,7 +38,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
 | Projects | `showcase` | six projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
-| Life | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
+| About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | Catlisa, the Marin Headlands painting, and her Citrus College drawing set |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
@@ -57,7 +57,15 @@ panel id:
   one page of entries at a time. Asked for directly, replacing a single column where
   everything stacked below everything else.
 
-### The Life journal
+### The Life journal — shown to visitors as "About me"
+
+**Renamed to "About me" on 2026-10-05**, asked for directly. Only the words changed:
+the id, the route (`#/interior/life/...`), the tiramisu and the checks all still say
+`life`. Four tabs, also asked for: **About me, Hobbies, Locations, Absolutely adore**
+(slugs `about-me`, `hobbies`, `locations`, `absolutely-adore`). The tabs protrude
+3.4rem with a gap between each and a cast shadow so they read as physical dividers;
+`.journal__page` has a `min-height` because the tabs are absolutely positioned and
+would otherwise hang below a short page. On a phone the four stay on ONE row.
 
 Tabs down the side, one page at a time. The tab is the **third URL segment** —
 `#/interior/life/places` — so a tab is shareable and Back steps between tabs, the same
