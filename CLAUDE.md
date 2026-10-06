@@ -36,10 +36,10 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | panel | `kind` | source of the content |
 |---|---|---|
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
-| Projects | `showcase` | five projects, each with a page of its own |
+| Projects | `showcase` | four projects, each with a page of its own |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
-| Arts | `entries` | Catlisa, the Marin Headlands painting, and her Citrus College drawing set |
+| Arts | `entries` | Catlisa and the Marin Headlands painting |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
 panel id:
@@ -167,9 +167,9 @@ This matters more than it sounds and `content.js` says it at the top too:
   section headings over her prose.
 - **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
 
-⚠️ **The CNC Milling entry is deliberately thin.** The old site's write-up for it was
-generated filler and its three photographs were stock images of an industrial 5-axis
-mill, not her Forest router. Only the verifiable part was kept.
+**CNC Milling and the Citrus College drawing set were removed on 2026-10-06**, asked for
+directly. The Peachy Sweets project's photos are screenshots of this site itself — retake
+them if the scenes change.
 
 ⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
 things verifiable elsewhere in the repo and on the resume, because nothing on the old site
@@ -306,9 +306,9 @@ This matters more than it sounds and `content.js` says it at the top too:
   section headings over her prose.
 - **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
 
-⚠️ **The CNC Milling entry is deliberately thin.** The old site's write-up for it was
-generated filler and its three photographs were stock images of an industrial 5-axis
-mill, not her Forest router. Only the verifiable part was kept.
+**CNC Milling and the Citrus College drawing set were removed on 2026-10-06**, asked for
+directly. The Peachy Sweets project's photos are screenshots of this site itself — retake
+them if the scenes change.
 
 ⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
 things verifiable elsewhere in the repo and on the resume, because nothing on the old site

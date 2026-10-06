@@ -312,7 +312,7 @@ export const panels = {
   projects: {
     title: 'Projects',
     kind: 'showcase',
-    intro: 'Five things I have designed and built. Open one to read how it went.',
+    intro: 'Four things I have designed and built. Open one to read how it went.',
     items: [
       {
         slug: 'arcadium',
@@ -434,29 +434,6 @@ export const panels = {
         photos: [],
       },
       {
-        slug: 'cnc-milling',
-        title: 'CNC Milling',
-        subtitle: 'CAM programming and machining',
-        year: '2024',
-        client: 'Personal project',
-        tools: 'Fusion 360 CAD/CAM · Forest CNC router',
-        summary: 'Programming tool paths in Fusion and cutting them on a CNC router.',
-        /* ⚠️ Deliberately short. The old site's write-up for this one was
-         * generated filler — "exceeded expectations in terms of surface quality" —
-         * and its three photographs were stock images of an industrial 5-axis mill,
-         * not her Forest router. Only what is verifiable is kept: the tools, the
-         * year, and what the work was. Ask her for the real account. */
-        sections: [
-          {
-            title: 'What it is',
-            body: [
-              'Programmed and machined parts in Fusion 360, working on tool paths to hold dimensional accuracy and surface finish without letting cycle time run away.',
-            ],
-          },
-        ],
-        photos: [],
-      },
-      {
         slug: 'peachy-sweets',
         title: 'Peachy Sweets Bakery',
         subtitle: 'This site',
@@ -464,6 +441,8 @@ export const panels = {
         client: 'Personal project',
         tools: 'HTML · CSS · JavaScript · no framework',
         summary: 'The site you are reading, built as a small browser game.',
+        // Screenshots of the live site itself, taken 2026-10-06 at sunset.
+        cover: 'peachy-sweets-exterior',
         sections: [
           {
             title: 'What it is',
@@ -473,7 +452,14 @@ export const panels = {
             ],
           },
         ],
-        photos: [],
+        photos: [
+          { slug: 'peachy-sweets-exterior', width: 1600, height: 900,
+            alt: 'The bakery website at sunset: a white bakery with a pink awning and a Peachy Sweets Bakery sign, Jingwen and her cat Junnie outside, and the Laguna Beach coast behind',
+            caption: 'Outside the bakery, at sunset.' },
+          { slug: 'peachy-sweets-interior', width: 1600, height: 900,
+            alt: 'Inside the bakery website: five cafe tables, each with a dessert and a label (Experience, Projects, Photography, About me, Arts), and a Resume card on the counter',
+            caption: 'Inside, where each table opens a section.' },
+        ],
         links: [
           { label: 'Source on GitHub', href: 'https://github.com/allyjing/allyjing.github.io' },
         ],
@@ -617,13 +603,6 @@ export const panels = {
               'This is my first website. I hope you find something sweet in this bakery as you learn more about me. ♡',
             ],
           },
-          {
-            title: 'This bakery',
-            when: 'built from scratch',
-            body: [
-              'I built this bakery without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
-            ],
-          },
         ],
       },
       {
@@ -643,13 +622,6 @@ export const panels = {
             when: 'see the Arts table',
             body: [
               'My most recent painting is of the Marin Headlands. Before that, I turned my cat into a famous portrait on a ceiling tile for my teacher’s classroom. Both are at the Arts table.',
-            ],
-          },
-          {
-            title: 'Making things',
-            when: 'outside of class, too',
-            body: [
-              'I spend a lot of time around laser cutters, 3D printers, CNC routers, and a great deal of plywood. Hand-painting the finished enclosure is my favorite part, and it’s the part nobody schedules time for.',
             ],
           },
         ],
@@ -675,16 +647,9 @@ export const panels = {
           },
           {
             title: 'Oakland',
-            when: 'spring 2026',
+            when: '2025–2026',
             body: [
-              'I spent a semester on Northeastern’s Oakland campus, a few hours’ drive from home instead of a cross-country flight.',
-            ],
-          },
-          {
-            title: 'The Marin Headlands',
-            when: 'near San Francisco',
-            body: [
-              'The coastline in my most recent painting, just across the Golden Gate Bridge from San Francisco.',
+              'I spent a year on Northeastern’s Oakland campus, a few hours’ drive from home instead of a cross-country flight.',
             ],
           },
         ],
@@ -732,8 +697,7 @@ export const panels = {
     ],
   },
 
-  /* ⚠️ The architectural design entry is real — Jingwen's Citrus College coursework,
-   * and the description is her own account of how she laid the sheet out.
+  /* The architectural drawing set was taken out on 2026-10-06, asked for directly.
    *
    * The artwork here is HER OWN, photographed by her, supplied 2026-10-05: the
    * Catlisa ceiling tile and the Marin Headlands painting. The Catlisa story is her
@@ -780,14 +744,6 @@ export const panels = {
           { slug: 'marin-headlands-photo', width: 1200, height: 1600,
             alt: 'A photograph of the Marin Headlands coast: surf rolling into a cove below green coastal scrub, with headlands under a pale blue sky',
             caption: 'The reference photograph.' },
-        ],
-      },
-      {
-        heading: 'Architectural Design',
-        meta: 'Citrus College · 3D modelling, AutoCAD · 2024',
-        bullets: [
-          'A full drawing set, laid out so it reads in the order you need it: the site plan on top to establish the context, the floor plans below it for the internal layout and how the spaces are used, sections above those to show the vertical relationships and the interiors, and the elevations near the bottom for the external views that tie the whole thing together.',
-          'Deciding the order of the sheet turned out to be most of the work — the drawings are only as good as the sequence someone reads them in.',
         ],
       },
     ],

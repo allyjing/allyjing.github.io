@@ -5,7 +5,7 @@ await metrics(1400, 950);
 
 // --- the index
 await goto('http://localhost:8000/#/interior/projects');
-await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'five cards'});
+await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'four cards'});
 const idx = await evaluate(`
   const cards=[...document.querySelectorAll('.showcase__card')];
   return {
@@ -20,12 +20,12 @@ const idx = await evaluate(`
     title: document.getElementById('panel-title').textContent,
   };
 `);
-ok('five project cards', idx.n===5, idx.ids.join(' '));
+ok('four project cards', idx.n===4, idx.ids.join(' '));
 ok('each card says what it opens', idx.labelled);
-ok('two cards carry a real cover photo', idx.covers===2, String(idx.covers));
+ok('three cards carry a real cover photo', idx.covers===3, String(idx.covers));
 ok('cover photos decoded', idx.coverDecoded);
 ok('photo-less cards say so, not a letter',
-   idx.placeholders.length===3 && idx.placeholders.every(t=>t==='No photos yet'),
+   idx.placeholders.length===1 && idx.placeholders.every(t=>t==='No photos yet'),
    idx.placeholders.join(' | '));
 ok('cards in a row are the same height', idx.equalHeights);
 ok('panel titled Projects on the index', idx.title==='Projects', idx.title);
@@ -72,7 +72,7 @@ const back = await evaluate(`
   return {hash: location.hash, cards: document.querySelectorAll('.showcase__card').length,
           title: document.getElementById('panel-title').textContent};
 `);
-ok('"All projects" returns to the index', back.cards===5 && back.title==='Projects',
+ok('"All projects" returns to the index', back.cards===4 && back.title==='Projects',
    `${back.hash} ${back.cards} cards`);
 ok('...and it is a route change', back.hash==='#/interior/projects', back.hash);
 
@@ -87,7 +87,7 @@ const hist = await evaluate(`
           cards: document.querySelectorAll('.showcase__card').length};
 `);
 ok('Back steps out of a project, not out of the site',
-   hist.afterBack==='#/interior/projects' && hist.cards===5,
+   hist.afterBack==='#/interior/projects' && hist.cards===4,
    `${hist.deep} -> ${hist.afterBack}`);
 
 // --- a cold deep link, and a bad slug
@@ -102,12 +102,12 @@ ok('a project URL works on a cold load', cold.open && cold.title==='CADodile',
    `${cold.title}, ${cold.photos} photos`);
 
 await goto('http://localhost:8000/#/interior/projects/does-not-exist');
-await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'fallback to index'});
+await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'fallback to index'});
 const bad = await evaluate(`
   return {cards: document.querySelectorAll('.showcase__card').length,
           title: document.getElementById('panel-title').textContent};
 `);
-ok('an unknown project falls back to the index', bad.cards===5 && bad.title==='Projects',
+ok('an unknown project falls back to the index', bad.cards===4 && bad.title==='Projects',
    `${bad.title}, ${bad.cards} cards`);
 
 // --- the lightbox still works from inside a project
@@ -137,7 +137,7 @@ ok('Escape closes the photo, keeps the project', after.lightbox===false && after
 // --- narrow screen: cards go to one column, photos stay two
 await metrics(390, 844);
 await goto('http://localhost:8000/#/interior/projects');
-await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'cards on phone'});
+await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'cards on phone'});
 const phone = await evaluate(`
   const sc=getComputedStyle(document.querySelector('.showcase')).gridTemplateColumns.split(' ').length;
   const card=document.querySelector('.showcase__card');
