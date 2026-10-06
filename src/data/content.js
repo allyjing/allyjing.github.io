@@ -585,11 +585,9 @@ export const panels = {
    * Before adding anything here, ask whether it belongs to her coursework, her
    * clubs or her jobs. If it does, it goes in Experience or Projects, not here.
    *
-   * ⚠️ There is no "Friends" tab, and its absence is deliberate rather than an
-   * oversight. Every fact this repo holds about the people in Jingwen's life is a
-   * club, a team or a job — all of which she has just said do not belong here — so a
-   * Friends tab could only be invented. It goes in the moment she writes four lines
-   * for it.
+   * Her friends are an ENTRY in Absolutely adore, with her own photographs —
+   * asked for directly on 2026-10-05. The captions and alt text describe what is
+   * in each picture and name nobody, because nobody in them has been named to us.
    *
    * ⚠️ Still a DRAFT, and still sourced rather than invented: her resume, her own
    * photographs, and the artwork in this repo. No made-up favourites, no guessed
@@ -704,7 +702,34 @@ export const panels = {
             title: 'Junnie',
             when: 'my orange tabby',
             body: [
-              'He appears twice in this bakery: outside by the fountain, and curled up inside the shop. Outside, he’s usually watching the fish. He has never caught one.',
+              'He appears twice in this bakery: outside by the fountain, and curled up inside the shop. Outside, he\u2019s usually watching the fish. He has never caught one.',
+              'He\u2019s also the cat who walked in while I was brainstorming my teacher\u2019s ceiling tile, which is how he became Catlisa.',
+            ],
+            photos: [
+              { slug: 'junnie-portrait', width: 1062, height: 1600,
+                alt: 'Junnie, an orange tabby with a tag on his collar, sitting upright and looking straight at the camera',
+                caption: 'Junnie, sitting for his portrait.' },
+              { slug: 'junnie-polaroid', width: 1600, height: 1600,
+                alt: 'An instant photo of Junnie stretched out on his back on a wooden floor',
+                caption: 'Belly up, on instant film.' },
+            ],
+          },
+          {
+            title: 'My friends',
+            when: 'from sunrises to graduation',
+            body: [
+              'Some of my favorite people, and some of my favorite days with them.',
+            ],
+            photos: [
+              { slug: 'friends-sunrise', width: 1600, height: 1066,
+                alt: 'A sunrise selfie of four friends on a hillside, with a sea of clouds behind them',
+                caption: 'Sunrise, above the clouds.' },
+              { slug: 'friends-class-of-2025', width: 1600, height: 1200,
+                alt: 'Three friends standing at night in front of a lit-up Class of 2025 graduation sign shaped like mouse ears',
+                caption: 'Class of 2025.' },
+              { slug: 'friends-on-the-field', width: 1600, height: 1200,
+                alt: 'A camera screen showing a group of friends sitting together on a sports field at dusk',
+                caption: 'On the field, through the camera\u2019s screen.' },
             ],
           },
           {

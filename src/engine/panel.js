@@ -525,6 +525,18 @@ function fillJournal(body, panel, slug) {
     }
 
     paragraphs(article, entry.body, 'journal__body');
+
+    /* Optional photographs — Junnie and her friends in Absolutely adore. Same
+     * thumbnails and lightbox as the gallery; the arrows walk this entry only.
+     * The extra class is what keeps them on the page's ruled grid (panel.css). */
+    if (entry.photos && entry.photos.length) {
+      const grid = document.createElement('ul');
+      grid.className = 'gallery journal__photos';
+      entry.photos.forEach((photo, at) => {
+        grid.append(thumbnail(photo, entry.photos, at, photoSizes));
+      });
+      article.append(grid);
+    }
     page.append(article);
   }
 

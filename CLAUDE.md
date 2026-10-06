@@ -135,10 +135,11 @@ Before adding anything to Life, ask whether it is coursework, a club or a job. I
 is, it goes in Experience or Projects. A browser check asserts that none of those
 names appears anywhere in Life and that they are all still findable in Experience.
 
-⚠️ **There is no Friends tab, and that is deliberate.** Every fact this repo holds
-about the people in Jingwen's life is a club, a team or a job — all of which she has
-now said do not belong here — so a Friends tab could only be invented. It goes in the
-moment she writes four lines for it.
+**Her friends and Junnie are entries in Absolutely adore, with her own photographs**
+(asked for 2026-10-05). Journal entries take optional `photos`; `.journal__photos` pins
+each thumbnail to five rules tall so it stays on the ruled grid. Captions name nobody.
+Two photos from `life/` were left out: the cat-on-laptop shot shows her ChatGPT history
+and browser tabs legibly, and the 324px dance-group photo is too small to serve.
 
 ### Which words on this site are whose
 

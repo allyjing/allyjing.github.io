@@ -529,6 +529,32 @@
 
 .journal__body:last-child { margin-bottom: 0; }
 
+/* Photographs on the ruled page. They must stay on the --rule grid like every
+   other element here, so the thumbnail is a fixed FIVE rules tall (border
+   included) instead of a 4:3 box, whose height would land between the lines. */
+.journal__photos {
+  margin: 0;
+  row-gap: var(--rule);
+}
+
+.journal__photos .gallery__open {
+  box-sizing: border-box;
+  height: calc(var(--rule) * 5);
+}
+
+.journal__photos .gallery__thumb {
+  height: 100%;
+  aspect-ratio: auto;
+  /* Crop from a little above centre. These are photos of people and a cat, and
+     heads sit high in the frame — centred, Junnie's ears were cut off. */
+  object-position: 50% 30%;
+}
+
+.journal__photos .gallery__caption {
+  margin: 0;
+  line-height: var(--rule);
+}
+
 /* =========================================================================
  * THE PROJECTS SHOWCASE
  * An index of cards, each opening a page of its own at
