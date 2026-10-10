@@ -5,7 +5,7 @@ await metrics(1400, 950);
 
 // --- the index
 await goto('http://localhost:8000/#/interior/projects');
-await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'four cards'});
+await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'five cards'});
 const idx = await evaluate(`
   const cards=[...document.querySelectorAll('.showcase__card')];
   return {
@@ -20,9 +20,9 @@ const idx = await evaluate(`
     title: document.getElementById('panel-title').textContent,
   };
 `);
-ok('four project cards', idx.n===4, idx.ids.join(' '));
+ok('five project cards', idx.n===5, idx.ids.join(' '));
 ok('each card says what it opens', idx.labelled);
-ok('three cards carry a real cover photo', idx.covers===3, String(idx.covers));
+ok('four cards carry a real cover photo', idx.covers===4, String(idx.covers));
 ok('cover photos decoded', idx.coverDecoded);
 ok('photo-less cards say so, not a letter',
    idx.placeholders.length===1 && idx.placeholders.every(t=>t==='No photos yet'),
@@ -43,7 +43,8 @@ const det = await evaluate(`
     sections: [...document.querySelectorAll('.project__section h3')].map(h=>h.textContent),
     chars: document.getElementById('panel-body').textContent.length,
     photos: document.querySelectorAll('.gallery__item').length,
-    photosDecoded: [...document.querySelectorAll('.gallery__thumb')].every(i=>i.naturalWidth>0),
+    // lazy thumbnails below the fold have not loaded yet; a BROKEN one is complete with no pixels
+    photosDecoded: [...document.querySelectorAll('.gallery__thumb')].every(i=>!(i.complete && i.naturalWidth===0)),
     back: (document.querySelector('.showcase__back')||{}).textContent,
     // the way out must be the FIRST focusable inside the body
     firstFocusable: (document.querySelector('#panel-body button, #panel-body a')||{}).className,
@@ -61,7 +62,7 @@ ok('subtitle shown', /Portable arcade/.test(det.subtitle||''), det.subtitle||'')
 ok('facts are labelled', det.facts.join(',')==='Year,For,Made with', det.facts.join(','));
 ok('her three sections render', det.sections.length>=3, det.sections.join(' | '));
 ok('real depth of content', det.chars>1200, det.chars+' chars');
-ok('four build photos', det.photos===4, String(det.photos));
+ok('eight build photos (two in a section, six at the end)', det.photos===8, String(det.photos));
 ok('build photos decoded', det.photosDecoded);
 ok('the way out is first in the page', det.firstFocusable==='showcase__back', det.firstFocusable);
 
@@ -72,7 +73,7 @@ const back = await evaluate(`
   return {hash: location.hash, cards: document.querySelectorAll('.showcase__card').length,
           title: document.getElementById('panel-title').textContent};
 `);
-ok('"All projects" returns to the index', back.cards===4 && back.title==='Projects',
+ok('"All projects" returns to the index', back.cards===5 && back.title==='Projects',
    `${back.hash} ${back.cards} cards`);
 ok('...and it is a route change', back.hash==='#/interior/projects', back.hash);
 
@@ -87,7 +88,7 @@ const hist = await evaluate(`
           cards: document.querySelectorAll('.showcase__card').length};
 `);
 ok('Back steps out of a project, not out of the site',
-   hist.afterBack==='#/interior/projects' && hist.cards===4,
+   hist.afterBack==='#/interior/projects' && hist.cards===5,
    `${hist.deep} -> ${hist.afterBack}`);
 
 // --- a cold deep link, and a bad slug
@@ -98,23 +99,40 @@ const cold = await evaluate(`
           open: !document.getElementById('panel').hidden,
           photos: document.querySelectorAll('.gallery__item').length};
 `);
+const cad = await evaluate(`
+  const flow=document.querySelector('.gallery--whole .gallery__thumb');
+  await new Promise(r=>{ if(flow.complete) r(); else flow.onload=r; });
+  const r=flow.getBoundingClientRect();
+  const vids=[...document.querySelectorAll('.project__video video')];
+  const res=await Promise.all(vids.map(v=>fetch(v.querySelector('source').src,{method:'HEAD'}).then(x=>x.status)));
+  return {problem: /Melrose Leadership Academy \\(MLA\\) are the primary users/.test(document.getElementById('panel-body').textContent),
+          flowRatio: r.height/r.width, lists: document.querySelectorAll('.project__listlabel').length,
+          vids: vids.length, preload: vids.every(v=>v.preload==='none'), status: res.join(','),
+          decoded: [...document.querySelectorAll('.gallery__thumb')].filter(i=>i.complete && i.naturalWidth===0).length};
+`);
+ok('CADodile problem statement is written out as text', cad.problem);
+ok('the flow chart is shown whole, not cropped to 4:3', cad.flowRatio>1.3, cad.flowRatio.toFixed(2));
+ok('six labelled feedback lists', cad.lists===6, String(cad.lists));
+ok('the demo video is there and loads nothing up front', cad.vids===1 && cad.preload, cad.vids+' videos');
+ok('the video file is served', cad.status==='200', cad.status);
+ok('no broken photos on the CADodile page', cad.decoded===0, String(cad.decoded));
 ok('a project URL works on a cold load', cold.open && cold.title==='CADodile',
    `${cold.title}, ${cold.photos} photos`);
 
 await goto('http://localhost:8000/#/interior/projects/does-not-exist');
-await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'fallback to index'});
+await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'fallback to index'});
 const bad = await evaluate(`
   return {cards: document.querySelectorAll('.showcase__card').length,
           title: document.getElementById('panel-title').textContent};
 `);
-ok('an unknown project falls back to the index', bad.cards===4 && bad.title==='Projects',
+ok('an unknown project falls back to the index', bad.cards===5 && bad.title==='Projects',
    `${bad.title}, ${bad.cards} cards`);
 
 // --- the lightbox still works from inside a project
 await goto('http://localhost:8000/#/interior/projects/arcadium');
 // Wait for the thumbnails to EXIST rather than sleeping and hoping. A fixed wait made
 // `querySelectorAll(...)[0].click()` throw on undefined, intermittently.
-await waitFor("document.querySelectorAll('.gallery__open').length===4", {label:'four project photos'});
+await waitFor("document.querySelectorAll('.gallery__open').length===8", {label:'eight project photos'});
 await evaluate(`document.querySelectorAll('.gallery__open')[0].click();`);
 // Same as the gallery suite: wait for the photo to decode, not just for the dialog.
 await waitFor("!document.getElementById('lightbox').hidden && document.getElementById('lightbox-image').naturalWidth > 0",
@@ -125,7 +143,7 @@ const lb = await evaluate(`
           src: document.getElementById('lightbox-image').currentSrc.split('/').pop()};
 `);
 ok('project photos open in the lightbox', lb.open, lb.src);
-ok("it counts only that project's photos", lb.count==='1 of 4', lb.count);
+ok("it counts only that section's photos", lb.count==='1 of 2', lb.count);
 await key('Escape');
 const after = await evaluate(`
   return {lightbox:!document.getElementById('lightbox').hidden,
@@ -137,7 +155,7 @@ ok('Escape closes the photo, keeps the project', after.lightbox===false && after
 // --- narrow screen: cards go to one column, photos stay two
 await metrics(390, 844);
 await goto('http://localhost:8000/#/interior/projects');
-await waitFor("document.querySelectorAll('.showcase__card').length===4", {label:'cards on phone'});
+await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'cards on phone'});
 const phone = await evaluate(`
   const sc=getComputedStyle(document.querySelector('.showcase')).gridTemplateColumns.split(' ').length;
   const card=document.querySelector('.showcase__card');

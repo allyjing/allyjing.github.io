@@ -11,7 +11,7 @@
  * trapped inside the card, and focus goes back to the table that opened it.
  */
 
-import { panels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes,
+import { panels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes, wholeSizes,
          portraitWidths, portraitSizes } from '../data/content.js';
 import { photoSrc, photoSrcset } from './photos.js';
 import { openLightbox, closeLightbox, isLightboxOpen } from './lightbox.js';
@@ -328,6 +328,51 @@ function fillShowcase(body, panel, slug) {
   body.append(grid);
 }
 
+function bulletList(lines) {
+  const list = document.createElement('ul');
+  list.className = 'project__list';
+  for (const text of lines) {
+    const item = document.createElement('li');
+    item.textContent = text;
+    list.append(item);
+  }
+  return list;
+}
+
+/* A video with the browser's own controls, which are keyboard and screen-reader
+ * accessible for free. */
+function projectVideo(video) {
+  const figure = document.createElement('figure');
+  figure.className = 'project__video';
+
+  const player = document.createElement('video');
+  player.controls = true;
+  /* preload 'none': download nothing until the visitor presses play. The Arcadium
+   * video is about 58 MB, and most visitors opening the page will not watch it. */
+  player.preload = 'none';
+  player.playsInline = true;      // iPhone would otherwise jump straight to fullscreen
+  player.poster = video.poster;
+  /* width/height reserve the right box before anything loads, the same reason the
+   * photo thumbnails carry theirs. */
+  player.width = video.width;
+  player.height = video.height;
+  player.setAttribute('aria-label', video.label);
+
+  const source = document.createElement('source');
+  source.src = video.src;
+  source.type = 'video/mp4';
+  player.append(source);
+  figure.append(player);
+
+  if (video.caption) {
+    const caption = document.createElement('figcaption');
+    caption.className = 'gallery__caption';
+    caption.textContent = video.caption;
+    figure.append(caption);
+  }
+  return figure;
+}
+
 /* One project, in depth. */
 function fillProject(body, entry) {
   /* The way back comes FIRST, before the title: it is the control a visitor wants
@@ -381,6 +426,35 @@ function fillProject(body, entry) {
     block.append(heading);
 
     paragraphs(block, section.body);
+
+    /* Everything below is optional, so a section can be just prose, as most are. */
+
+    /* lists: labelled bullet lists — the CADodile user-testing notes. h4 because the
+     * section heading above is the h3. */
+    for (const list of section.lists || []) {
+      const label = document.createElement('h4');
+      label.className = 'project__listlabel';
+      label.textContent = list.label;
+      block.append(label);
+      block.append(bulletList(list.bullets));
+    }
+
+    for (const video of section.videos || []) block.append(projectVideo(video));
+
+    /* photos: a grid of thumbnails beside the words they illustrate, rather than all
+     * of them piled into "Photos" at the bottom. The lightbox walks only THIS
+     * section's photos. layout 'whole' shows them one per row at their own shape —
+     * a flow chart cropped to a 4:3 thumbnail cannot be read. */
+    if (section.photos && section.photos.length) {
+      const whole = section.layout === 'whole';
+      const grid = document.createElement('ul');
+      grid.className = whole ? 'gallery gallery--whole' : 'gallery';
+      section.photos.forEach((photo, at) => {
+        grid.append(thumbnail(photo, section.photos, at, whole ? wholeSizes : photoSizes));
+      });
+      block.append(grid);
+    }
+
     body.append(block);
   }
 

@@ -765,6 +765,45 @@
   text-wrap: pretty;
 }
 
+/* Photos and videos inside a section sit under its words, with a little air. */
+.project__section .gallery { margin-top: var(--space-4); }
+
+/* layout: 'whole' — one picture per row at its own shape, for a diagram that is
+   useless cropped. The cap stops a tall flow chart running for two screens; contain
+   letterboxes it on the sunken colour instead of cutting it off. */
+.gallery--whole { grid-template-columns: 1fr; }
+
+.gallery--whole .gallery__thumb {
+  aspect-ratio: auto;
+  width: auto;          /* hug the picture's own shape once the height cap applies, */
+  max-width: 100%;      /* rather than leaving a wide empty frame around it */
+  max-height: 40rem;
+  margin: 0 auto;
+}
+
+.project__listlabel {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.project__list { margin: 0 0 var(--space-3); padding-left: var(--space-6); }
+.project__list li { margin-bottom: var(--space-1); }
+
+.project__video { margin: var(--space-4) 0 0; }
+
+/* The same cap as a whole photo, so the portrait gameplay clip does not fill two
+   screens; the browser letterboxes video inside its box by default. */
+.project__video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 32rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
 /* =========================================================================
  * THE LIGHTBOX
  * One photograph, full frame, over an open panel. A sibling of .panel in the

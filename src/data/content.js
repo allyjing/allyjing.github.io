@@ -224,6 +224,10 @@ export const photoSizes = '(min-width: 46rem) 20rem, 44vw';
  * phone, where the cards drop to one column and the photographs do not. */
 export const cardSizes = '(min-width: 46rem) 20rem, 88vw';
 
+/* A project photo shown WHOLE, one to a row (`layout: 'whole'` — the CADodile flow
+ * chart). It spans the card, so it is twice a thumbnail's width. */
+export const wholeSizes = '(min-width: 46rem) 40rem, 88vw';
+
 /* Every panel's copy (PRD R31). Keyed by the table id in `tables` above — the same
  * string is the URL segment in #/interior/projects and the DOM id of the button
  * that opens it, so one typo fails loudly instead of opening nothing.
@@ -312,7 +316,7 @@ export const panels = {
   projects: {
     title: 'Projects',
     kind: 'showcase',
-    intro: 'Four things I have designed and built. Open one to read how it went.',
+    intro: 'Five things I have designed and built. Open one to read how it went.',
     items: [
       {
         slug: 'arcadium',
@@ -337,13 +341,41 @@ export const panels = {
             ],
           },
           {
+            // Told in chat 2026-10-10, in her words, lightly tidied.
+            title: 'Not enough Picos',
+            body: [
+              'We did not have enough Picos to light up all of the LEDs, so we ended up making a sacrifice on the other half of the ring: about four LEDs towards the end never light up.',
+            ],
+            photos: [
+              { slug: 'arcadium-pico', width: 1200, height: 1600,
+                alt: 'Close up inside the plywood ring: one Raspberry Pi Pico on a breadboard, with bundles of jumper wires running out to the red LEDs around the rim',
+                caption: 'One Pico on one breadboard, wired out to the whole ring.' },
+              { slug: 'arcadium-ring-wired', width: 1200, height: 1600,
+                alt: 'The LED ring from above on a workbench, the Pico in the middle and the button box taped to one side, with wires trailing off the table',
+                caption: 'Every LED wired in, before the pins ran out.' },
+            ],
+          },
+          {
             title: 'How it turned out',
             body: [
               'The game designed to resemble an arcade light game machine. The concept is for players to hit the displayed LED light number when the light shines on the said LED. As the rounds increase, the speed of the traveling LED lights will also increase. When players win the game (passing 5 rounds), candy will be dispensed on the side as a winning prize for the player.',
             ],
+            videos: [
+              { src: 'assets/videos/arcadium-play.mp4', poster: 'assets/videos/arcadium-play-poster.webp',
+                width: 540, height: 960,
+                label: 'A round of Arcadium being played: the screen reads Round 1, Hit LED 9, and a finger presses the button',
+                caption: 'A round being played. The screen calls out which LED to hit.' },
+              { src: 'assets/videos/arcadium-final.mp4', poster: 'assets/videos/arcadium-final-poster.webp',
+                width: 960, height: 540,
+                label: 'The Arcadium team presenting the finished game, with captions',
+                caption: 'Our final video: the team, the build, and the game. About seven minutes.' },
+            ],
           },
         ],
         photos: [
+          { slug: 'arcadium-cardboard', width: 1600, height: 1600,
+            alt: 'An early cardboard model of the cabinet, a round drum with a button box on the front, held together with blue painter’s tape',
+            caption: 'The first version, in cardboard and painter’s tape.' },
           { slug: 'arcadium-built', width: 1200, height: 1600,
             alt: 'The finished Arcadium cabinet in laser-cut plywood, with a ring of red LEDs around a round window and two buttons on a side panel',
             caption: 'The finished cabinet. Plywood, laser cut and slotted together.' },
@@ -356,6 +388,9 @@ export const panels = {
           { slug: 'arcadium-wiring', width: 1600, height: 1485,
             alt: 'Hands wiring the LED ring inside the open plywood cabinet, the Pico and breadboard sitting in the base',
             caption: 'Wiring the ring by hand.' },
+          { slug: 'arcadium-assembling', width: 1200, height: 1600,
+            alt: 'The cabinet part assembled on a workbench, the LED ring wired, the button box in front and the back panel and candy tower standing behind',
+            caption: 'Halfway assembled, the candy tower going in at the back.' },
         ],
       },
       {
@@ -366,13 +401,80 @@ export const panels = {
         client: 'Northeastern University · Melrose Leadership Academy',
         tools: 'Raspberry Pi Zero 2 WH · Python (Kivy) · SolidWorks · laser cutting · 3D printing',
         summary: 'A multiplayer trivia machine built for a real classroom, for about $87.',
-        cover: 'cadodile-dispenser',
+        cover: 'cadodile-painted',
         sections: [
+          {
+            // The team's problem statement, verbatim from the design notebook
+            // (daily log 1/28/26, completing M1). She supplied it as a screenshot.
+            title: 'The problem',
+            body: [
+              'Fifth grade students at Melrose Leadership Academy (MLA) are the primary users of this project, with their teachers serving as key stakeholders who influence how the STEM game will be used in a classroom environment. Additional stakeholders include students with diverse learning needs (such as different ability levels, language backgrounds, or learning styles), school staff supporting classroom structure, and our engineering team, CADodiles, responsible for producing a safe, functional prototype. These users and stakeholders need a STEM game that is inclusive, engaging, and accessible, while also being easy for teachers to set up, explain, and use for a structured learning lesson. Based on initial research, effective educational games for this age group should include meaningful feedback, balanced challenge, collaboration opportunities, and follows the CommonCore, EUREKA, and FOSS (Full Option Science System) Fifth Grade structure that supports students without relying on addictive or unfair reward structures.',
+              'The core challenge this project addresses is that many existing STEM learning games do not consistently meet the needs of real elementary classrooms: too reading-heavy, not accessible, does not follow grade-level standards, or engagement problems. Addressing this gap is important because inclusive STEM experiences at a young age can support cognitive growth and build confidence through mastery.',
+              'The goal of this project is to design and prototype a safe, low-cost, interactive STEM game that integrates 4–5 electronic components from the Pico kit and supports active learning through user-centered design. Key functions of the toy should include clear instructions, simple and intuitive interaction, feedback that helps students understand outcomes, and an engaging system that supports classroom time constraints. Success will be measured by whether the game is accessible and enjoyable for students, demonstrates meaningful STEM learning outcomes aligned with classroom expectations, and creates an experience that encourages participation, collaboration, and persistence rather than confusion or disengagement.',
+            ],
+          },
           {
             title: 'What it is',
             body: [
               'Led CAD modeling for a 5-person team, designing a laser-cut plywood enclosure and four game boards, and producing assembly and exploded-view documentation the team built from.',
               'Integrated a Raspberry Pi Zero 2 WH, servo dispenser, 16×2 LCD, and WS2812B LED strip behind a custom Kivy GUI, bench-testing each subsystem before deployment with 5th graders.',
+            ],
+          },
+          {
+            title: 'How the game flows',
+            body: [
+              'From power-on to the final scores: pick single or multiplayer, pick a chapter, then answer questions in turn. A right answer scores a point and the machine dispenses a block.',
+            ],
+            layout: 'whole',
+            photos: [
+              { slug: 'cadodile-flowchart', width: 842, height: 1600,
+                alt: 'Flow chart of the game. Start, load the UI and hardware, show the home screen. The player chooses single player, multiplayer (choose a player count) or settings, which returns home. Then chapter selection, generate questions and reset scores, display a question. A correct answer gives one point plus hardware and shows "correct"; a wrong one gives zero points and shows the correct answer. Advance to the next player; if there are more questions, loop back, otherwise show the end screen and final scores, then stop.',
+                caption: 'The game’s flow chart.' },
+            ],
+          },
+          {
+            // Told in chat 2026-10-10, in her words, lightly tidied.
+            title: 'The dispenser problem',
+            body: [
+              'The original design moved the pieces with a scissor lift, but it could not be used: our 3D printers cannot print with that kind of tiny precision. So I created my own mechanism. I researched online how to move an item from point A to point B, and later landed on the water wheel. I experimented with three wings, and later six.',
+            ],
+            photos: [
+              { slug: 'cadodile-scissor-lift', width: 1600, height: 1025,
+                alt: 'CAD model of the first dispenser box, front and angled views, with a scissor lift mechanism tilted inside it in light blue',
+                caption: 'The first design, with a scissor lift inside. Too fine to print.' },
+              { slug: 'cadodile-cardboard', width: 1028, height: 1600,
+                alt: 'A cardboard mock-up of the dispenser with handwritten tape labels: a funnel for the pieces at the top, a ramp in the middle and a collecting box at the bottom',
+                caption: 'The cardboard mock-up: funnel, ramp, collecting box.' },
+              { slug: 'cadodile-wheel-cad', width: 1600, height: 1165,
+                alt: 'A water wheel modelled in Fusion 360: a central hollow shaft with three flat wings',
+                caption: 'The water wheel in Fusion 360, with three wings.' },
+              { slug: 'cadodile-wheel-print', width: 1200, height: 1600,
+                alt: 'A 3D-printed teal water wheel held in a hand over a cutting mat',
+                caption: 'A printed water wheel, ready to test.' },
+              { slug: 'cadodile-drawing', width: 1600, height: 1033,
+                alt: 'The Dispenser Box Assembly drawing: the screen, the water wheel mounted on a Tower Pro MG90S micro servo, the Raspberry Pi Zero and a buzzer, and an exploded view of the plywood enclosure',
+                caption: 'The dispenser assembly drawing, with the water wheel on its servo.' },
+            ],
+          },
+          {
+            // Told in chat 2026-10-10.
+            title: 'What I made',
+            body: [
+              'I led the laser cutting and the 3D printing, created the water wheel mechanism, and made the Lego-style blocks and the playboards. Everyone helped with assembly.',
+            ],
+            photos: [
+              { slug: 'cadodile-old-gameboard', width: 1600, height: 1435,
+                alt: 'An early sloped plywood game board holding orange and purple printed blocks',
+                caption: 'An early game board.' },
+              { slug: 'cadodile-board-cut', width: 1600, height: 1415,
+                alt: 'A freshly laser-cut plywood game board with a recessed square tray',
+                caption: 'A playboard straight off the laser cutter.' },
+              { slug: 'cadodile-board-blocks', width: 1200, height: 1600,
+                alt: 'A purple painted game board filled with printed blocks in orange, lime, lilac, pink and white, the painted CADodiles lid behind it',
+                caption: 'A finished board, filled with printed blocks.' },
+              { slug: 'cadodile-assembling', width: 1200, height: 1600,
+                alt: 'Two team members assembling the laser-cut plywood enclosure at a makerspace bench, with a mallet and loose parts on the table',
+                caption: 'Assembling the enclosure with the team.' },
             ],
           },
           {
@@ -386,9 +488,92 @@ export const panels = {
             body: [
               'The prototype was successfully demonstrated at the Milestone 6 showcase and met all core functional requirements. The Kivy application launched correctly, multiplayer gameplay was executed across six 5th-grade student groups, and the servo dispensing mechanism operated consistently without jamming. Setup time from power-on to gameplay was approximately 2–3 minutes. Students demonstrated increased engagement, collaboration, and persistence, frequently using strategies like mental math, scratch paper, and peer discussion. Total prototype cost was approximately $86.57, well within the low-cost classroom constraint. The system supported diverse learning styles and was rated safe for supervised classroom use.',
             ],
+            videos: [
+              { src: 'assets/videos/cadodile-demo.mp4', poster: 'assets/videos/cadodile-demo-poster.webp',
+                width: 960, height: 540,
+                label: 'The CADodile demo: the painted dispenser, lid and game boards being shown and played',
+                caption: 'The Milestone 6 demo.' },
+            ],
+          },
+          {
+            // The team's user-testing notes, from the design notebook PDF. Sub-bullets
+            // are folded into their parent line; the wording is otherwise theirs.
+            title: 'What our clients told us',
+            body: [
+              'We tested the final prototype hands-on with 5th-grade students and their teachers at the Northeastern Oakland Makerspace, to see how engaging it was, how easy it was to use, and whether they learned from it.',
+            ],
+            photos: [
+              { slug: 'cadodile-testing', width: 1200, height: 1600,
+                alt: 'Students gathered around a table with the blue CADodile dispenser and four colour-coded game boards, one reading from a sheet of paper',
+                caption: 'Testing day.' },
+              { slug: 'cadodile-playing', width: 1200, height: 1600,
+                alt: 'Students at a table answering on lined paper beside the dispenser and two game boards',
+                caption: 'Working out answers on scratch paper.' },
+              { slug: 'cadodile-student-board', width: 834, height: 1600,
+                alt: 'A student holding up a red game board filled with printed blocks',
+                caption: 'A board filled in.' },
+            ],
+            lists: [
+              { label: 'Engagement', bullets: [
+                'Most students were immediately interested when introduced to the game',
+                'High excitement when blocks were dispensed (physical reward system worked well)',
+                'Students stayed engaged longer when playing in groups',
+                'Some students lost focus during longer question cycles',
+              ] },
+              { label: 'Ease of use', bullets: [
+                'Students quickly understood the basic objective of the game',
+                'Minimal instruction was needed to start playing',
+                'Some confusion occurred when navigating the UI and answering questions, and in understanding when it was their turn',
+              ] },
+              { label: 'The hardware', bullets: [
+                'The block dispenser was a major highlight',
+                'Students enjoyed watching the mechanism move and physically collecting blocks',
+                'Occasional hesitation when blocks did not dispense immediately',
+                'Some students tried to manually interact with the mechanism',
+              ] },
+              { label: 'Playing together', bullets: [
+                'Students naturally formed teams and collaborated',
+                'Encouraged discussion when answering questions',
+                'Competitive elements increased engagement',
+                'Some dominant players took over decision-making',
+              ] },
+              { label: 'Learning', bullets: [
+                'Students were able to answer questions with peer discussion',
+                'The game encouraged thinking rather than guessing',
+                'Some questions were too easy for certain students and too difficult for others',
+              ] },
+              { label: 'What we would change', bullets: [
+                'Add a clear turn indicator system (LED or screen prompt)',
+                'Improve response feedback timing (faster reward delivery)',
+                'Adjust question difficulty levels (tiered system)',
+                'Add rules or mechanics to ensure equal participation',
+                'Reinforce “do not touch the mechanism” through design or enclosure',
+              ] },
+            ],
           },
         ],
         photos: [
+          { slug: 'cadodile-painted', width: 1200, height: 1600,
+            alt: 'The finished CADodile dispenser, a tall plywood cabinet painted sky blue with pixel clouds, question blocks and a green ground strip, with a screen window and a dispenser opening',
+            caption: 'Finished and painted.' },
+          { slug: 'cadodile-painted-side', width: 1200, height: 1600,
+            alt: 'The painted dispenser from the other side, showing the screen and the dispenser opening at the bottom',
+            caption: 'The screen side.' },
+          { slug: 'cadodile-painted-back', width: 1200, height: 1600,
+            alt: 'The back of the painted dispenser: pixel clouds, question blocks and brick ledges over a green ground strip',
+            caption: 'The back, painted like a game level.' },
+          { slug: 'cadodile-lid', width: 1200, height: 1600,
+            alt: 'The sliding lid, painted blue with a cartoon crocodile on a gear and the word CADodiles',
+            caption: 'The sliding lid, with the CADodile on it.' },
+          { slug: 'cadodile-painted-inside', width: 1200, height: 1600,
+            alt: 'The dispenser opened from the back, painted black inside, with the ramp, the electronics and the cabling visible',
+            caption: 'Opened up: ramp, electronics and wiring inside.' },
+          { slug: 'cadodile-unpainted', width: 1200, height: 1600,
+            alt: 'The unpainted plywood dispenser on a workbench, the screen fitted and printed blocks sitting in the opening at the bottom',
+            caption: 'Before paint, with the screen fitted.' },
+          { slug: 'cadodile-inside', width: 1200, height: 1600,
+            alt: 'The unpainted dispenser with one side off, showing the taped-in screen, the Pi and the ramp, and printed blocks at the bottom',
+            caption: 'Side off, mid-build.' },
           { slug: 'cadodile-dispenser', width: 1124, height: 1600,
             alt: 'The finished CADodile dispenser: a tall blue and green hand-painted plywood cabinet with a screen window, labelled sliding lid, LCD and dispenser chute',
             caption: 'The finished dispenser, painted by hand. Labels mark the sliding lid, the LCD and the chute.' },
@@ -432,6 +617,33 @@ export const panels = {
           },
         ],
         photos: [],
+      },
+      {
+        // Asked for 2026-10-10: "I created a chair, milled it out, and assembled it".
+        // The year is from the photos' dates (March 2026).
+        slug: 'cnc-chair',
+        title: 'CNC Chair',
+        subtitle: 'Designed, milled and assembled',
+        year: '2026',
+        tools: 'CNC router · plywood',
+        summary: 'A plywood chair I milled out on a CNC router and put together.',
+        cover: 'cnc-chair-side',
+        sections: [
+          {
+            title: 'What it is',
+            body: [
+              'I created a chair, milled it out on the CNC, and assembled it.',
+            ],
+          },
+        ],
+        photos: [
+          { slug: 'cnc-chair-side', width: 1200, height: 1600,
+            alt: 'A plywood chair with a tall slender back and a square seat, standing on a concrete makerspace floor beside a stool',
+            caption: 'The finished chair.' },
+          { slug: 'cnc-chair-front', width: 1200, height: 1600,
+            alt: 'The plywood chair from the front, showing the slotted joints where the seat, legs and stretchers lock together',
+            caption: 'The joints slot together through the seat.' },
+        ],
       },
       {
         slug: 'peachy-sweets',
