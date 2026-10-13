@@ -339,16 +339,44 @@ function bulletList(lines) {
   return list;
 }
 
+/* A YouTube video, embedded from youtube-nocookie.com: YouTube's privacy-enhanced
+ * mode, which sets no tracking cookies until the visitor presses play.
+ * loading='lazy' means the player is not fetched until the panel scrolls near it. */
+function youtubeEmbed(video) {
+  const frame = document.createElement('iframe');
+  frame.className = 'project__embed';
+  frame.src = `https://www.youtube-nocookie.com/embed/${video.youtube}?rel=0`;
+  frame.title = video.label;       // an iframe needs a title for screen readers
+  frame.loading = 'lazy';
+  frame.allow = 'encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen = true;
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  /* The aspect ratio keeps the frame the video's own shape at any width. */
+  frame.style.aspectRatio = `${video.width} / ${video.height}`;
+  return frame;
+}
+
 /* A video with the browser's own controls, which are keyboard and screen-reader
  * accessible for free. */
 function projectVideo(video) {
   const figure = document.createElement('figure');
   figure.className = 'project__video';
 
+  if (video.youtube) {
+    figure.append(youtubeEmbed(video));
+    if (video.caption) {
+      const caption = document.createElement('figcaption');
+      caption.className = 'gallery__caption';
+      caption.textContent = video.caption;
+      figure.append(caption);
+    }
+    return figure;
+  }
+
   const player = document.createElement('video');
   player.controls = true;
   /* preload 'none': download nothing until the visitor presses play. The Arcadium
-   * video is about 58 MB, and most visitors opening the page will not watch it. */
+   * demo video is about 8 MB, and most visitors opening the page will not watch it. */
   player.preload = 'none';
   player.playsInline = true;      // iPhone would otherwise jump straight to fullscreen
   player.poster = video.poster;

@@ -365,9 +365,10 @@ export const panels = {
                 width: 540, height: 960,
                 label: 'A round of Arcadium being played: the screen reads Round 1, Hit LED 9, and a finger presses the button',
                 caption: 'Gameplay: the LCD indicates which LED the player must hit.' },
-              { src: 'assets/videos/arcadium-final.mp4', poster: 'assets/videos/arcadium-final-poster.webp',
+              /* Hosted on YouTube (unlisted) rather than in the repo: the file was 55 MB. */
+              { youtube: 'P21iywc9xA0',
                 width: 960, height: 540,
-                label: 'The Arcadium team presenting the finished game, with captions',
+                label: 'Arcadium: Portable Arcade Game (YouTube video)',
                 caption: 'Final project video presenting the team, the build, and the game (approximately seven minutes).' },
             ],
           },

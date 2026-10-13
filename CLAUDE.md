@@ -36,7 +36,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | panel | `kind` | source of the content |
 |---|---|---|
 | Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
-| Projects | `showcase` | four projects, each with a page of its own |
+| Projects | `showcase` | five projects, each with a page of its own. The Arcadium final video is an unlisted YouTube embed (`youtube` field on a video), not a file in the repo |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
 | Arts | `entries` | Catlisa and the Marin Headlands painting |
@@ -168,7 +168,7 @@ This matters more than it sounds and `content.js` says it at the top too:
 - **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
 
 **CNC Milling and the Citrus College drawing set were removed on 2026-10-06**, asked for
-directly. The Peachy Sweets project's photos are screenshots of this site itself — retake
+directly. A CNC Chair project was added back on 2026-10-10, also asked for. The Peachy Sweets project's photos are screenshots of this site itself — retake
 them if the scenes change.
 
 ⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from
@@ -307,7 +307,7 @@ This matters more than it sounds and `content.js` says it at the top too:
 - **Drafted by Claude** — the whole Life panel. Marked in the data. Replace it.
 
 **CNC Milling and the Citrus College drawing set were removed on 2026-10-06**, asked for
-directly. The Peachy Sweets project's photos are screenshots of this site itself — retake
+directly. A CNC Chair project was added back on 2026-10-10, also asked for. The Peachy Sweets project's photos are screenshots of this site itself — retake
 them if the scenes change.
 
 ⚠️ **The Life panel is a draft and is marked as one in `content.js`.** It was written from

@@ -119,6 +119,20 @@ ok('no broken photos on the CADodile page', cad.decoded===0, String(cad.decoded)
 ok('a project URL works on a cold load', cold.open && cold.title==='CADodile',
    `${cold.title}, ${cold.photos} photos`);
 
+await goto('http://localhost:8000/#/interior/projects/arcadium');
+await waitFor("document.getElementById('panel-title').textContent==='Arcadium'", {label:'Arcadium page'});
+const arc = await evaluate(`
+  const f=[...document.querySelectorAll('.project__embed')];
+  const r=f[0]?.getBoundingClientRect();
+  return {embeds: f.length, src: f[0]?.src||'', titled: f.every(x=>x.title.length>0),
+          ratio: r ? r.width/r.height : 0, localVids: document.querySelectorAll('.project__video video').length};
+`);
+ok('the final video is one YouTube embed', arc.embeds===1, String(arc.embeds));
+ok('the embed uses privacy-enhanced youtube-nocookie', /^https:\/\/www\.youtube-nocookie\.com\/embed\/P21iywc9xA0/.test(arc.src), arc.src);
+ok('the embed has a title for screen readers', arc.titled);
+ok('the embed keeps a 16:9 shape', Math.abs(arc.ratio-16/9)<0.05, arc.ratio.toFixed(2));
+ok('the gameplay clip is still a local video', arc.localVids===1, String(arc.localVids));
+
 await goto('http://localhost:8000/#/interior/projects/does-not-exist');
 await waitFor("document.querySelectorAll('.showcase__card').length===5", {label:'fallback to index'});
 const bad = await evaluate(`

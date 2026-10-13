@@ -793,6 +793,16 @@
 
 .project__video { margin: var(--space-4) 0 0; }
 
+/* The YouTube player. Its aspect-ratio is set inline from the data. */
+.project__embed {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
 /* The same cap as a whole photo, so the portrait gameplay clip does not fill two
    screens; the browser letterboxes video inside its box by default. */
 .project__video video {
