@@ -824,6 +824,8 @@ export const panels = {
             when: 'built from scratch',
             body: [
               'I built this bakery without a framework on purpose, because I wanted to understand what was actually happening rather than let a library do it for me.',
+              // Asked for 2026-10-13.
+              'This website is still a work in progress, and more is coming soon!',
             ],
           },
         ],
