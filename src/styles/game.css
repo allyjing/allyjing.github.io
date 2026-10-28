@@ -129,6 +129,15 @@
 .game__main:has(> .game__overlay:not([hidden])) { min-height: 36rem; }
 
 /* --- level picker ------------------------------------------------------------ */
+.game__heading {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-lg);
+  text-align: center;     /* on the same centre line as the game view */
+}
+
+/* The picker's "How to play" button, centred under the level rows. */
+.game__view > .game__button { display: flex; margin-inline: auto; }
+
 /* One level per line, top to bottom — asked for directly ("have the level be
    displayed vertically"). */
 .game__levels {
@@ -202,6 +211,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  /* Centred, like the board under it — asked for directly, "fix the centerings".
+     Left-aligned, the bar sat against the window's edge while the board sat in the
+     middle, so on Easy and Intermediate the two did not line up. */
+  justify-content: center;
   gap: var(--space-2);
   margin-bottom: var(--space-3);
 }
@@ -566,3 +579,7 @@
   max-width: 24rem;
   margin: var(--space-6) auto 0;
 }
+/* The title centred over the list, so the whole block lines up on the board's
+   centre line rather than starting at the list's left edge. */
+.game__below .scoreboards__title { text-align: center; }
+.game__below .scores__note { text-align: center; }

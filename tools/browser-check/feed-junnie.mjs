@@ -55,6 +55,15 @@ const sizes = await evaluate(`
     const board=document.querySelector('.game__board').getBoundingClientRect();
     out[n]=w(); out[n+'Scrolls']=board.bottom>body.bottom+1;
     out[n+'Below']=Boolean(document.querySelector('.game__below .scoreboards__title'));
+    /* Centre lines of the bar's contents, the board and the list under it, against
+       the window's own: all must agree (asked for directly, "fix the centerings"). */
+    const mid=(r)=>Math.round(r.left+r.width/2);
+    const kids=[...document.querySelector('.game__bar').children].map(c=>c.getBoundingClientRect());
+    const barMid=Math.round((Math.min(...kids.map(k=>k.left))+Math.max(...kids.map(k=>k.right)))/2);
+    const centre=mid(document.getElementById('panel-body').getBoundingClientRect());
+    const off=[barMid, mid(board), mid(document.querySelector('.game__below').getBoundingClientRect())]
+      .map(m=>Math.abs(m-centre));
+    out[n+'Off']=Math.max(...off);
     [...document.querySelectorAll('.game__bar button')].find(x=>x.textContent==='Change level').click();
   }
   out.back=w();
@@ -69,6 +78,9 @@ ok('Expert widens it further', sizes.expert>sizes.intermediate, `${sizes.expert}
 ok('every board fits in its window without scrolling', !sizes.easyScrolls && !sizes.intermediateScrolls && !sizes.expertScrolls);
 // Asked for directly: "have a leaderboard show under the game as well".
 ok('a top 10 shows under the board on every level', sizes.easyBelow && sizes.intermediateBelow && sizes.expertBelow);
+ok('the bar, board and top 10 share one centre line on every level',
+   Math.max(sizes.easyOff, sizes.intermediateOff, sizes.expertOff)<=2,
+   `${sizes.easyOff}/${sizes.intermediateOff}/${sizes.expertOff}px off`);
 ok('Change level puts it back to regular size', sizes.back===680, `${sizes.back}`);
 await evaluate(`location.hash='#/exterior'; return 1;`);
 await new Promise(r=>setTimeout(r,300));
