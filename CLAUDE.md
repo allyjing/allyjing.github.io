@@ -64,8 +64,8 @@ column. They live in `#panel-tabs`, a sibling of `.panel__card` inside `.panel__
 - The wide card has a `min-height` so the window does not jump between tabs.
 - On a phone the dividers become a row along the window's top, like the journal's.
 
-**The Leaderboard tab copies a screenshot Jingwen supplied**: three columns, hardest first
-(Expert, Intermediate, Easy), each the level's name in bold then 1-10 with the name left
+**The Leaderboard tab copies a screenshot Jingwen supplied**: three columns, **easiest
+first** (Easy, Intermediate, Expert — asked for directly; the screenshot ran hardest first), each the level's name in bold then 1-10 with the name left
 and the time right, and a small **"seconds"** label over the times — asked for directly.
 The rank and name headers are screen-reader-only, as a span INSIDE the `<th>`; hiding the
 `<th>` itself took it out of the table layout and slid "seconds" into the rank column.
@@ -86,6 +86,16 @@ mouth while he hops and bats at them, "nom!" pops as each lands, then the leader
 up (Skip goes straight there). It runs after the name is saved OR skipped. Reduced motion
 gets a still picture and moves on after 1.8s. ⚠️ `FEAST_FLIGHT_MS` in game.js must match
 `feast-fly`'s 900ms in game.css or the "nom!" is out of step with the fish.
+
+**A top 10 also shows UNDER the board** for the level being played — asked for directly,
+"have a leaderboard show under the game as well" — and refreshes when a time is saved. The
+board itself is sized to fit without scrolling; the list below it may scroll into view.
+**The Leaderboard tab widens the window to 940px** (`data-view='scores'`; not on Expert,
+which is already wider) — asked for directly, it "looks crammed" at 680.
+
+**Junnie just SITS outdoors** — asked for directly, 2026-10-28: *"have junnie stop moving in
+the exterior just have him sit"*. His fishing idle (lean, swipe, fountain ripple) is gone,
+and `still: true` in scenes.js turns off the breathing bob as well. Jingwen keeps hers.
 
 **There is no separate leaderboard panel any more**, and no Leaderboard link outdoors —
 *"no leaderbaord display on the exterior"*. The Feed Junnie! sign stands **on top of the
@@ -904,7 +914,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 244 assertions across seven suites; see
+`index.html` does not reference it. 248 assertions across seven suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

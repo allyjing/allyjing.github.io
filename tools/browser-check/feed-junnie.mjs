@@ -49,8 +49,12 @@ const sizes = await evaluate(`
   const out={picker:w()};
   for (const [i,n] of [[0,'easy'],[1,'intermediate'],[2,'expert']]) {
     document.querySelectorAll('.game__level')[i].click();
-    const b=document.getElementById('panel-body');
-    out[n]=w(); out[n+'Scrolls']=b.scrollHeight>b.clientHeight+1;
+    /* The BOARD must fit in the window without scrolling. The top 10 under it may
+       scroll into view — it was asked for under the game, and is below the fold. */
+    const body=document.getElementById('panel-body').getBoundingClientRect();
+    const board=document.querySelector('.game__board').getBoundingClientRect();
+    out[n]=w(); out[n+'Scrolls']=board.bottom>body.bottom+1;
+    out[n+'Below']=Boolean(document.querySelector('.game__below .scoreboards__title'));
     [...document.querySelectorAll('.game__bar button')].find(x=>x.textContent==='Change level').click();
   }
   out.back=w();
@@ -62,7 +66,9 @@ ok('Easy keeps the regular size', sizes.easy===680, `${sizes.easy}`);
  * regular window, so the window rightly stays 680. It widens on a taller screen. */
 ok('Intermediate is never narrower than Easy', sizes.intermediate>=sizes.easy, `${sizes.intermediate}`);
 ok('Expert widens it further', sizes.expert>sizes.intermediate, `${sizes.expert}`);
-ok('no level makes the window scroll', !sizes.easyScrolls && !sizes.intermediateScrolls && !sizes.expertScrolls);
+ok('every board fits in its window without scrolling', !sizes.easyScrolls && !sizes.intermediateScrolls && !sizes.expertScrolls);
+// Asked for directly: "have a leaderboard show under the game as well".
+ok('a top 10 shows under the board on every level', sizes.easyBelow && sizes.intermediateBelow && sizes.expertBelow);
 ok('Change level puts it back to regular size', sizes.back===680, `${sizes.back}`);
 await evaluate(`location.hash='#/exterior'; return 1;`);
 await new Promise(r=>setTimeout(r,300));
@@ -104,15 +110,19 @@ const scores = await evaluate(`
   document.getElementById('game-tab-scores').click();
   await new Promise(r=>setTimeout(r,200));
   const after=document.querySelector('.panel__card').getBoundingClientRect().height;
-  const titles=[...document.querySelectorAll('.scoreboards__title')].map(h=>h.textContent);
+  const titles=[...document.querySelectorAll('#game-view-scores .scoreboards__title')].map(h=>h.textContent);
+  const roomy=Math.round(document.querySelector('.panel__card').getBoundingClientRect().width);
   const play=document.getElementById('game-view-play').hidden;
   document.getElementById('game-tab-play').click();
-  return {titles:titles.join(','), play, steady: Math.abs(before-after)<1,
+  return {titles:titles.join(','), play, roomy, steady: after>=before-1,
           back: !document.getElementById('game-view-play').hidden};
 `);
-ok('the Leaderboard tab shows all three levels, hardest first', scores.titles==='Expert,Intermediate,Easy', scores.titles);
+// Asked for directly: "switch the leaderboard position from easy to hard".
+ok('the Leaderboard tab shows all three levels, easiest first', scores.titles==='Easy,Intermediate,Expert', scores.titles);
+// Asked for directly: the regular window "looks crammed" for it.
+ok('...in a roomier window than the regular 680px', scores.roomy>680, `${scores.roomy}`);
 ok('...and hides the game while it is open', scores.play===true);
-ok('the window does not change height between tabs', scores.steady===true);
+ok('the window does not get SHORTER on the Leaderboard tab', scores.steady===true);
 ok('the Game tab brings the game back', scores.back===true);
 
 // --- a seeded win: the first click is safe, the board clears, a name is asked --
@@ -214,6 +224,14 @@ const depth = await evaluate(`
           k:Number(document.getElementById('actor-junnie').style.zIndex)};
 `);
 ok('Jingwen (y 94) is drawn in front of Junnie (y 86)', depth.j>depth.k, `${depth.j} vs ${depth.k}`);
+
+// Asked for directly: "have junnie stop moving in the exterior just have him sit".
+const sit = await evaluate(`
+  const j=document.getElementById('actor-junnie');
+  return {anim:getComputedStyle(j).animationName, ripple:getComputedStyle(j,'::after').content};
+`);
+ok('Junnie just sits: no animation outdoors', sit.anim==='none', sit.anim);
+ok('...and no ripple in the fountain', sit.ripple==='none', sit.ripple);
 
 // --- the stage cannot be scrolled by focus ----------------------------------
 const scroll = await evaluate(`

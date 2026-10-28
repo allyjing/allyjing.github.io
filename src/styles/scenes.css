@@ -244,59 +244,15 @@
 .actor[data-jointed='false'] .actor__leg { display: none; }
 
 /* --- Junnie at the fountain ------------------------------------------------
-   He is one sprite and always will be — no frames, no sheet (PRD §8.3) — so the
-   fishing is done entirely with timing. He watches the water, leans in, takes a
-   swipe, misses, and settles back. The miss is the point: a cat that caught it
-   would have to stop.
-
-   A ripple rises in the fountain just before each swipe, which is what makes the
-   lunge read as aimed at something rather than as a twitch. */
-/* The ripple sits in the fountain's lower basin, up and to his right — worked out
-   from his box rather than guessed: his box is 11% of the scene's height and about
-   3.5% of its width, so these percentages put the ring at roughly (71, 75) in image
-   coordinates, which is the water. It is deliberately outside his box; a ripple at
-   his feet would be on the sand and the lunge would read as aimed at nothing. */
-.actor[data-fishes]::after {
-  content: '';
-  position: absolute;
-  left: 190%;
-  bottom: 115%;
-  width: 95%;
-  aspect-ratio: 2.6;
-  border: 2px solid var(--surface-roof);
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-}
+   He just SITS — asked for directly: "have junnie stop moving in the exterior just
+   have him sit". He used to fish: a lean, a swipe at the water and a ripple in the
+   fountain, on a 7s loop. That and the breathing bob every actor gets are both off
+   for him; `still: true` in scenes.js is what sets data-still. */
+.actor[data-still] { animation: none; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .actor[data-fishes] {
-    /* Overrides the breathing idle below: same job, longer story. */
-    animation: fish 7s var(--ease-soft) infinite;
-    transform-origin: 50% 100%;
-  }
-
-  .actor[data-fishes]::after { animation: ripple 7s var(--ease-soft) infinite; }
-
-  /* Percentages chosen so the lunge lands while the ripple is at its widest. */
-  @keyframes fish {
-    0%, 54%   { rotate: 0deg;    translate: 0 0; }
-    60%       { rotate: -5deg;   translate: 0 0; }      /* notices it */
-    66%       { rotate: -11deg;  translate: 6% 2%; }    /* leans in  */
-    70%       { rotate: -15deg;  translate: 11% 4%; }   /* swipes    */
-    76%       { rotate: -6deg;   translate: 3% 0; }     /* misses    */
-    84%, 100% { rotate: 0deg;    translate: 0 0; }      /* sits back */
-  }
-
-  @keyframes ripple {
-    0%, 52%  { opacity: 0; scale: 0.4; }
-    62%      { opacity: 0.9; scale: 1; }
-    72%      { opacity: 0.5; scale: 1.5; }
-    80%, 100% { opacity: 0; scale: 1.9; }
-  }
-
   /* Idle: a slow breathing bob. */
-  .actor { animation: breathe 2s var(--ease-soft) infinite alternate; }
+  .actor:not([data-still]) { animation: breathe 2s var(--ease-soft) infinite alternate; }
 
   /* Walking: the body dips TWICE per stride -- once per footfall -- so its period
      is half a stride. Animating `translate` leaves the inline `transform` (which

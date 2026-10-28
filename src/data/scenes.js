@@ -189,11 +189,13 @@ export const scenes = {
 
     actors: [
       { ...jingwen, x: 52, y: 94, height: 26, facing: 1 },
-      /* Junnie sits at the fountain's edge, facing the water, trying to catch
-       * something in it. `fishes` turns on the idle in scenes.css. He faces right
-       * (facing: 1) because the fountain is to his right. */
+      /* Junnie sits at the fountain's edge, facing the water. He used to fish —
+       * a lean and a swipe on a loop — and now just SITS, asked for directly: "have
+       * junnie stop moving in the exterior just have him sit". `still` turns off
+       * every idle animation for him (scenes.css). He faces right (facing: 1)
+       * because the fountain is to his right. */
       { id: 'junnie', image: 'assets/sprites/junnie.png', alt: actorAlt.junnie,
-        x: 67, y: 86, height: 11, facing: 1, walks: false, fishes: true,
+        x: 67, y: 86, height: 11, facing: 1, walks: false, still: true,
         aspect: 237 / 420 },
     ],
   },

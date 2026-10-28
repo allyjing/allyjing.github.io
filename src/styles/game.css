@@ -31,6 +31,13 @@
              max(680px, min(1160px, calc((85vh - 11rem) * 30 / 16 + 3rem))));
 }
 
+/* The Leaderboard tab gets a roomier window than the regular 680px — asked for
+   directly, it "looks crammed". Not while Expert is being played: that window is
+   already wider than this. Placed after the data-size rules, so it wins on a tie. */
+.panel__card--game[data-view='scores']:not([data-size='expert']) {
+  width: min(940px, calc(96vw - 4.5rem));
+}
+
 /* --- the dividers on the side of the WINDOW -----------------------------------
    Game and Leaderboard, sticking out of the panel card's right edge and tucked
    behind it, using the About me journal's own .journal__tab look (panel.css): its
@@ -442,8 +449,9 @@
   display: grid;
   /* 11rem so all three columns fit side by side in the REGULAR-size window, which
      is what the Leaderboard tab is shown in from the level picker. */
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--space-4) var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-6) var(--space-12);
+  padding: var(--space-2);
 }
 
 .scoreboards__title {
@@ -549,4 +557,12 @@
     bottom: 0.25rem;
     transform: translateX(calc(var(--from-x) * 0.45));
   }
+}
+
+/* The top 10 under the board, in the same plain style as the Leaderboard tab. Kept
+   to a readable measure and centred under the board, rather than stretched across
+   an Expert-wide window. */
+.game__below {
+  max-width: 24rem;
+  margin: var(--space-6) auto 0;
 }

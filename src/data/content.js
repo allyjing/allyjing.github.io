@@ -24,7 +24,7 @@ export const contact = {
 
 export const actorAlt = {
   jingwen: 'Jingwen, standing outside the bakery',
-  junnie: 'Junnie, an orange tabby cat, sitting at the fountain trying to catch a fish',
+  junnie: 'Junnie, an orange tabby cat, sitting by the fountain',
 };
 
 export const sceneAlt = {
@@ -1114,6 +1114,11 @@ export const gameCopy = {
     body: 'Junnie is eating every fish you found. Thank you for feeding him!',
     nom: 'nom!',
     skip: 'Skip',
+  },
+
+  /* The top 10 shown under the board while a level is being played. */
+  below: {
+    title: (level) => `${level} top 10`,
   },
 
   after: {

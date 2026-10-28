@@ -126,6 +126,7 @@ function fill(panel, item) {
   const card = el('panel').querySelector('.panel__card');
   card.classList.toggle('panel__card--game', panel.kind === 'game');
   delete card.dataset.size;
+  delete card.dataset.view;
   card.style.minHeight = '';
 
   /* The dividers on the side of the window are Feed Junnie!'s alone. Emptied and

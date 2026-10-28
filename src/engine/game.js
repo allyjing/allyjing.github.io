@@ -101,10 +101,11 @@ async function renderScores(into, levelId, highlightId = null) {
   into.replaceChildren(table);
 }
 
-/* All three levels side by side, hardest first, as in the screenshot. */
+/* All three levels side by side, EASIEST first — asked for directly, "switch the
+ * leaderboard position from easy to hard". (Her screenshot ran hardest first.) */
 function buildLeaderboard() {
   const wrap = make('div', 'scoreboards');
-  const columns = [...levels].reverse().map((level) => {
+  const columns = levels.map((level) => {
     const column = make('section', 'scoreboards__column');
     const heading = make('h3', 'scoreboards__title', gameCopy.levels[level.id].label);
     const list = make('div', 'scoreboards__list');
@@ -158,6 +159,9 @@ function buildWindowTabs(playView, scoresView, onShowScores) {
      * does not make it jump up or down; let go again on the way back to the game. */
     const card = document.querySelector('.panel__card');
     card.style.minHeight = id === 'scores' ? `${card.offsetHeight}px` : '';
+    /* The Leaderboard tab gets a roomier window — asked for directly, it "looks
+     * crammed" at the regular size. The width is in game.css (data-view). */
+    card.dataset.view = id;
 
     choices.forEach((choice, at) => {
       const selected = choice.id === id;
@@ -240,6 +244,10 @@ export function fillGame(body) {
   /* The id of the score just saved on each level, so the Leaderboard tab can
    * highlight it too, not only the pop-up after the win. */
   const saved = {};
+
+  /* The top-10 list under the board, and which level it is showing. */
+  let belowList = null;
+  let belowLevel = null;
   buildWindowTabs(playView, scoresView, () => leaderboard.refresh(saved));
 
   let timer = null;          // the setInterval that ticks the clock
@@ -523,7 +531,16 @@ export function fillGame(body) {
       cells[focused].focus();
     });
 
-    view.replaceChildren(bar, grid);
+    /* That level's top 10, UNDER the board — asked for directly, "have a
+     * leaderboard show under the game as well", alongside the Leaderboard tab. */
+    const below = make('section', 'game__below');
+    below.append(make('h3', 'scoreboards__title', gameCopy.below.title(label)));
+    belowList = make('div', 'scoreboards__list');
+    belowLevel = levelId;
+    below.append(belowList);
+    renderScores(belowList, levelId, saved[levelId] ?? null);
+
+    view.replaceChildren(bar, grid, below);
     draw();
     tick();
     live.textContent = gameCopy.boardAria(label);
@@ -672,6 +689,8 @@ export function fillGame(body) {
   /* That level's leaderboard, popped up after the name is saved or skipped. */
   function showAfter(levelId, highlightId) {
     if (highlightId !== null) saved[levelId] = highlightId;
+    /* The list under the board picks up the time just saved, too. */
+    if (belowList && belowLevel === levelId) renderScores(belowList, levelId, highlightId);
     const level = gameCopy.levels[levelId];
     showCard((card) => {
       card.append(make('h3', 'game__card-title', gameCopy.after.title(level.label)));
