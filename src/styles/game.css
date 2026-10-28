@@ -1,0 +1,404 @@
+/* Repo path: src/styles/game.css
+ *
+ * Feed Junnie! — the minesweeper panel and the leaderboards. Every colour is a token.
+ * The panel is frozen to the lit-room colours (see the rebinding list in scenes.css),
+ * so these read the same at every hour.
+ */
+
+/* The game needs more room than a page of text. */
+.panel__card--wide { width: min(1120px, 96vw); }
+
+/* --- layout: the game, with the leaderboard notebook beside it ------------- */
+.game {
+  /* The positioning box for the pop-up cards, which cover the whole game. The
+     min-height keeps the how-to card from being squashed over the short picker. */
+  position: relative;
+  min-height: 38rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16rem;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* Narrower than this and the notebook drops UNDER the board. */
+@media (max-width: 48rem) {
+  .game { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* minmax(0, ...) above and min-width here let the board shrink to fit instead of
+   pushing the notebook out of the panel. */
+.game__main { min-width: 0; }
+
+.game__heading {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-lg);
+}
+
+/* --- level picker ------------------------------------------------------------ */
+.game__levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.game__level {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  min-height: var(--tap-min);
+  text-align: left;
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-md);
+}
+.game__level:hover { border-color: var(--accent-berry); }
+
+.game__level-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+.game__level-detail {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+/* --- buttons ------------------------------------------------------------------ */
+.game__button {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-4);
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+}
+
+/* The one main action on each card. Berry with --on-accent, never white. */
+.game__button--main {
+  color: var(--on-accent);
+  background: var(--accent-berry);
+  border-color: var(--accent-berry);
+  font-weight: 700;
+}
+
+.game__button[aria-pressed='true'] {
+  background: var(--surface-trim);
+  font-weight: 700;
+}
+
+.game__button:disabled { cursor: progress; opacity: 0.7; }
+
+/* --- the bar above the board ----------------------------------------------- */
+.game__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+/* tabular-nums so the clock does not jitter as the digits change. */
+.game__count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  min-width: 7rem;
+}
+
+/* On a phone the counters shrink to their text so the bar takes two rows, not three. */
+@media (max-width: 30rem) {
+  .game__count { min-width: 0; }
+  .game__bar .game__button { padding-inline: var(--space-3); }
+}
+
+/* --- the board ------------------------------------------------------------------
+   Each row is its own grid of --cols equal columns, so the board always fills the
+   width it is given — 9 tiles or 30 — and every tile stays square. The max-width
+   stops Easy's nine tiles from each becoming the size of a coaster.
+
+   container-type lets a tile size its number from the BOARD's width (cqi), so the
+   digits shrink with the tiles on Expert and on a phone. */
+.game__board {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-width: calc(var(--cols) * 2.5rem);
+  margin-inline: auto;
+  padding: 4px;
+  background: var(--hairline);
+  border-radius: var(--radius-sm);
+  user-select: none;
+  -webkit-user-select: none;
+  /* Stops a long-press on a phone from selecting text or opening a callout. */
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+.game__row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: 2px;
+}
+
+.game__cell {
+  appearance: none;
+  cursor: pointer;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: calc(100cqi / var(--cols) * 0.55);
+  line-height: 1;
+  color: var(--ink);
+  /* A covered tile: the rose of the shop's awning, with a soft lip so it reads as
+     something you can press. */
+  background: var(--surface-trim);
+  box-shadow: inset 0 -2px 0 var(--shadow-cast);
+}
+
+.game__cell[data-state='hidden']:hover { background: var(--surface-wall); }
+
+/* The ring sits INSIDE the tile, because tiles touch: an outward ring is hidden
+   under the neighbouring tile. */
+.game__cell:focus-visible {
+  outline-offset: -2px;
+  position: relative;
+}
+
+.game__cell[data-state='open'],
+.game__cell[data-state='fish'] {
+  cursor: default;
+  background: var(--surface-raised);
+  box-shadow: none;
+}
+
+/* The fish that ended the round. */
+.game__cell[data-boom='true'] { background: var(--accent-berry); }
+
+.game__cell[data-near='1'] { color: var(--room-num-1); }
+.game__cell[data-near='2'] { color: var(--room-num-2); }
+.game__cell[data-near='3'] { color: var(--room-num-3); }
+.game__cell[data-near='4'] { color: var(--room-num-4); }
+.game__cell[data-near='5'] { color: var(--room-num-5); }
+.game__cell[data-near='6'] { color: var(--room-num-6); }
+
+/* --- pop-up cards over the game ---------------------------------------------- */
+.game__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-3);
+  background: var(--panel-scrim);
+  border-radius: var(--radius-md);
+}
+.game__overlay[hidden] { display: none; }
+
+/* After a loss the card sits at the bottom with no dimming, so the player can see
+   where every fish was. */
+.game__overlay[data-place='bottom'] {
+  place-items: end center;
+  background: none;
+  pointer-events: none;
+}
+.game__overlay[data-place='bottom'] .game__card { pointer-events: auto; }
+
+.game__card {
+  width: min(30rem, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-wall);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px var(--shadow-cast);
+}
+
+.game__card-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.game__card p { margin: 0 0 var(--space-3); }
+
+.game__rules {
+  margin: 0 0 var(--space-3);
+  padding-left: var(--space-6);
+}
+.game__rules li { margin-bottom: var(--space-2); }
+
+.game__hint {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.game__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* --- the name form after a win ----------------------------------------------- */
+.game__form { display: flex; flex-direction: column; }
+
+.game__label {
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.game__input {
+  font: inherit;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-sm);
+}
+.game__input[aria-invalid='true'] { border-color: var(--accent-berry); }
+
+.game__error {
+  color: var(--accent-berry);
+  font-weight: 700;
+}
+.game__error:empty { display: none; }
+
+/* Visually hidden, still read by a screen reader. */
+.game__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- the leaderboard notebook -------------------------------------------------
+   After the About me journal: coloured dividers sticking up out of a ruled page.
+   The colours are the journal's own --room-tab-* tokens, so the two read as the
+   same notebook. */
+.scorebook__tabs {
+  display: flex;
+  gap: var(--space-1);
+  padding-left: var(--space-2);
+}
+
+.scorebook__tab {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-sm);
+  flex: 1;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-1);
+  color: var(--ink);
+  border: 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  box-shadow: 0 -2px 4px var(--shadow-cast);
+  /* Unselected dividers sit lower, tucked behind the page. */
+  translate: 0 var(--space-2);
+}
+.scorebook__tab[data-tab='1'] { background: var(--room-tab-1); }
+.scorebook__tab[data-tab='2'] { background: var(--room-tab-2); }
+.scorebook__tab[data-tab='3'] { background: var(--room-tab-3); }
+
+/* The open divider stands up out of the page — position, not colour, says which is
+   selected, because every divider is already its own colour. */
+.scorebook__tab[aria-selected='true'] {
+  translate: 0 0;
+  font-weight: 700;
+}
+
+.scorebook__page {
+  position: relative;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 calc(2rem - 1px), var(--hairline) calc(2rem - 1px) 2rem),
+    var(--surface-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px var(--shadow-cast);
+}
+
+.scorebook__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+}
+
+/* --- the score tables -------------------------------------------------------- */
+.scores__note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.scores__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.scores__table th {
+  text-align: left;
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  padding: var(--space-1);
+}
+
+.scores__table td {
+  padding: var(--space-1);
+  border-top: 1px solid var(--hairline);
+}
+
+.scores__rank { width: 2rem; color: var(--ink-soft); }
+.scores__time { text-align: right; }
+.scores__table th:last-child { text-align: right; }
+
+/* Long names wrap rather than pushing the time out of the box. */
+.scores__name { overflow-wrap: anywhere; }
+
+/* The time the player just saved. */
+.scores__mine td {
+  background: var(--surface-trim);
+  font-weight: 700;
+}
+
+/* --- the full leaderboard panel: three pages side by side -------------------- */
+.scoreboards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-4);
+}
+
+/* Each page gets a coloured top edge, its divider colour. */
+.scoreboards__page[data-tab='1'] { border-top: 6px solid var(--room-tab-1); }
+.scoreboards__page[data-tab='2'] { border-top: 6px solid var(--room-tab-2); }
+.scoreboards__page[data-tab='3'] { border-top: 6px solid var(--room-tab-3); }
+
+.scoreboards__play {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+}

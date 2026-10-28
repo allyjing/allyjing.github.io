@@ -161,7 +161,10 @@ ok('LinkedIn and Resume share one board', contact.found && contact.n===2, contac
 ok('...and the board is the thing that is painted', contact.panelPainted===true);
 ok('...the links on it have no box of their own', contact.kidsBare===true);
 ok('...with a rule between them', contact.divided===true);
-ok('...on three posts total, not four', contact.posts===3, `${contact.posts} posts`);
+/* Four posts: contact (LinkedIn + Resume), Email, Please enter, and Feed Junnie! by
+ * the fountain. The point of this check is still that LinkedIn and Resume did not
+ * come apart onto two posts — that would make five. */
+ok('...on four posts total, not five', contact.posts===4, `${contact.posts} posts`);
 
 const cornerOut = await evaluate(`
   return {n: document.querySelectorAll('.chrome--resume').length};

@@ -29,6 +29,7 @@ suite fails.
 | `time-freeze-and-panels.mjs` | cycling the clock changes nothing indoors — card, bar, close button, bubble, plate, tint, filter — all five panels hold real content, the Life journal is a real ARIA tablist with routed tabs and arrow keys, and **no academic club appears in Life while all of them remain findable in Experience** |
 | `lightbox-a11y.mjs` | tab order and trap, backdrop click, measured contrast on the dark mat, and that the exterior still re-themes |
 | `walking-and-doors.mjs` | Jingwen walks on a real pointer event, walking to the door goes inside, nothing covers the way out, and the "Please enter" sign stands clear of the walkway |
+| `feed-junnie.mjs` | the fountain post, How to play first and click-off to the level picker, a seeded win with a safe first click, the name filter, Escape returning focus to the post, the all-levels leaderboard, the room light changing at night while the bubbles do not, the light layer NOT being a stacking context, Jingwen drawn in front of Junnie, and the stage refusing to scroll |
 
 ## Assert geometry, not existence
 

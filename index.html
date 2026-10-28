@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="src/styles/scenes.css">
 <link rel="stylesheet" href="src/styles/ui.css">
 <link rel="stylesheet" href="src/styles/panel.css">
+<link rel="stylesheet" href="src/styles/game.css">
 </head>
 
 <!-- data-time is replaced on boot from the visitor's clock. The value here only
@@ -60,6 +61,14 @@
 
   <div class="layer layer--tint"     id="tint"     aria-hidden="true"></div>
   <img class="layer layer--scene"    id="scene"    alt="" decoding="async">
+
+  <!-- The interior's light: sunset through the window, lamps on at night. Indoors
+       only, and only over the painted room — see "the room's light" in scenes.css. -->
+  <div class="layer layer--room-light" id="room-light" aria-hidden="true">
+    <div class="room-light__shade"></div>
+    <div class="room-light__window"></div>
+    <div class="room-light__lamps"></div>
+  </div>
   <div class="layer layer--props"    id="props"></div>
 
   <!-- The five table buttons have their own layer, separate from the signs, because

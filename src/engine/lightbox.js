@@ -107,7 +107,7 @@ export function openLightbox(set, at, from) {
     panel.setAttribute('aria-hidden', 'true');
   }
 
-  el('lightbox-close').focus();
+  el('lightbox-close').focus({ preventScroll: true });
 }
 
 export function closeLightbox() {
@@ -131,7 +131,7 @@ export function closeLightbox() {
 
   /* Order matters: the panel must have lost `inert` before this focus call, or it is
    * silently ignored. Same trap as closePanel. */
-  if (opener && opener.isConnected) opener.focus();
+  if (opener && opener.isConnected) opener.focus({ preventScroll: true });
   opener = null;
 }
 

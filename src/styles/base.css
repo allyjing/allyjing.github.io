@@ -19,6 +19,7 @@ body {
   color: var(--ink);
   background: var(--surface-sunken);
   overflow: hidden;               /* the stage fills the viewport; the page never scrolls */
+  overflow: clip;                 /* ...and cannot be scrolled by a focus() either — see .stage */
 
   /* Tokens re-theme instantly when data-time changes; this makes it a cross-fade
      rather than a hard cut (PRD R30). */

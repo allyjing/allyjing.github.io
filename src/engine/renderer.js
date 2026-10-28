@@ -142,6 +142,9 @@ function buildBoard(board) {
   const isCopy = Boolean(board.copyText);
   const control = document.createElement(isCopy ? 'button' : 'a');
   control.className = 'sign__board';
+  /* A board that opens a panel carries an id, so the panel can hand focus back to
+   * it on close — the same job `table-<id>` does indoors. */
+  if (board.id) control.id = `open-${board.id}`;
   control.textContent = board.label;
   control.setAttribute('aria-label', board.ariaLabel);
 
@@ -362,6 +365,17 @@ const LEAN_DEGREES = 3;
 export function placeActor(node, position, facing, walking) {
   node.style.left = `${position.x}%`;
   node.style.top = `${position.y}%`;
+
+  /* Depth sort: whoever stands LOWER on screen is nearer the viewer and paints in
+   * front. Without this the order was just DOM order, so Junnie was always drawn
+   * over Jingwen and she could never walk in front of him.
+   *
+   * A z-index set from data rather than a --z-* token, deliberately: it only orders
+   * actors against each other INSIDE the actors layer, which is its own stacking
+   * context, so it cannot reach past the layer and fight the --z-* system. y runs
+   * 0-100, so ×10 keeps a tenth-of-a-unit of resolution. */
+  node.style.zIndex = String(Math.round(position.y * 10));
+
   const lean = walking ? facing * LEAN_DEGREES : 0;
   node.style.transform = `translate(-50%, -100%) rotate(${lean}deg)`;
   node.dataset.walking = String(Boolean(walking));

@@ -8,6 +8,15 @@
  * all four blocks, or it will be wrong three-quarters of the time.
  */
 
+/* The indoor light tokens are REGISTERED so they can cross-fade. A plain custom
+ * property used inside a gradient snaps from one value to the next; a registered
+ * <color> interpolates, so the window darkens over 600ms like the sky outside does.
+ * initial-value is the daytime "no change" value of each one. */
+@property --room-window-top    { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --room-window-bottom { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --room-shade         { syntax: '<color>'; inherits: true; initial-value: #FFFFFF; }
+@property --room-lamp-glow     { syntax: '<color>'; inherits: true; initial-value: transparent; }
+
 :root {
   /* ---- Core palette (neutral / noon baseline) ---------------------------- */
   --surface-wall:   #FBF7F4;  /* bakery stucco, cards */
@@ -79,6 +88,8 @@
   --z-sky:       0;
   --z-backdrop:  5;   /* distant landmark layer */
   --z-scene:    10;
+  --z-room-light: 15; /* the interior's window and lamp light: over the room art,
+                         under the tables, so a dessert is never darkened */
   --z-props:    20;
   --z-actors:   30;
   --z-tint:     40;   /* time-of-day wash: ABOVE the scene, BELOW the UI */
@@ -145,6 +156,18 @@
 
   --room-scrim:      rgba(62, 48, 56, 0.55);  /* stands in for --panel-scrim */
 
+  /* Feed Junnie!'s numbers, one colour per count like classic minesweeper, so a 3
+   * can be told from a 1 at a glance. Room-scoped like the tabs above: the game is
+   * drawn on the panel, which is frozen to the lit-room colours at every hour.
+   * Measured on the open tile (--room-raised, white): 6.53, 6.40, 6.51, 8.65, 8.53,
+   * 6.31 — all AA. 7 and 8 use --ink. */
+  --room-num-1: #2F5E9E;   /* blue   */
+  --room-num-2: #2E6B3A;   /* green  */
+  --room-num-3: #A33A3A;   /* red    */
+  --room-num-4: #5B3A8C;   /* purple */
+  --room-num-5: #7A3B12;   /* brown  */
+  --room-num-6: #1F6A6A;   /* teal   */
+
   /* The photo lightbox. A photograph is shown against a DARK mat regardless of the
    * clock, because a pale surround competes with the picture for the eye — this is
    * the one surface on the site that is dark in every theme, and it is deliberate.
@@ -155,6 +178,21 @@
   --room-photo-mat:      #2A2436;
   --room-photo-ink:      #F3ECEF;
   --room-photo-ink-soft: #C0B2BC;
+
+  /* ---- Indoor LIGHT -------------------------------------------------------
+   * The one indoor exception to "nothing indoors changes with the clock", asked for
+   * directly: at sunset the window shows sunset hues, at night the outside is dark
+   * and the lamps are on. These paint the ROOM ART only (.layer--room-light in
+   * scenes.css) — the tables, desserts, chrome and panels stay frozen by the
+   * --room-* rebinding above.
+   *
+   * --room-window-top/bottom are MULTIPLIED over the glass, so white means "no
+   * change". --room-shade is multiplied over the whole room the same way.
+   * --room-lamp-glow is SCREENED over each lamp, so transparent means "off". */
+  --room-window-top:    #FFFFFF;
+  --room-window-bottom: #FFFFFF;
+  --room-shade:         #FFFFFF;
+  --room-lamp-glow:     transparent;
 
   /* ---- Touch ------------------------------------------------------------- */
   --tap-min: 44px;
@@ -171,6 +209,10 @@
  * that already has its time of day baked in. The tint never touches the backdrop. */
 
 [data-time="morning"] {       /* Hollywood Sign */
+  --room-window-top:    #FFFFFF;   /* indoor light, see :root */
+  --room-window-bottom: #FFFFFF;
+  --room-shade:         #FFFFFF;
+  --room-lamp-glow:     transparent;
   --sky-top:      #A8CFEA;
   --sky-bottom:   #FCE0C4;
   --light-tint:   rgba(255, 216, 168, 0.10);
@@ -183,6 +225,10 @@
 }
 
 [data-time="sunset"] {        /* Laguna Beach */
+  --room-window-top:    #F4A07E;   /* indoor light, see :root */
+  --room-window-bottom: #FAD3A6;
+  --room-shade:         #FBEBDD;
+  --room-lamp-glow:     rgba(255, 190, 120, 0.28);
   --sky-top:      #E8734F;
   --sky-bottom:   #F9C98E;
   /* A heavy orange wash over the whole frame turns the scene muddy brown, so the
@@ -203,6 +249,10 @@
 }
 
 [data-time="noon"] {          /* Santa Monica Pier */
+  --room-window-top:    #FFFFFF;   /* indoor light, see :root */
+  --room-window-bottom: #FFFFFF;
+  --room-shade:         #FFFFFF;
+  --room-lamp-glow:     transparent;
   --sky-top:      #9FC9E8;
   --sky-bottom:   #DCEBF5;
   --light-tint:   transparent;
@@ -214,6 +264,10 @@
 }
 
 [data-time="night"] {         /* Griffith Observatory */
+  --room-window-top:    #252B5C;   /* indoor light, see :root */
+  --room-window-bottom: #3A3768;
+  --room-shade:         #B8A39C;
+  --room-lamp-glow:     rgba(255, 190, 100, 0.75);
   --sky-top:      #1E2547;
   --sky-bottom:   #46436E;
   --light-tint:   rgba(42, 52, 112, 0.30);

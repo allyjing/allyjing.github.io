@@ -10,7 +10,7 @@
  * "The recruiter escape hatch is a sign now" in CLAUDE.md.
  */
 
-import { site } from '../data/content.js';
+import { site, gamePanels } from '../data/content.js';
 import { getScene } from '../data/scenes.js';
 import { timeStateNow, nextTimeState } from '../data/theme.js';
 import { startRouter, navigate } from './router.js';
@@ -45,13 +45,20 @@ updateChrome(time);
 
 /* Closing is a route change, not a direct DOM call: that is what makes the Back
  * button leave the panel rather than the site (R10). */
+/* Which scene a panel belongs to. The five table panels are indoors; the two Feed
+ * Junnie! panels are outdoors by the fountain. */
+function panelScene(panelId) {
+  return gamePanels[panelId] ? 'exterior' : 'interior';
+}
+
 bindPanel(
-  () => navigate('interior'),
+  /* Closing goes back to whichever scene the panel was opened over. */
+  () => navigate(currentScene || 'exterior'),
   /* Opening a project, going back to the list, and switching a tab in the Life
    * journal are all route changes. Passing null for the item drops the third
    * segment, which is what makes "All projects" a Back-able step rather than a
    * silent DOM swap. */
-  (panelId, slug) => navigate('interior', panelId, slug),
+  (panelId, slug) => navigate(panelScene(panelId), panelId, slug),
 );
 
 /* The photo lightbox inside the Photography panel. Bound once here rather than when
@@ -167,9 +174,10 @@ startRouter((route) => {
    * #/interior/projects that button does not exist until this point — open before
    * it and focus has nowhere to return to when the panel closes.
    *
-   * Panels exist only indoors: #/exterior/projects renders the exterior, no panel.
-   * An unknown id opens nothing, so a typo in a shared link is a plain room. */
-  if (sceneId === 'interior' && route.panel) {
+   * A panel opens only over its OWN scene: #/exterior/projects renders the
+   * exterior with no panel, and #/interior/feed-junnie the room with no game. An
+   * unknown id opens nothing, so a typo in a shared link is a plain scene. */
+  if (route.panel && panelScene(route.panel) === sceneId) {
     openPanel(route.panel, route.item);
   } else if (isOpen()) {
     closePanel();

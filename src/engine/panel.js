@@ -11,10 +11,17 @@
  * trapped inside the card, and focus goes back to the table that opened it.
  */
 
-import { panels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes, wholeSizes,
+import { panels, gamePanels, panelChrome, galleryChrome, showcaseChrome, photoSizes, cardSizes, wholeSizes,
          portraitWidths, portraitSizes } from '../data/content.js';
 import { photoSrc, photoSrcset } from './photos.js';
 import { openLightbox, closeLightbox, isLightboxOpen } from './lightbox.js';
+import { fillGame, fillLeaderboard } from './game.js';
+
+/* The five table panels indoors, and the two Feed Junnie! panels by the fountain
+ * outdoors. Kept as two lists in content.js; one lookup here. */
+function panelFor(id) {
+  return panels[id] || gamePanels[id] || null;
+}
 
 function el(id) {
   const node = document.getElementById(id);
@@ -114,9 +121,18 @@ function fill(panel, item) {
     body.append(intro);
   }
 
+  /* The game needs a wider card than a page of text: Expert is 30 tiles across with
+   * the leaderboard beside it. */
+  const wide = panel.kind === 'game' || panel.kind === 'leaderboard';
+  el('panel').querySelector('.panel__card').classList.toggle('panel__card--wide', wide);
+
   /* Three renderers, selected by the data rather than by the panel's id — see `kind`
    * in content.js. A panel declares one shape and carries only that shape's keys. */
-  if (panel.kind === 'gallery') {
+  if (panel.kind === 'game') {
+    fillGame(body);
+  } else if (panel.kind === 'leaderboard') {
+    fillLeaderboard(body);
+  } else if (panel.kind === 'gallery') {
     fillGallery(body, panel);
   } else if (panel.kind === 'showcase') {
     fillShowcase(body, panel, item);
@@ -830,7 +846,7 @@ function article(entry, headingTag) {
  * afresh and bounces focus out to the table button and back on every navigation
  * between the index and a project. */
 export function openPanel(id, item = null) {
-  const panel = panels[id];
+  const panel = panelFor(id);
 
   const reuse = isOpen() && filledId === id;
   if (!reuse && isOpen()) closePanel();
@@ -854,7 +870,8 @@ export function openPanel(id, item = null) {
   }
   journalTabWanted = null;
 
-  opener = document.getElementById(`table-${id}`);
+  /* A table indoors, or a board on the post by the fountain outdoors. */
+  opener = document.getElementById(`table-${id}`) || document.getElementById(`open-${id}`);
   if (opener) opener.setAttribute('aria-expanded', 'true');
 
   el('panel').hidden = false;
@@ -868,7 +885,7 @@ export function openPanel(id, item = null) {
 
   /* Focus the close button rather than the card: it is the one control every panel
    * has, and it tells a screen-reader user immediately how to get out. */
-  el('panel').querySelector('.panel__close').focus();
+  el('panel').querySelector('.panel__close').focus({ preventScroll: true });
 
   return true;
 }
@@ -904,7 +921,7 @@ export function closePanel() {
      * no-op, so check first rather than let that happen unnoticed. There is no
      * correct element to send focus to in that case — the table is gone — so we
      * simply do not move focus, and it rests on <body>. */
-    if (opener.isConnected) opener.focus();
+    if (opener.isConnected) opener.focus({ preventScroll: true });
     opener = null;
   }
 }

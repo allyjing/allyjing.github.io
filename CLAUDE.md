@@ -29,6 +29,80 @@ the `gh` CLI credential helper — see "Deploying" below.
 **Phase 7 (polish) is what remains**: a11y audit on a real screen reader, a performance
 pass, and testing on an actual phone rather than an emulated viewport.
 
+### Feed Junnie! — the minesweeper by the fountain (2026-10-28)
+
+Asked for directly: a minesweeper where the mines are fish, held by the fountain where
+Junnie sits. Easy 9x9/10, Intermediate 16x16/40, Expert 30x16/99 (turned on its side to
+16x30 on a phone). Fish are 🐟, flags are paws 🐾. All copy is `gameCopy` in content.js.
+
+| file | job |
+|---|---|
+| `src/data/game.js` | levels, the name filter, `formatTime`. Pure |
+| `src/data/leaderboard-config.js` | Supabase URL + anon key. **Empty until Jingwen sets up Supabase** |
+| `src/engine/minesweeper.js` | the rules. Pure, like movement.js |
+| `src/engine/scores.js` | Supabase REST over plain `fetch` — no library, no npm |
+| `src/engine/game.js` | draws the game and both leaderboards inside the panel |
+| `supabase/leaderboard.sql` + `README.md` | the table, its checks, setup steps |
+
+**The flow, asked for in this order:** How to play pops up first → clicking off it (or its
+button) shows the level picker → play → on a win, an optional name → that level's top 10
+pops up. A notebook down the side shows the top 10 per level with divider tabs, after the
+About me journal. A second board on the same post opens `#/exterior/leaderboard`: all three
+levels, top 10 each, name and time.
+
+⚠️ **Two panels open OUTDOORS now.** `gamePanels` in content.js is kept apart from `panels`
+because several checks walk `panels` expecting exactly the five tables. main.js's
+`panelScene()` says which scene a panel belongs to; a panel opens only over its own scene,
+and closing goes back to `currentScene`. The opener is `table-<id>` indoors or
+`open-<id>` (a sign board with an `id`) outdoors. They ARE in the `.panel` token freeze,
+deliberately — see scenes.css.
+
+⚠️ **The leaderboard is shared by every visitor**, asked for directly, so it lives in a free
+Supabase project. Names may be fake, anonymous or game handles; **nothing rude or explicit**
+— asked for directly. The word lists are in BOTH `game.js` and `leaderboard.sql`
+(`name_is_clean`), and must match: the first tells the player at once, the second stops a
+name sent straight to the database. `minMs` per level is also in both. The anon key is
+public by design; row-level security allows read and insert only. **Never commit the
+service_role key.** A bad row is deleted by hand in the dashboard.
+
+⚠️ **Expert tiles are about 20px on a phone**, below the 44px tap-target rule. 30x16 cannot
+meet it on a 390px screen; the Paw-mode toggle and long-press are what make it playable.
+
+### The interior's light follows the clock now (2026-10-28)
+
+Asked for directly: *"when it turns sunset or night for the interior there should be lights
+reflecting that"* — sunset hues through the window, and at night a dark window with the
+lamps on. **This overrides "nothing indoors changes with the time of day" for the ROOM ART
+only.** The tables, desserts, chrome and panels are still frozen by the `--room-*`
+rebinding, and the time-freeze check still holds them down.
+
+`.layer--room-light` (index.html) has three parts: the window glass, cut out of the art by
+`assets/source/make-window-mask.py` into `assets/scenes/interior-window-mask.png`, multiplied
+with `--room-window-top/bottom`; a corner shade multiplied with `--room-shade`; and lamp
+glows screened with `--room-lamp-glow`. At morning and noon each is the no-op value (white
+under multiply, transparent under screen). The four tokens are `@property`-registered so
+they cross-fade.
+
+⚠️ **The light LAYER must not get a z-index — its children carry it.** A z-index on the
+layer makes it a stacking context, and mix-blend-mode only blends within its context: the
+multiply blended with nothing and painted a flat orange block over the window. A check
+asserts the layer's z-index is `auto`.
+
+⚠️ The window box in scenes.css (`--window-*` percentages on `.room-light__window`) is
+printed by the mask script. Change one, change both. Lamp positions are read off the
+1376x768 art.
+
+### Two bug fixes (2026-10-28)
+
+- **The screen jumped**: `.stage` was `overflow: hidden`, which the browser can still scroll
+  — focusing a sign or table near the edge scrolled the whole scene. It is `overflow: clip`
+  now (body too), and the focus calls that return focus to a scene control use
+  `preventScroll`. The focus calls INSIDE a scrolling panel deliberately do not, so Tab
+  still scrolls a long panel.
+- **Junnie was always drawn over Jingwen**: actors were in DOM order. `placeActor` now
+  sets a z-index from y, so whoever is lower on screen is in front. It is local to the
+  actors layer's own stacking context, so it cannot fight the `--z-*` system.
+
 ### Phase 6 — the panels hold real content now
 
 No placeholder copy is left anywhere. `src/data/content.js` `panels`:
@@ -568,8 +642,9 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
   2026-09-21 after a computed-style diff over every element in the document confirmed
   nothing indoors moves with the clock.
 
-  ⚠️ **Nothing indoors changes with the time of day**, including the buttons, the desserts
-  and the chrome. Done by REBINDING the flipping tokens on `.stage[data-scene='interior']`
+  ⚠️ **Nothing drawn ON the room changes with the time of day** — the buttons, the desserts
+  and the chrome. (The room ART does now, through `.layer--room-light`; see "The
+  interior's light follows the clock now" above.) Done by REBINDING the flipping tokens on `.stage[data-scene='interior']`
   to the `--room-*` set, which has no `[data-time]` overrides by design. Everything inside
   inherits, so a new dessert or button is covered without anyone remembering. Patching
   controls one at a time missed the souffle's ramekin and the cake's filling.
@@ -617,11 +692,12 @@ Both regenerated pieces landed on 2026-09-13 and are wired up:
 
   A faster way to find the next one of these: diff `getComputedStyle` over every element
   in the document between noon and night. Anything indoors that differs is a bug, except
-  `.layer--sky`, which is hidden behind the opaque room image.
+  `.layer--sky`, which is hidden behind the opaque room image, and the three
+  `.room-light__*` elements, which are supposed to change.
 
-  ⚠️ **The interior does not change with the time of day** — no tint, no scene filter. It
-  is a lit room and looks the same at midnight as at noon; a bakery that dims at night reads
-  as closed rather than as evening. The clock still shows and the exterior still changes.
+  ⚠️ **The interior takes no tint and no scene filter** — a bakery that dims at night reads
+  as closed rather than as evening. What it does take, since 2026-10-28, is the room-light
+  layer: sunset through the window, lamps on at night. The clock still shows and the exterior still changes.
 
   ⚠️ Objects in a scene need their own colour tokens — `--dessert-bake`, `--dessert-glaze`,
   `--dessert-plate`. Every `--surface-*` flips to a dark UI colour after dark, and a plate
@@ -774,7 +850,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 75 assertions across five suites; see
+`index.html` does not reference it. 225 assertions across seven suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

@@ -6,7 +6,13 @@
 
 .stage {
   position: relative;
+  /* ⚠️ `clip`, not just `hidden`. An overflow:hidden box can still be SCROLLED by the
+     browser — focusing a sign or a table that pokes past the edge of the window
+     scrolls the stage to reveal it, and the whole scene jumps sideways or up. `clip`
+     forbids scrolling outright. `hidden` stays first as the fallback for browsers
+     that do not know `clip`. */
   overflow: hidden;
+  overflow: clip;
   width: 100%;
   height: 100vh;
   height: 100dvh;   /* dvh accounts for mobile Safari's collapsing toolbar; the 100vh
@@ -381,9 +387,12 @@
    while a panel is open and a panel nested inside it would inert itself. Being
    outside, they do NOT inherit the rebinding from the interior stage, so without
    being named here an open panel re-themed with the clock: its card went navy at
-   night while the room behind it stayed lit. Panels only ever open indoors —
-   main.js ignores route.panel on the exterior — so there is no case where this
-   list wrongly freezes an outdoor overlay.
+   night while the room behind it stayed lit.
+
+   The two Feed Junnie! panels open OUTDOORS, and they are frozen to the lit-room
+   colours too. That is deliberate: a game card that turned navy at night would need
+   its own night palette for the tiles and numbers, and the frozen one is already
+   measured.
 
    Keep this as ONE selector list with ONE copy of the bindings. A second copy for
    the panel is how the souffle's ramekin got missed the first time. */
@@ -414,6 +423,82 @@
 }
 
 .stage[data-scene='interior'] .chrome--location { display: none; }
+
+/* --- the room's light ------------------------------------------------------
+   The one thing indoors that DOES follow the clock, asked for directly: at sunset
+   the window glows with sunset hues, at night the outside goes dark and the lamps
+   come on. It paints the ROOM ART only. It sits under the tables layer, so the
+   desserts, the bubbles, the chrome and the panels are untouched and stay exactly
+   as readable as they are at noon — the --room-* rebinding above still holds.
+
+   At morning and noon every token here is "no change" (white under multiply,
+   transparent under screen), so the room looks as it always has. */
+/* ⚠️ The LAYER has no z-index; its three children carry it. A z-index on the layer
+   makes it a stacking context, and mix-blend-mode only blends with what is inside
+   the same context — so the multiply blended with nothing and painted flat orange
+   over the window. With the z-index on each child they sit in the same context as
+   the scene image and blend with the painting itself. */
+.layer--room-light {
+  display: none;
+  pointer-events: none;
+  inset: auto;
+  left: var(--scene-x, 0px);
+  top: var(--scene-y, 0px);
+  width: var(--scene-w, 100%);
+  height: var(--scene-h, 100%);
+}
+.stage[data-scene='interior'] .layer--room-light { display: block; }
+
+.room-light__window,
+.room-light__shade,
+.room-light__lamps {
+  position: absolute;
+  z-index: var(--z-room-light);
+  transition:
+    --room-window-top var(--dur-timeshift) var(--ease-soft),
+    --room-window-bottom var(--dur-timeshift) var(--ease-soft),
+    --room-shade var(--dur-timeshift) var(--ease-soft),
+    --room-lamp-glow var(--dur-timeshift) var(--ease-soft);
+}
+
+/* The glass of the arched window and the French doors. The mask is cut from the
+   artwork by assets/source/make-window-mask.py, cropped to the window's box — and
+   these four numbers ARE that box, printed by the script. Change one, change both. */
+.room-light__window {
+  left: 36.119%;
+  top: 20.573%;
+  width: 29.433%;
+  height: 34.115%;
+  background: linear-gradient(to bottom, var(--room-window-top), var(--room-window-bottom));
+  mix-blend-mode: multiply;
+  mask-image: url('../../assets/scenes/interior-window-mask.png');
+  mask-size: 100% 100%;
+  -webkit-mask-image: url('../../assets/scenes/interior-window-mask.png');
+  -webkit-mask-size: 100% 100%;
+}
+
+/* The corners of the room fall off a little after dark, so the lamps read as the
+   light source. Multiplied, so at daytime white it does nothing. */
+.room-light__shade {
+  inset: 0;
+  background: radial-gradient(ellipse 60% 65% at 50% 32%, transparent 20%, var(--room-shade));
+  mix-blend-mode: multiply;
+}
+
+/* A glow around each of the four pendant lamps, positioned on the painted bulbs
+   (image percentages, read off the 1376x768 artwork), plus a soft pool of light
+   under the two big shades. Screened, so transparent means "lamps off". */
+.room-light__lamps {
+  inset: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(5% 9% at 22.4% 21.5%, var(--room-lamp-glow), transparent),
+    radial-gradient(5% 9% at 27.1% 24.7%, var(--room-lamp-glow), transparent),
+    radial-gradient(11% 13% at 50.6% 16%, var(--room-lamp-glow), transparent),
+    radial-gradient(10% 12% at 75.8% 20.5%, var(--room-lamp-glow), transparent),
+    radial-gradient(24% 30% at 50.6% 62%, var(--room-lamp-glow), transparent),
+    radial-gradient(22% 28% at 75.8% 68%, var(--room-lamp-glow), transparent);
+}
 
 /* One trigger per painted table: the dessert sits on the table surface and the
    label floats above it. Positioned at the table surface, so the stack grows

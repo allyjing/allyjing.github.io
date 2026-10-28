@@ -77,6 +77,23 @@ export const signs = {
     href: 'resume.html',
     ariaLabel: "Jingwen's resume, a plain text page",
   },
+
+  /* The post by the fountain, next to Junnie: the game, and the full leaderboard.
+   * Both are panels opened OUTDOORS, by route — see gamePanels below. `id` gives the
+   * board a DOM id of `open-<panel id>` so the panel can hand focus back to it on
+   * close, the way it does for a table indoors. */
+  feedJunnie: {
+    id: 'feed-junnie',
+    label: 'Feed Junnie!',
+    href: '#/exterior/feed-junnie',
+    ariaLabel: 'Play Feed Junnie!, a minesweeper game',
+  },
+  leaderboard: {
+    id: 'leaderboard',
+    label: 'Leaderboard',
+    href: '#/exterior/leaderboard',
+    ariaLabel: 'See the Feed Junnie! leaderboard',
+  },
 };
 
 /* The clock (R26) shows TWO things: the visitor's real wall-clock time, which keeps
@@ -1007,4 +1024,113 @@ export const galleryChrome = {
   count: (index, total) => `${index} of ${total}`,
   openAria: (caption) => `Open larger: ${caption}`,
   hint: 'Select a photograph to see it larger.',
+};
+
+/* --- Feed Junnie! ------------------------------------------------------------
+ *
+ * The minesweeper by the fountain. Fish are the mines. Written for this site, not
+ * Jingwen's own words — change any of it freely.
+ *
+ * These two panels open OUTDOORS (#/exterior/feed-junnie, #/exterior/leaderboard),
+ * which is why they are kept apart from `panels` above: those five are the tables
+ * in the room, and several browser checks walk that list expecting exactly five. */
+export const gamePanels = {
+  'feed-junnie': { title: 'Feed Junnie!', kind: 'game' },
+  leaderboard: { title: 'Leaderboard', kind: 'leaderboard' },
+};
+
+export const gameCopy = {
+  fish: '\u{1F41F}',          // 🐟 a fish, the "mine"
+  flag: '\u{1F43E}',          // 🐾 a paw print, Junnie's mark for "a fish is here"
+
+  levels: {
+    easy: { label: 'Easy', detail: '9 \u00d7 9, 10 fish' },
+    intermediate: { label: 'Intermediate', detail: '16 \u00d7 16, 40 fish' },
+    expert: { label: 'Expert', detail: '30 \u00d7 16, 99 fish' },
+  },
+
+  howTo: {
+    title: 'How to play',
+    lead: 'Junnie is hungry, and the fountain is full of hidden fish. Uncover every tile that does NOT hide a fish, as fast as you can.',
+    rules: [
+      'Click a tile to uncover it. A number tells you how many fish are touching that tile, diagonals included.',
+      'Right-click a tile, or press and hold it on a phone, to put a paw on it. A paw marks a tile you think hides a fish.',
+      'Click a number whose fish are all pawed to uncover the tiles around it at once.',
+      'Your first click is always safe. The timer starts on your first click.',
+      'Uncover a fish and the round is over.',
+    ],
+    keys: 'Keyboard: arrow keys move, Enter or Space uncovers, F places a paw.',
+    start: 'Got it, let\u2019s play',
+    dismissHint: 'Click anywhere outside this card to continue.',
+  },
+
+  pick: {
+    title: 'Pick a level',
+    help: 'How to play',
+  },
+
+  bar: {
+    fishLeft: 'Fish left',
+    time: 'Time',
+    newGame: 'New game',
+    changeLevel: 'Change level',
+    modeDig: 'Mode: Uncover',
+    modeFlag: 'Mode: Paw',
+    modeAria: 'Switch between uncovering tiles and placing paws',
+  },
+
+  boardAria: (label) => `Feed Junnie! board, ${label}`,
+  cellAria: {
+    hidden: (r, c) => `Row ${r}, column ${c}, covered`,
+    flagged: (r, c) => `Row ${r}, column ${c}, paw`,
+    empty: (r, c) => `Row ${r}, column ${c}, clear`,
+    number: (r, c, n) => `Row ${r}, column ${c}, ${n} ${n === 1 ? 'fish' : 'fish'} nearby`,
+    fish: (r, c) => `Row ${r}, column ${c}, fish`,
+  },
+
+  won: {
+    title: 'Junnie is fed!',
+    time: (t) => `You cleared the board in ${t} seconds.`,
+    nameLabel: 'Your name for the leaderboard',
+    nameHint: 'Up to 16 letters, numbers or spaces. A nickname or game handle is great. Leave it blank to stay anonymous.',
+    save: 'Save my time',
+    skip: 'Skip',
+    saving: 'Saving\u2026',
+    seeBoard: 'See the leaderboard',
+    notConnected: 'The leaderboard isn\u2019t connected yet, so this time can\u2019t be saved.',
+  },
+  nameErrors: {
+    tooLong: 'That name is too long. Please keep it to 16 characters.',
+    characters: 'Please use only letters, numbers, spaces, and _ . -',
+    inappropriate: 'Please pick a different name. This leaderboard is public and has to stay friendly.',
+    rejected: 'That name or time couldn\u2019t be saved. Please try a different name.',
+    network: 'Couldn\u2019t reach the leaderboard. Check your connection and try again.',
+  },
+  anonymous: 'Anonymous',
+
+  lost: {
+    title: 'Splash! A fish got away.',
+    body: 'Junnie is still hungry. Want to try again?',
+  },
+
+  after: {
+    title: (level) => `${level} leaderboard`,
+    again: 'Play again',
+    changeLevel: 'Change level',
+  },
+
+  board: {
+    sideTitle: 'Top 10',
+    rank: 'Rank',
+    name: 'Name',
+    time: 'Time',
+    seconds: (t) => `${t}s`,
+    loading: 'Loading\u2026',
+    empty: 'No times yet. Be the first!',
+    error: 'Couldn\u2019t load the leaderboard.',
+    notConnected: 'The leaderboard isn\u2019t connected yet.',
+    you: 'you',
+    intro: 'The ten fastest times on each level, from everyone who has played.',
+    play: 'Play Feed Junnie!',
+  },
 };

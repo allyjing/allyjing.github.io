@@ -170,6 +170,13 @@ export const scenes = {
        * The second is the smallest window still in the wide layout and is accepted.
        * Re-screenshot BOTH if you raise the stake or the type size. */
       { id: 'enter', ...doors.enter, x: 23, y: 78, variant: 'enter' },
+      /* Feed Junnie! — the minesweeper — and its leaderboard, on ONE post on the grass
+       * just right of the fountain, where Junnie is fishing. Asked for directly: the
+       * game is "held by the fountain where junnie is". One board with two links, the
+       * same pattern as the LinkedIn/Resume post. y 81 is on the grass below the
+       * fountain basin and above the walkable ground (which starts at y 84 here), so
+       * she never stands on the post. */
+      { id: 'game', x: 82, y: 81, boards: [signs.feedJunnie, signs.leaderboard] },
     ],
 
     decor: [],
