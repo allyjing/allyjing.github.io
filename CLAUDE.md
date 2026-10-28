@@ -44,6 +44,11 @@ Junnie sits. Easy 9x9/10, Intermediate 16x16/40, Expert 30x16/99 (turned on its 
 | `src/engine/game.js` | draws the game and both leaderboards inside the panel |
 | `supabase/leaderboard.sql` + `README.md` | the table, its checks, setup steps |
 
+**How to play shows ON ITS OWN**, with nothing behind it (`data-place='alone'`) — the level
+picker used to sit half-covered underneath and read as off centre. Every card centres its
+contents (title, sentences, buttons, notes); the rules list, the name form and score tables
+put their own text back to the left.
+
 **The flow, asked for in this order:** How to play pops up first → clicking off it (or its
 button) shows the level picker, **one level per line** (asked for directly) → play → on a
 win, an optional name → that level's top 10 pops up.
@@ -914,7 +919,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 249 assertions across seven suites; see
+`index.html` does not reference it. 252 assertions across seven suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

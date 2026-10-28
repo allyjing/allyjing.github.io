@@ -126,7 +126,8 @@
   position: relative;
   min-width: 0;
 }
-.game__main:has(> .game__overlay:not([hidden])) { min-height: 36rem; }
+/* 38rem: the how-to card is about 36rem tall, and at 36rem it scrolled by a line. */
+.game__main:has(> .game__overlay:not([hidden])) { min-height: 38rem; }
 
 /* --- level picker ------------------------------------------------------------ */
 .game__heading {
@@ -337,7 +338,15 @@
 }
 .game__overlay[data-place='bottom'] .game__card { pointer-events: auto; }
 
+/* The how-to card, shown on its own: no dimming, because there is nothing behind it
+   to dim. Clicking the empty space around it still closes it. */
+.game__overlay[data-place='alone'] { background: none; }
+
 .game__card {
+  /* Everything in a card is centred on the card — the title, the sentences, the
+     buttons and the notes — asked for directly, they were "off center". Lists, the
+     name form and score tables put their own text back to the left below. */
+  text-align: center;
   width: min(30rem, 100%);
   max-height: 100%;
   overflow-y: auto;
@@ -354,7 +363,11 @@
 
 .game__card p { margin: 0 0 var(--space-3); }
 
+/* The rules read best left-aligned, so the LIST is centred as a block and its
+   lines start on one left edge inside it. */
 .game__rules {
+  display: inline-block;
+  text-align: left;
   margin: 0 0 var(--space-3);
   padding-left: var(--space-6);
 }
@@ -368,12 +381,13 @@
 .game__actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
 
 /* --- the name form after a win ----------------------------------------------- */
-.game__form { display: flex; flex-direction: column; }
+.game__form { display: flex; flex-direction: column; text-align: left; }
 
 .game__label {
   font-weight: 700;
@@ -418,6 +432,7 @@
 }
 
 .scores__table {
+  text-align: left;            /* not the card's centring: names line up on the left */
   width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;

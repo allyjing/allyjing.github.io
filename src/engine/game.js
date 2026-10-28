@@ -301,6 +301,12 @@ export function fillGame(body) {
       }));
       card.append(make('p', 'game__hint', copy.dismissHint));
     }, { dismissable: true, onDismiss: showPicker });
+
+    /* The card shows on its OWN, with nothing behind it: the level picker used to sit
+     * underneath, half covered, peeking out around the card's edges — which read as
+     * the levels being off centre. Closing the card is what brings the picker up. */
+    view.replaceChildren();
+    overlay.dataset.place = 'alone';
   }
 
   /* --- 2. pick a level ---- */
@@ -706,7 +712,6 @@ export function fillGame(body) {
     });
   }
 
-  /* Start: the picker is underneath, the how-to card on top of it. */
-  showPicker();
+  /* Start with How to play, on its own; closing it shows the level picker. */
   showHowTo();
 }

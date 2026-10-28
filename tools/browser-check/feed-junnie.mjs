@@ -38,6 +38,22 @@ const first = await evaluate(`
 `);
 ok('the game panel opens outdoors', first.open===true && first.title==='Feed Junnie!', first.title);
 ok('How to play pops up first', first.card==='How to play', first.card);
+
+// Asked for directly: the levels, "got it lets play" and "click anywhere" were off
+// centre while How to play was up. The card shows ALONE now, everything on it centred.
+const howto = await evaluate(`
+  const card=document.querySelector('.game__card');
+  const centre=(n)=>{const r=document.createRange(); r.selectNodeContents(n); const b=r.getBoundingClientRect(); return b.left+b.width/2;};
+  const body=document.getElementById('panel-body').getBoundingClientRect();
+  const mid=body.left+body.width/2;
+  const parts=[card.querySelector('h3'), card.querySelector('.game__button--main'), ...card.querySelectorAll('.game__hint')];
+  return {behind: document.querySelectorAll('.game__level').length,
+          off: Math.max(...parts.map(p=>Math.abs(centre(p)-mid))),
+          scrolls: card.scrollHeight>card.clientHeight+1};
+`);
+ok('How to play shows on its own, with no level picker behind it', howto.behind===0, `${howto.behind}`);
+ok('...its title, button and notes centred', howto.off<=2, `${Math.round(howto.off)}px off`);
+ok('...and it does not scroll', howto.scrolls===false);
 ok('...in the game window', first.wide===true);
 
 // Asked for directly: regular size while reading and picking, then the window
