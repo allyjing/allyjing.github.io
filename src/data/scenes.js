@@ -170,16 +170,19 @@ export const scenes = {
        * The second is the smallest window still in the wide layout and is accepted.
        * Re-screenshot BOTH if you raise the stake or the type size. */
       { id: 'enter', ...doors.enter, x: 23, y: 78, variant: 'enter' },
-      /* Feed Junnie! — the minesweeper — on the grass just right of the fountain,
-       * where Junnie is fishing. Asked for directly: the game is "held by the
-       * fountain where junnie is". y 81 is on the grass below the fountain basin and
-       * above the walkable ground (which starts at y 84 here), so she never stands on
-       * the post.
+      /* Feed Junnie! — the minesweeper — standing ON TOP OF THE FOUNTAIN, where
+       * Junnie is fishing. Asked for directly, twice: first "held by the fountain
+       * where junnie is", then "have the feed junnie label on top of the fountain"
+       * (it was on the grass to its right at x 82 y 81).
+       *
+       * x 73 y 56 is the fountain's top finial, read off the 1376x768 artwork: its
+       * stake goes into the top of the fountain and the board rises above it into
+       * the sky, clear of the bakery roof (which ends near x 64).
        *
        * ⚠️ ONE link only. It used to carry a Leaderboard link too, and that was taken
-       * off: *"no leaderbaord display on the exterior"*. The leaderboard lives at the
-       * bottom of the game, and the all-levels page is reached from inside it. */
-      { ...signs.feedJunnie, x: 82, y: 81 },
+       * off: *"no leaderbaord display on the exterior"*. The leaderboard is a tab on
+       * the side of the game's own window. */
+      { ...signs.feedJunnie, x: 73, y: 56 },
     ],
 
     decor: [],

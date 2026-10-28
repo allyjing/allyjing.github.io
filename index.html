@@ -93,7 +93,12 @@
      Empty here — src/engine/panel.js fills it, because copy lives in content.js. -->
 <div class="panel" id="panel" hidden>
   <div class="panel__scrim" data-close></div>
-  <div class="panel__card" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+  <!-- The FRAME is the dialog, not the card: the Feed Junnie! tabs stick out past
+       the card's edge, so they live beside it rather than inside its clipped,
+       rounded box, and they still have to be inside the dialog for a screen reader
+       in a modal to reach them. -->
+  <div class="panel__frame" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+  <div class="panel__card">
     <header class="panel__bar">
       <h2 class="panel__title" id="panel-title"></h2>
       <button class="panel__close" type="button" data-close></button>
@@ -104,6 +109,10 @@
          panel — WCAG 2.1.1. It is also the standard technique for a scroll
          container that holds no other focusable element. -->
     <div class="panel__body" id="panel-body" tabindex="0"></div>
+  </div>
+  <!-- Dividers on the side of the window. Empty and hidden for every panel except
+       Feed Junnie!, which fills it (engine/game.js). -->
+  <div class="panel__tabs" id="panel-tabs" hidden></div>
   </div>
 </div>
 

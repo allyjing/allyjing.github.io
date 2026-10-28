@@ -22,8 +22,15 @@
   background: var(--panel-scrim);
 }
 
-.panel__card {
+.panel__frame {
   position: relative;             /* above the scrim, without a new z-index */
+}
+
+.panel__card {
+  position: relative;
+  /* In front of the window-side tabs, so its edge hides their tucked halves. Local
+     ordering inside one component, not a layer: no --z-* token. */
+  z-index: 1;
   width: min(680px, 90vw);
   max-height: 85vh;
   display: flex;
@@ -125,7 +132,7 @@
    asked for reduced motion gets the panel with no movement at all — it simply is
    there. The rule is opt-IN, so that is the default if the query does not match. */
 @media (prefers-reduced-motion: no-preference) {
-  .panel:not([hidden]) .panel__card {
+  .panel:not([hidden]) .panel__frame {
     animation: panel-rise var(--dur-scene) var(--ease-soft);
   }
 

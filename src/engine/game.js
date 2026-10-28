@@ -1,16 +1,19 @@
 /* Repo path: src/engine/game.js
  *
- * Feed Junnie! — draws the minesweeper and the leaderboards inside the panel.
- * panel.js calls fillGame() or fillLeaderboard() for the two outdoor panels; the
- * rules themselves are in minesweeper.js and the scores go through scores.js.
+ * Feed Junnie! — draws the minesweeper and its leaderboard inside the panel.
+ * panel.js calls fillGame() for the outdoor panel; the rules themselves are in
+ * minesweeper.js and the scores go through scores.js.
  *
  * The flow, as asked for:
  *   1. "How to play" pops up first. Clicking off it (or its button) closes it.
- *   2. Then the player picks a level.
+ *   2. Then the player picks a level, from a list down the page.
  *   3. They play. A win asks for a name, which they can skip.
- *   4. Then that level's leaderboard pops up.
- * The side of the panel always shows a notebook with the top 10 for each level,
- * styled after the About me journal.
+ *   4. Then that level's top 10 pops up.
+ *
+ * Two dividers stick out of the side of the panel WINDOW, Game and Leaderboard,
+ * asked for directly. Leaderboard shows all three levels side by side, laid out
+ * after a screenshot Jingwen supplied: level name, then 1-10 with the name on the
+ * left and the time on the right, under a "seconds" label.
  *
  * Everything the player reads comes from gameCopy in content.js.
  */
@@ -35,11 +38,16 @@ function button(className, text, onClick) {
   return node;
 }
 
-/* --- leaderboard lists ------------------------------------------------------ */
+/* --- leaderboard columns ---------------------------------------------------- */
 
-/* Fills `into` with one level's top 10. `highlightId` is the row just saved, so the
- * player can find themselves. Async because the scores come over the network; it
- * shows "Loading…" first so the space is never blank. */
+/* One level's top 10, as one column: the level's name, then a table whose only
+ * visible header is "seconds" over the times — asked for directly, "add the second
+ * label on top of the seconds". The rank and name headers exist for a screen
+ * reader and are visually hidden, as in the screenshot.
+ *
+ * `highlightId` is the row just saved, so the player can find themselves. Async
+ * because the scores come over the network; it shows "Loading…" first so the space
+ * is never blank. */
 async function renderScores(into, levelId, highlightId = null) {
   const copy = gameCopy.board;
   into.replaceChildren(make('p', 'scores__note', copy.loading));
@@ -62,14 +70,18 @@ async function renderScores(into, levelId, highlightId = null) {
     return;
   }
 
-  /* A real table: rank, name and time are columns, and a screen reader can say
-   * "Rank 3, Name Ally, Time 41.2s" rather than a run of words. */
   const table = make('table', 'scores__table');
   const head = make('thead');
   const headRow = make('tr');
-  for (const label of [copy.rank, copy.name, copy.time]) {
-    const th = make('th', null, label);
+  const headers = [[copy.rank, 'scores__hidden'], [copy.name, 'scores__hidden'],
+                   [copy.secondsLabel, 'scores__unit']];
+  /* The hidden labels go in a span INSIDE the cell, not on the cell itself: a
+   * visually-hidden <th> is taken out of the table's layout, and "seconds" then
+   * slid left into the rank column. */
+  for (const [label, className] of headers) {
+    const th = make('th');
     th.scope = 'col';
+    th.append(make('span', className, label));
     headRow.append(th);
   }
   head.append(headRow);
@@ -79,9 +91,9 @@ async function renderScores(into, levelId, highlightId = null) {
     const tr = make('tr');
     if (highlightId !== null && row.id === highlightId) tr.className = 'scores__mine';
     tr.append(
-      make('td', 'scores__rank', String(at + 1)),
+      make('td', 'scores__rank', copy.rankNumber(at + 1)),
       make('td', 'scores__name', row.name),
-      make('td', 'scores__time', copy.seconds(formatTime(row.time_ms))),
+      make('td', 'scores__time', formatTime(row.time_ms)),
     );
     bodyRows.append(tr);
   });
@@ -89,99 +101,81 @@ async function renderScores(into, levelId, highlightId = null) {
   into.replaceChildren(table);
 }
 
-/* The leaderboard notebook UNDER the game: one coloured divider per level sticking
- * out of the page's right edge, and the page showing that level's top 10. Asked for
- * directly, "be like the about me tabs" — so it is built from the About me
- * journal's OWN classes (.journal, .journal__tabs, .journal__tab, .journal__page)
- * and looks the same by construction. `journal--scores` only turns the ruling off
- * and shortens the page; see game.css.
- *
- * A real ARIA tablist, like the journal. */
-function buildNotebook(startLevel) {
-  const notebook = make('div', 'journal journal--scores');
-  const tabs = make('div', 'journal__tabs');
-  tabs.setAttribute('role', 'tablist');
-  tabs.setAttribute('aria-label', gameCopy.board.sideTitle);
+/* All three levels side by side, hardest first, as in the screenshot. */
+function buildLeaderboard() {
+  const wrap = make('div', 'scoreboards');
+  const columns = [...levels].reverse().map((level) => {
+    const column = make('section', 'scoreboards__column');
+    const heading = make('h3', 'scoreboards__title', gameCopy.levels[level.id].label);
+    const list = make('div', 'scoreboards__list');
+    column.append(heading, list);
+    wrap.append(column);
+    return { id: level.id, list };
+  });
 
-  /* Same breakpoint as the journal: dividers down the side on a wide screen, a row
-   * along the top below 34rem (panel.css). aria-orientation says which. */
-  const stacked = window.matchMedia('(max-width: 34rem)').matches;
-  tabs.setAttribute('aria-orientation', stacked ? 'horizontal' : 'vertical');
-
-  const page = make('div', 'journal__page');
-  page.setAttribute('role', 'tabpanel');
-  page.tabIndex = 0;
-  const heading = make('h3', 'scorebook__title');
-  const list = make('div', 'scorebook__list');
-  page.append(heading, list);
-
-  let current = startLevel;
-  const buttons = {};
-
-  function show(levelId, { focusTab = false, highlightId = null } = {}) {
-    current = levelId;
-    for (const level of levels) {
-      const tab = buttons[level.id];
-      const selected = level.id === levelId;
-      tab.setAttribute('aria-selected', String(selected));
-      tab.tabIndex = selected ? 0 : -1;
+  /* Re-read from the database each time the tab is opened, so a time saved a
+   * moment ago is on it. */
+  function refresh(highlight = {}) {
+    for (const column of columns) {
+      renderScores(column.list, column.id, highlight[column.id] ?? null);
     }
-    page.id = `scorepage-${levelId}`;
-    page.setAttribute('aria-labelledby', `scoretab-${levelId}`);
-    heading.textContent = `${gameCopy.board.sideTitle} \u00b7 ${gameCopy.levels[levelId].label}`;
-    if (focusTab) buttons[levelId].focus();
-    renderScores(list, levelId, highlightId);
   }
+  return { node: wrap, refresh };
+}
 
-  /* The divider colours come from the journal's :nth-child rules, in level order. */
-  for (const level of levels) {
-    const tab = button('journal__tab', gameCopy.levels[level.id].label, () => show(level.id));
-    tab.id = `scoretab-${level.id}`;
+/* The two dividers on the side of the panel WINDOW — Game and Leaderboard — asked
+ * for directly: "i want the tabs to be on the side of the actual opening window".
+ *
+ * They live in #panel-tabs, BESIDE the card rather than inside it: the card clips
+ * its contents to its rounded corners, and a divider has to stick out past its
+ * edge. #panel-tabs is inside the dialog frame, so the focus trap and a screen
+ * reader still reach it. panel.js empties and hides it for every other panel.
+ *
+ * Same divider look as the About me journal (.journal__tab), and a real ARIA
+ * tablist with arrow keys. */
+function buildWindowTabs(playView, scoresView, onShowScores) {
+  const strip = document.getElementById('panel-tabs');
+  strip.setAttribute('role', 'tablist');
+  strip.setAttribute('aria-label', gameCopy.tabs.label);
+  /* Beside the window on a wide screen, along its top on a phone (game.css). */
+  const stacked = window.matchMedia('(max-width: 600px)').matches;
+  strip.setAttribute('aria-orientation', stacked ? 'horizontal' : 'vertical');
+
+  const choices = [
+    { id: 'play', label: gameCopy.tabs.game, view: playView },
+    { id: 'scores', label: gameCopy.tabs.leaderboard, view: scoresView },
+  ];
+  const tabs = choices.map((choice) => {
+    const tab = button('journal__tab', choice.label, () => select(choice.id));
+    tab.id = `game-tab-${choice.id}`;
     tab.setAttribute('role', 'tab');
-    tab.setAttribute('aria-controls', `scorepage-${level.id}`);
-    buttons[level.id] = tab;
-    tabs.append(tab);
+    tab.setAttribute('aria-controls', `game-view-${choice.id}`);
+    return tab;
+  });
+
+  function select(id, { focus = false } = {}) {
+    choices.forEach((choice, at) => {
+      const selected = choice.id === id;
+      choice.view.hidden = !selected;
+      tabs[at].setAttribute('aria-selected', String(selected));
+      tabs[at].tabIndex = selected ? 0 : -1;
+      if (selected && focus) tabs[at].focus();
+    });
+    if (id === 'scores') onShowScores();
   }
 
-  /* Arrow keys move between tabs, same as the journal. */
-  tabs.addEventListener('keydown', (event) => {
+  strip.addEventListener('keydown', (event) => {
     const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[event.key];
     if (!step) return;
     event.preventDefault();
-    const at = levels.findIndex((level) => level.id === current);
-    show(levels[(at + step + levels.length) % levels.length].id, { focusTab: true });
+    const at = tabs.indexOf(document.activeElement);
+    const next = choices[(Math.max(at, 0) + step + choices.length) % choices.length];
+    select(next.id, { focus: true });
   });
 
-  /* Tabs before the page in the DOM, as in the journal: the page's own edge is what
-   * hides their tucked halves. */
-  notebook.append(tabs, page);
-  show(startLevel);
-  return { node: notebook, show };
-}
-
-/* --- the full leaderboard panel ------------------------------------------- */
-
-/* All three levels at once, each its own ruled page, asked for directly. */
-export function fillLeaderboard(body) {
-  body.append(make('p', 'panel__intro', gameCopy.board.intro));
-
-  const wrap = make('div', 'scoreboards');
-  levels.forEach((level, at) => {
-    const page = make('section', 'journal__page scoreboards__page');
-    page.dataset.tab = String(at + 1);
-    const heading = make('h3', 'scorebook__title', gameCopy.levels[level.id].label);
-    const list = make('div', 'scorebook__list');
-    page.append(heading, list);
-    wrap.append(page);
-    renderScores(list, level.id);
-  });
-  body.append(wrap);
-
-  const play = make('a', 'game__button game__button--main', gameCopy.board.play);
-  play.href = '#/exterior/feed-junnie';
-  const row = make('p', 'scoreboards__play');
-  row.append(play);
-  body.append(row);
+  strip.replaceChildren(...tabs);
+  strip.hidden = false;
+  select('play');
 }
 
 /* --- the game panel -------------------------------------------------------- */
@@ -195,29 +189,39 @@ function boardShape(level) {
 }
 
 export function fillGame(body) {
-  const layout = make('div', 'game');
+  /* Two views in the panel body, switched by the dividers on the window's side.
+   * Switching only hides one and shows the other, so a game in progress is still
+   * there, clock and all, when the player comes back from the leaderboard. */
+  const playView = make('div', 'game');
+  playView.id = 'game-view-play';
+  playView.setAttribute('role', 'tabpanel');
+  playView.setAttribute('aria-labelledby', 'game-tab-play');
+
+  const scoresView = make('div', 'game__scores');
+  scoresView.id = 'game-view-scores';
+  scoresView.setAttribute('role', 'tabpanel');
+  scoresView.setAttribute('aria-labelledby', 'game-tab-scores');
+  scoresView.hidden = true;
+  const leaderboard = buildLeaderboard();
+  scoresView.append(leaderboard.node);
+
   const main = make('div', 'game__main');
   const view = make('div', 'game__view');
   const overlay = make('div', 'game__overlay');
   overlay.hidden = true;
   main.append(view, overlay);
-
-  /* The leaderboard sits at the BOTTOM of the game, asked for directly — not in a
-   * column beside it. A link under it opens every level's top 10 at once. */
-  const side = make('section', 'game__scores');
-  const notebook = buildNotebook(levels[0].id);
-  const all = make('a', 'game__button game__all', gameCopy.board.all);
-  all.href = '#/exterior/leaderboard';
-  side.append(notebook.node, all);
+  playView.append(main);
 
   /* Announces win, loss and level changes to a screen reader. Visually hidden. */
   const live = make('p', 'game__live');
   live.setAttribute('aria-live', 'polite');
 
-  /* The pop-up cards cover the game area, NOT the leaderboard under it. Covering
-   * both put the card in the middle of a tall scrolling column, off screen. */
-  layout.append(main, side);
-  body.append(layout, live);
+  body.append(playView, scoresView, live);
+
+  /* The id of the score just saved on each level, so the Leaderboard tab can
+   * highlight it too, not only the pop-up after the win. */
+  const saved = {};
+  buildWindowTabs(playView, scoresView, () => leaderboard.refresh(saved));
 
   let timer = null;          // the setInterval that ticks the clock
   let startedAt = null;      // performance.now() of the first dig
@@ -302,7 +306,6 @@ export function fillGame(body) {
     const shape = boardShape(level);
     const board = createBoard(shape.rows, shape.cols, level.fish);
     const label = gameCopy.levels[levelId].label;
-    notebook.show(levelId);
 
     let flagMode = false;      // the phone-friendly toggle: taps place paws instead
     let focused = 0;           // which cell holds the roving tabindex
@@ -578,10 +581,11 @@ export function fillGame(body) {
 
   /* That level's leaderboard, popped up after the name is saved or skipped. */
   function showAfter(levelId, highlightId) {
+    if (highlightId !== null) saved[levelId] = highlightId;
     const level = gameCopy.levels[levelId];
     showCard((card) => {
       card.append(make('h3', 'game__card-title', gameCopy.after.title(level.label)));
-      const list = make('div', 'scorebook__list');
+      const list = make('div', 'scoreboards__list');
       card.append(list);
       renderScores(list, levelId, highlightId);
       const actions = make('div', 'game__actions');
@@ -591,7 +595,6 @@ export function fillGame(body) {
       );
       card.append(actions);
     });
-    notebook.show(levelId, { highlightId });
   }
 
   /* Start: the picker is underneath, the how-to card on top of it. */

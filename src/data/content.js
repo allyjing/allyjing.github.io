@@ -1025,12 +1025,12 @@ export const galleryChrome = {
  * The minesweeper by the fountain. Fish are the mines. Written for this site, not
  * Jingwen's own words — change any of it freely.
  *
- * These two panels open OUTDOORS (#/exterior/feed-junnie, #/exterior/leaderboard),
- * which is why they are kept apart from `panels` above: those five are the tables
- * in the room, and several browser checks walk that list expecting exactly five. */
+ * This panel opens OUTDOORS (#/exterior/feed-junnie), which is why it is kept apart
+ * from `panels` above: those five are the tables in the room, and several browser
+ * checks walk that list expecting exactly five. The leaderboard is a tab INSIDE it,
+ * not a panel of its own. */
 export const gamePanels = {
   'feed-junnie': { title: 'Feed Junnie!', kind: 'game' },
-  leaderboard: { title: 'Leaderboard', kind: 'leaderboard' },
 };
 
 export const gameCopy = {
@@ -1113,19 +1113,21 @@ export const gameCopy = {
     changeLevel: 'Change level',
   },
 
+  /* The two dividers on the side of the game window. */
+  tabs: {
+    label: 'Feed Junnie!',
+    game: 'Game',
+    leaderboard: 'Leaderboard',
+  },
+
   board: {
-    sideTitle: 'Top 10',
     rank: 'Rank',
     name: 'Name',
-    time: 'Time',
-    seconds: (t) => `${t}s`,
+    secondsLabel: 'seconds',
+    rankNumber: (n) => `${n}.`,
     loading: 'Loading\u2026',
     empty: 'No times yet. Be the first!',
     error: 'Couldn\u2019t load the leaderboard.',
     notConnected: 'The leaderboard isn\u2019t connected yet.',
-    you: 'you',
-    intro: 'The ten fastest times on each level, from everyone who has played.',
-    play: 'Back to the game',
-    all: 'See every level\u2019s top 10',
   },
 };

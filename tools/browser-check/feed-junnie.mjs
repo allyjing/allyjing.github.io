@@ -20,6 +20,13 @@ ok('nothing covers the Feed Junnie! board', post.top===true);
 // Asked for directly: "no leaderbaord display on the exterior".
 ok('there is NO leaderboard link outdoors', post.outdoorBoard===0, `${post.outdoorBoard}`);
 
+// Asked for directly: "have the feed junnie label on top of the fountain".
+const perch = await evaluate(`
+  const sign=document.getElementById('open-feed-junnie').closest('.sign');
+  return {x:parseFloat(sign.style.left), y:parseFloat(sign.style.top)};
+`);
+ok('the Feed Junnie! sign stands on top of the fountain', perch.x===73 && perch.y===56, `${perch.x},${perch.y}`);
+
 // --- flow: how to play first, click off it, then pick a level --------------
 await evaluate(`location.hash='#/exterior/feed-junnie'; return 1;`);
 await waitFor("document.querySelector('.game__card')");
@@ -43,23 +50,41 @@ ok('clicking off the card closes it', dismissed.hidden===true);
 ok('...and the three levels are there to pick', dismissed.levels===3, `${dismissed.levels}`);
 ok('...with focus on the first level', dismissed.focus==='game__level', dismissed.focus);
 
-// Asked for directly: levels VERTICAL, and the leaderboard at the BOTTOM of the game,
-// with dividers like the About me tabs.
+// Asked for directly: levels VERTICAL; Game and Leaderboard as dividers on the
+// side of the WINDOW itself; the leaderboard laid out like her screenshot.
 const shape = await evaluate(`
   const lv=[...document.querySelectorAll('.game__level')].map(e=>e.getBoundingClientRect());
-  const main=document.querySelector('.game__main').getBoundingClientRect();
-  const book=document.querySelector('.game .journal');
-  const page=book.querySelector('.journal__page').getBoundingClientRect();
-  const tabs=[...book.querySelectorAll('.journal__tab')].map(e=>e.getBoundingClientRect());
+  const card=document.querySelector('.panel__card').getBoundingClientRect();
+  const strip=document.getElementById('panel-tabs');
+  const tabs=[...strip.querySelectorAll('[role=tab]')];
+  const boxes=tabs.map(t=>t.getBoundingClientRect());
   return {stacked: lv[1].top>=lv[0].bottom && lv[2].top>=lv[1].bottom && lv[0].left===lv[2].left,
-          below: page.top>=main.bottom,
-          tabsRight: tabs.every(t=>t.left>=page.right-30),
-          tabsInside: tabs.every(t=>t.bottom<=page.bottom)};
+          labels: tabs.map(t=>t.textContent).join(','),
+          role: strip.getAttribute('role'),
+          outside: boxes.every(b=>b.right>card.right+20),
+          insideDialog: Boolean(strip.closest('[role=dialog]'))};
 `);
 ok('the levels are listed vertically', shape.stacked===true);
-ok('the leaderboard is UNDER the game, not beside it', shape.below===true);
-ok('...with About-me dividers sticking out of its right edge', shape.tabsRight===true);
-ok('...and no divider hangs below the page', shape.tabsInside===true);
+ok('the window has Game and Leaderboard dividers', shape.labels==='Game,Leaderboard', shape.labels);
+ok('...as a real tablist', shape.role==='tablist', String(shape.role));
+ok('...sticking out past the window\'s right edge', shape.outside===true);
+ok('...and still inside the dialog, for the focus trap and screen readers', shape.insideDialog===true);
+
+const scores = await evaluate(`
+  const before=document.querySelector('.panel__card').getBoundingClientRect().height;
+  document.getElementById('game-tab-scores').click();
+  await new Promise(r=>setTimeout(r,200));
+  const after=document.querySelector('.panel__card').getBoundingClientRect().height;
+  const titles=[...document.querySelectorAll('.scoreboards__title')].map(h=>h.textContent);
+  const play=document.getElementById('game-view-play').hidden;
+  document.getElementById('game-tab-play').click();
+  return {titles:titles.join(','), play, steady: Math.abs(before-after)<1,
+          back: !document.getElementById('game-view-play').hidden};
+`);
+ok('the Leaderboard tab shows all three levels, hardest first', scores.titles==='Expert,Intermediate,Easy', scores.titles);
+ok('...and hides the game while it is open', scores.play===true);
+ok('the window does not change height between tabs', scores.steady===true);
+ok('the Game tab brings the game back', scores.back===true);
 
 // --- a seeded win: the first click is safe, the board clears, a name is asked --
 const win = await evaluate(`
@@ -105,15 +130,6 @@ const closed = await evaluate(`
 `);
 ok('Escape closes the game back to the garden', closed.hidden===true && closed.hash==='#/exterior', closed.hash);
 ok('...and focus goes back to the Feed Junnie! board', closed.focus==='open-feed-junnie', closed.focus);
-
-// --- the full leaderboard: all three levels ---------------------------------
-await evaluate(`location.hash='#/exterior/leaderboard'; return 1;`);
-await waitFor("document.querySelectorAll('.scoreboards__page').length");
-const board = await evaluate(`
-  return {pages:[...document.querySelectorAll('.scoreboards__page h3')].map(h=>h.textContent)};
-`);
-ok('the leaderboard panel shows all three levels', board.pages.join(',')==='Easy,Intermediate,Expert', board.pages.join(','));
-await key('Escape');
 
 // --- a game panel does not open indoors, nor a table panel outdoors ---------
 await evaluate(`location.hash='#/interior/feed-junnie'; return 1;`);

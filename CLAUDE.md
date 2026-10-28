@@ -45,20 +45,36 @@ Junnie sits. Easy 9x9/10, Intermediate 16x16/40, Expert 30x16/99 (turned on its 
 | `supabase/leaderboard.sql` + `README.md` | the table, its checks, setup steps |
 
 **The flow, asked for in this order:** How to play pops up first → clicking off it (or its
-button) shows the level picker, **one level per line** → play → on a win, an optional name →
-that level's top 10 pops up.
+button) shows the level picker, **one level per line** (asked for directly) → play → on a
+win, an optional name → that level's top 10 pops up.
 
-⚠️ **The leaderboard is at the BOTTOM of the game, not beside it, and NOT outdoors** —
-asked for directly on 2026-10-28, replacing a side column and a Leaderboard link on the
-post: *"no leaderbaord display on the exterior. the leaedrboard should be on the bottom of
-the game"*. It is built from the About me journal's OWN classes (`.journal`,
-`.journal__tab`, `.journal__page`) plus `journal--scores`, which turns the ruling off
-(table rows are not on the baseline grid) and shortens the page to 20rem — still tall
-enough for three dividers. The all-levels page, `#/exterior/leaderboard`, is reached from
-a link under the notebook. The pop-up cards cover the game area only; covering the
-notebook too put them mid-scroll, off screen.
+⚠️ **Game and Leaderboard are DIVIDERS ON THE SIDE OF THE PANEL WINDOW** — asked for
+directly on 2026-10-28: *"i want the tabs to be on the side of the actual opening window"*.
+This replaced, the same day, a leaderboard notebook under the game and before that a side
+column. They live in `#panel-tabs`, a sibling of `.panel__card` inside `.panel__frame`:
 
-⚠️ **Two panels open OUTDOORS now.** `gamePanels` in content.js is kept apart from `panels`
+- **The FRAME is the `role="dialog"` now, not the card.** The card clips to its rounded
+  corners, so a divider sticking out past its edge cannot be inside it — and it still has
+  to be inside the dialog for the focus trap and for a screen reader in a modal.
+- `panel.js` empties and hides `#panel-tabs` AND removes its `role` for every panel, and
+  `fillGame` puts it back. A check in time-freeze-and-panels finds the first
+  `[role=tablist]` on the page, which must stay the journal's.
+- Switching tabs hides one view and shows the other — NOT a route change, because a
+  refill would throw away a game in progress.
+- The wide card has a `min-height` so the window does not jump between tabs.
+- On a phone the dividers become a row along the window's top, like the journal's.
+
+**The Leaderboard tab copies a screenshot Jingwen supplied**: three columns, hardest first
+(Expert, Intermediate, Easy), each the level's name in bold then 1-10 with the name left
+and the time right, and a small **"seconds"** label over the times — asked for directly.
+The rank and name headers are screen-reader-only, as a span INSIDE the `<th>`; hiding the
+`<th>` itself took it out of the table layout and slid "seconds" into the rank column.
+
+**There is no separate leaderboard panel any more**, and no Leaderboard link outdoors —
+*"no leaderbaord display on the exterior"*. The Feed Junnie! sign stands **on top of the
+fountain** (x 73 y 56), asked for directly.
+
+⚠️ **A panel opens OUTDOORS now.** `gamePanels` in content.js is kept apart from `panels`
 because several checks walk `panels` expecting exactly the five tables. main.js's
 `panelScene()` says which scene a panel belongs to; a panel opens only over its own scene,
 and closing goes back to `currentScene`. The opener is `table-<id>` indoors or
@@ -858,7 +874,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 225 assertions across seven suites; see
+`index.html` does not reference it. 234 assertions across seven suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

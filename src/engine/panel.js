@@ -15,7 +15,7 @@ import { panels, gamePanels, panelChrome, galleryChrome, showcaseChrome, photoSi
          portraitWidths, portraitSizes } from '../data/content.js';
 import { photoSrc, photoSrcset } from './photos.js';
 import { openLightbox, closeLightbox, isLightboxOpen } from './lightbox.js';
-import { fillGame, fillLeaderboard } from './game.js';
+import { fillGame } from './game.js';
 
 /* The five table panels indoors, and the two Feed Junnie! panels by the fountain
  * outdoors. Kept as two lists in content.js; one lookup here. */
@@ -121,17 +121,24 @@ function fill(panel, item) {
     body.append(intro);
   }
 
-  /* The game needs a wider card than a page of text: Expert is 30 tiles across with
-   * the leaderboard beside it. */
-  const wide = panel.kind === 'game' || panel.kind === 'leaderboard';
+  /* The game needs a wider card than a page of text: Expert is 30 tiles across. */
+  const wide = panel.kind === 'game';
   el('panel').querySelector('.panel__card').classList.toggle('panel__card--wide', wide);
+
+  /* The dividers on the side of the window are Feed Junnie!'s alone. Emptied and
+   * hidden for every panel, and the role taken off, so an empty strip is never
+   * announced and is never the first [role=tablist] on the page; fillGame puts
+   * all of it back. */
+  const tabs = el('panel-tabs');
+  tabs.replaceChildren();
+  tabs.hidden = true;
+  tabs.removeAttribute('role');
+  tabs.removeAttribute('aria-orientation');
 
   /* Three renderers, selected by the data rather than by the panel's id — see `kind`
    * in content.js. A panel declares one shape and carries only that shape's keys. */
   if (panel.kind === 'game') {
     fillGame(body);
-  } else if (panel.kind === 'leaderboard') {
-    fillLeaderboard(body);
   } else if (panel.kind === 'gallery') {
     fillGallery(body, panel);
   } else if (panel.kind === 'showcase') {
