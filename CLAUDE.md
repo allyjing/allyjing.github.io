@@ -38,7 +38,7 @@ Junnie sits. Easy 9x9/10, Intermediate 16x16/40, Expert 30x16/99 (turned on its 
 | file | job |
 |---|---|
 | `src/data/game.js` | levels, the name filter, `formatTime`. Pure |
-| `src/data/leaderboard-config.js` | Supabase URL + anon key. **Empty until Jingwen sets up Supabase** |
+| `src/data/leaderboard-config.js` | Supabase URL + **publishable** key. Connected 2026-10-28 |
 | `src/engine/minesweeper.js` | the rules. Pure, like movement.js |
 | `src/engine/scores.js` | Supabase REST over plain `fetch` — no library, no npm |
 | `src/engine/game.js` | draws the game and both leaderboards inside the panel |
@@ -88,6 +88,19 @@ Supabase project. Names may be fake, anonymous or game handles; **nothing rude o
 name sent straight to the database. `minMs` per level is also in both. The anon key is
 public by design; row-level security allows read and insert only. **Never commit the
 service_role key.** A bad row is deleted by hand in the dashboard.
+
+**Connected 2026-10-28** to Supabase project `njrhujxuydvsegirzkom` ("allyjing's Project",
+us-east-2), which Jingwen signs in to with GitHub. The key in the config is the new-style
+`sb_publishable_…` key; the legacy JWT `anon` key would also work. **The project's
+`sb_secret_…` and `service_role` keys never go in the repo.** Verified against the live
+database, not a mock: rude names (spaced out, number-for-letter, whole word), an impossible
+time, an unknown level and an emoji are all refused by the database itself with code
+23514; a valid score saves; and visitors' PATCH and DELETE both change nothing. Test rows
+were deleted afterwards — the table started empty.
+
+Removing a row takes admin access: the dashboard, or Composio's
+`SUPABASE_BETA_RUN_SQL_QUERY` against that project ref. The browser checks only READ scores;
+do not add one that saves a score, or every run puts a row on the public board.
 
 ⚠️ **Expert tiles are about 20px on a phone**, below the 44px tap-target rule. 30x16 cannot
 meet it on a 390px screen; the Paw-mode toggle and long-press are what make it playable.

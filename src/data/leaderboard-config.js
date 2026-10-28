@@ -14,6 +14,6 @@
  * one can do anything and the repo is public.
  */
 export const leaderboardConfig = {
-  url: '',        // e.g. 'https://abcdefghijkl.supabase.co'
-  anonKey: '',    // the long "anon" / "publishable" key
+  url: 'https://njrhujxuydvsegirzkom.supabase.co',
+  anonKey: 'sb_publishable_4GUb98Lt-SdlA3ydf3-rAA_CkoYSDrO',
 };
