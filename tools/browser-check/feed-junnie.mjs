@@ -34,11 +34,40 @@ const first = await evaluate(`
   return {open:!document.getElementById('panel').hidden,
           title:document.getElementById('panel-title').textContent,
           card:document.querySelector('.game__card h3').textContent,
-          wide:document.querySelector('.panel__card').classList.contains('panel__card--wide')};
+          wide:document.querySelector('.panel__card').classList.contains('panel__card--game')};
 `);
 ok('the game panel opens outdoors', first.open===true && first.title==='Feed Junnie!', first.title);
 ok('How to play pops up first', first.card==='How to play', first.card);
-ok('...in the wide card', first.wide===true);
+ok('...in the game window', first.wide===true);
+
+// Asked for directly: regular size while reading and picking, then the window
+// takes the size of the level picked, and goes back on "Change level".
+const sizes = await evaluate(`
+  const w=()=>Math.round(document.querySelector('.panel__card').getBoundingClientRect().width);
+  const o=document.querySelector('.game__overlay');
+  o.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  const out={picker:w()};
+  for (const [i,n] of [[0,'easy'],[1,'intermediate'],[2,'expert']]) {
+    document.querySelectorAll('.game__level')[i].click();
+    const b=document.getElementById('panel-body');
+    out[n]=w(); out[n+'Scrolls']=b.scrollHeight>b.clientHeight+1;
+    [...document.querySelectorAll('.game__bar button')].find(x=>x.textContent==='Change level').click();
+  }
+  out.back=w();
+  return out;
+`);
+ok('the window is regular size (680px) on the level picker', sizes.picker===680, `${sizes.picker}`);
+ok('Easy keeps the regular size', sizes.easy===680, `${sizes.easy}`);
+/* >= not >: at 900px tall the 16x16 board is limited by HEIGHT and already fits the
+ * regular window, so the window rightly stays 680. It widens on a taller screen. */
+ok('Intermediate is never narrower than Easy', sizes.intermediate>=sizes.easy, `${sizes.intermediate}`);
+ok('Expert widens it further', sizes.expert>sizes.intermediate, `${sizes.expert}`);
+ok('no level makes the window scroll', !sizes.easyScrolls && !sizes.intermediateScrolls && !sizes.expertScrolls);
+ok('Change level puts it back to regular size', sizes.back===680, `${sizes.back}`);
+await evaluate(`location.hash='#/exterior'; return 1;`);
+await new Promise(r=>setTimeout(r,300));
+await evaluate(`location.hash='#/exterior/feed-junnie'; return 1;`);
+await waitFor("document.querySelector('.game__card')");
 
 const dismissed = await evaluate(`
   const o=document.querySelector('.game__overlay');
@@ -103,6 +132,22 @@ const win = await evaluate(`
 ok('Easy is 9 x 9', win.n===81, `${win.n}`);
 ok('the first click is always safe', win.firstSafe===true);
 ok('clearing the board wins', win.card==='Junnie is fed!', win.card||'no card');
+
+// Junnie's feast, then the leaderboard. Through SKIP, deliberately: the board is the
+// real shared database now, and a check that saved a name would put a row on it.
+const feast = await evaluate(`
+  [...document.querySelectorAll('.game__card button')].find(b=>b.textContent==='Skip').click();
+  const title=document.querySelector('.game__card h3').textContent;
+  const fish=document.querySelectorAll('.feast .feast__fish').length;
+  const cat=Boolean(document.querySelector('.feast .feast__junnie'));
+  const hidden=document.querySelector('.feast').getAttribute('aria-hidden');
+  await new Promise(r=>setTimeout(r,4200));
+  return {title, fish, cat, hidden, after:document.querySelector('.game__card h3')?.textContent};
+`);
+ok('after the name, Junnie has his feast', feast.title==='Nom nom nom!' && feast.cat===true, feast.title);
+ok('...with fish flying to him', feast.fish===6, `${feast.fish}`);
+ok('...hidden from screen readers, which hear the title instead', feast.hidden==='true');
+ok('...and then the leaderboard pops up', feast.after==='Easy leaderboard', feast.after||'none');
 
 // --- the name filter (pure, from data) -------------------------------------
 const names = await evaluate(`

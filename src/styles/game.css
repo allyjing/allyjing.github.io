@@ -5,13 +5,30 @@
  * so these read the same at every hour.
  */
 
-/* The game needs more room than a page of text — less the room the dividers on the
-   window's side stick out into, so they stay on screen. */
-.panel__card--wide {
-  width: min(1120px, calc(96vw - 4.5rem));
-  /* A steady height, so switching between Game and Leaderboard does not make the
-     window jump up and down as its contents change size. */
-  min-height: min(44rem, 85vh);
+/* The game window is the SAME size as every other panel while the visitor reads how
+   to play and picks a level — asked for directly, "have everything be reg sized" —
+   then grows to fit the board they picked: "when users pick their difficulty then
+   change the window size to the desired size for that difficulty". game.js sets
+   data-size on the card when a game starts and removes it on the level picker.
+
+   Every width leaves 4.5rem for the dividers sticking out of the window's side, so
+   they stay on screen. Easy's nine tiles fit the regular window, so it has no rule
+   of its own. The width changes in one step, not animated: design.md never animates
+   width. */
+.panel__card--game { width: min(680px, calc(96vw - 4.5rem)); }
+/* The third term in each is the board's own height-limited width (see .game__board)
+   plus the window's padding, so on a short screen the window shrinks WITH the board
+   instead of leaving empty space either side of it. 16/16 and 30/16 are the boards'
+   columns over rows. */
+/* ...but never narrower than the regular 680px window: narrower than that, the
+   button bar wraps onto a second row and the window has to scroll. */
+.panel__card--game[data-size='intermediate'] {
+  width: min(calc(96vw - 4.5rem),
+             max(680px, min(780px, calc((85vh - 11rem) * 16 / 16 + 3rem))));
+}
+.panel__card--game[data-size='expert'] {
+  width: min(calc(96vw - 4.5rem),
+             max(680px, min(1160px, calc((85vh - 11rem) * 30 / 16 + 3rem))));
 }
 
 /* --- the dividers on the side of the WINDOW -----------------------------------
@@ -68,10 +85,11 @@
     margin-right: 0;
     padding-bottom: var(--space-4);
   }
-  /* Full width on a phone. Without this the wide rule above — which leaves room
-     for dividers BESIDE the window — beat panel.css's phone width and left the
-     window 300px wide. */
-  .panel__card--wide { width: 100%; }
+  /* Full width on a phone, whatever the level. Without this the rules above — which
+     leave room for dividers BESIDE the window — beat panel.css's phone width and
+     left the window 300px wide. */
+  .panel__card--game,
+  .panel__card--game[data-size] { width: 100%; }
 
   /* Leave room above the card for the row of dividers. */
   .panel__frame:has(> .panel__tabs:not([hidden])) .panel__card {
@@ -109,8 +127,7 @@
 .game__levels {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  max-width: 28rem;
+  gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
 
@@ -118,23 +135,23 @@
   appearance: none;
   cursor: pointer;
   font: inherit;
+  /* An ordinary row — the level's name on the left, the board size on the right —
+     rather than a big card. Asked for directly: "have everything be reg sized". */
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-4);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   min-height: var(--tap-min);
   text-align: left;
   color: var(--ink);
   background: var(--surface-raised);
-  border: 2px solid var(--hairline);
+  border: 1px solid var(--hairline);
   border-radius: var(--radius-md);
 }
 .game__level:hover { border-color: var(--accent-berry); }
 
-.game__level-name {
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-}
+.game__level-name { font-weight: 700; }
 .game__level-detail {
   font-size: var(--text-sm);
   color: var(--ink-soft);
@@ -211,7 +228,12 @@
   flex-direction: column;
   gap: 2px;
   width: 100%;
-  max-width: calc(var(--cols) * 2.5rem);
+  /* Two caps, whichever is smaller: tiles no bigger than 2.5rem, and a board short
+     enough to fit the window's height without scrolling. 85vh is the card's own
+     max-height; 11rem is the title bar, the game bar and the padding. Square tiles
+     mean height = width x rows / cols, so that sets the width too. */
+  max-width: min(calc(var(--cols) * 2.5rem),
+                 calc((85vh - 11rem) * var(--cols) / var(--rows)));
   margin-inline: auto;
   padding: 4px;
   background: var(--hairline);
@@ -418,8 +440,10 @@
    purpose — no cards, no ruling — which is what the screenshot is. */
 .scoreboards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: var(--space-4) var(--space-8);
+  /* 11rem so all three columns fit side by side in the REGULAR-size window, which
+     is what the Leaderboard tab is shown in from the level picker. */
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-4) var(--space-6);
 }
 
 .scoreboards__title {
@@ -427,4 +451,102 @@
   font-family: var(--font-ui);
   font-size: var(--text-lg);
   font-weight: 700;
+}
+
+/* --- Junnie's feast, after a win ------------------------------------------------
+   Asked for directly: a fun animation of Junnie playing and eating fish after the
+   player wins and puts in their name. Fish arc in from both sides to his mouth and
+   vanish; he hops and bats at them the whole time; a "nom!" pops beside his mouth as
+   each one lands. Positions are relative to his MOUTH, which is where every fish is
+   anchored — each one starts at its own --from-x/--from-y offset and flies to 0,0.
+
+   ⚠️ feast-fly's 900ms must match FEAST_FLIGHT_MS in game.js, or the "nom!" pops up
+   before or after the fish actually arrives. */
+.feast {
+  position: relative;
+  height: 12rem;
+  margin: var(--space-2) 0 var(--space-3);
+  overflow: hidden;            /* fish start off to the sides; keep them in the card */
+}
+
+.feast__junnie {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 9rem;
+  width: auto;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+}
+
+/* His mouth. The sprite is 9rem tall standing on the bottom of a 12rem scene, so
+   his head starts at 3rem; the mouth is about 2rem below that. */
+.feast__fish,
+.feast__nom {
+  position: absolute;
+  left: 50%;
+  top: 5rem;
+  pointer-events: none;
+}
+
+.feast__fish {
+  font-size: var(--text-xl);
+  line-height: 1;
+  margin: -0.5em 0 0 -0.5em;   /* centre the emoji on the mouth point */
+  opacity: 0;
+}
+.feast__face { display: inline-block; }
+
+.feast__nom {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--accent-berry);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .feast__junnie { animation: feast-play 0.9s var(--ease-soft) infinite; }
+
+  .feast__fish {
+    animation: feast-fly 900ms var(--ease-soft) var(--delay) 1 both;
+  }
+
+  .feast__nom {
+    animation: feast-nom 700ms var(--ease-soft) var(--delay) 1 both;
+  }
+
+  /* Batting at the fish: little hops and paw-swipe tilts either way. */
+  @keyframes feast-play {
+    0%, 100% { rotate: 0deg;  transform: translateY(0); }
+    20%      { rotate: -7deg; transform: translateY(-6px); }
+    45%      { rotate: 6deg;  transform: translateY(0); }
+    70%      { rotate: -4deg; transform: translateY(-4px); }
+  }
+
+  /* Thrown in an arc: out from the side, up over the top, down into his mouth,
+     where it shrinks away to nothing — eaten. */
+  @keyframes feast-fly {
+    0%   { opacity: 0; transform: translate(var(--from-x), var(--from-y)) scale(1); }
+    12%  { opacity: 1; }
+    50%  { transform: translate(calc(var(--from-x) * 0.45), calc(var(--from-y) * 0.5 - 3rem)) scale(0.95) rotate(20deg); }
+    85%  { opacity: 1; transform: translate(0, 0) scale(0.6); }
+    100% { opacity: 0; transform: translate(0, 0) scale(0); }
+  }
+
+  @keyframes feast-nom {
+    0%   { opacity: 0; transform: translate(calc(var(--side) * 3.5rem - 50%), 0) scale(0.6); }
+    30%  { opacity: 1; transform: translate(calc(var(--side) * 4rem - 50%), -0.75rem) scale(1.1); }
+    100% { opacity: 0; transform: translate(calc(var(--side) * 4.5rem - 50%), -2rem) scale(1); }
+  }
+}
+
+/* Reduced motion: no flying. The fish sit in a row in front of him instead, so the
+   picture still says "Junnie, with his fish", and game.js moves on sooner. */
+@media (prefers-reduced-motion: reduce) {
+  .feast__fish {
+    opacity: 1;
+    top: auto;
+    bottom: 0.25rem;
+    transform: translateX(calc(var(--from-x) * 0.45));
+  }
 }

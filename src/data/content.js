@@ -1107,6 +1107,15 @@ export const gameCopy = {
     body: 'Junnie is still hungry. Want to try again?',
   },
 
+  /* The little celebration after a win, once the name is saved or skipped: Junnie
+   * plays with and eats the fish. Asked for directly. */
+  feast: {
+    title: 'Nom nom nom!',
+    body: 'Junnie is eating every fish you found. Thank you for feeding him!',
+    nom: 'nom!',
+    skip: 'Skip',
+  },
+
   after: {
     title: (level) => `${level} leaderboard`,
     again: 'Play again',

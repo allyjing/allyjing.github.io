@@ -70,6 +70,23 @@ and the time right, and a small **"seconds"** label over the times — asked for
 The rank and name headers are screen-reader-only, as a span INSIDE the `<th>`; hiding the
 `<th>` itself took it out of the table layout and slid "seconds" into the rank column.
 
+**The window is REGULAR size until a level is picked, then fits that level** — asked for
+directly: *"have everything be reg sized and when users pick their difficulty then change
+the window size to the desired size for that difficulty"*. `.panel__card--game` is 680px
+like every panel; `sizeWindow()` in game.js sets `data-size` on the card when a game
+starts and removes it on the level picker. Intermediate and Expert widths are capped by
+the board's HEIGHT-limited width (`--rows` is set on the board for this) and floored at
+680px, because below that the button bar wraps and the window scrolls. So at 900px tall
+Intermediate rightly stays 680. The width changes in one step, never animated. Switching
+to the Leaderboard tab pins the card's current height so it does not jump. The level
+choices are ordinary rows, name left and board size right.
+
+**After a win, Junnie has a feast** — asked for directly: fish arc in from both sides to his
+mouth while he hops and bats at them, "nom!" pops as each lands, then the leaderboard pops
+up (Skip goes straight there). It runs after the name is saved OR skipped. Reduced motion
+gets a still picture and moves on after 1.8s. ⚠️ `FEAST_FLIGHT_MS` in game.js must match
+`feast-fly`'s 900ms in game.css or the "nom!" is out of step with the fish.
+
 **There is no separate leaderboard panel any more**, and no Leaderboard link outdoors —
 *"no leaderbaord display on the exterior"*. The Feed Junnie! sign stands **on top of the
 fountain** (x 73 y 56), asked for directly.
@@ -887,7 +904,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 234 assertions across seven suites; see
+`index.html` does not reference it. 244 assertions across seven suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

@@ -154,6 +154,11 @@ function buildWindowTabs(playView, scoresView, onShowScores) {
   });
 
   function select(id, { focus = false } = {}) {
+    /* Hold the window's height while the leaderboard is showing, so switching tabs
+     * does not make it jump up or down; let go again on the way back to the game. */
+    const card = document.querySelector('.panel__card');
+    card.style.minHeight = id === 'scores' ? `${card.offsetHeight}px` : '';
+
     choices.forEach((choice, at) => {
       const selected = choice.id === id;
       choice.view.hidden = !selected;
@@ -179,6 +184,20 @@ function buildWindowTabs(playView, scoresView, onShowScores) {
 }
 
 /* --- the game panel -------------------------------------------------------- */
+
+/* Junnie's feast after a win (showFeast below). Where each fish is thrown from,
+ * relative to his mouth, and the timing. The flight time here must match the
+ * `feast-fly` duration in game.css, so that "nom!" pops up as the fish lands. */
+const FEAST_FISH = [
+  { x: '-9rem', y: '-1rem', fromLeft: true },
+  { x: '9rem', y: '-2rem', fromLeft: false },
+  { x: '-7rem', y: '-4.5rem', fromLeft: true },
+  { x: '8rem', y: '-5rem', fromLeft: false },
+  { x: '-10rem', y: '1rem', fromLeft: true },
+  { x: '10rem', y: '0rem', fromLeft: false },
+];
+const FEAST_GAP_MS = 420;       // between one throw and the next
+const FEAST_FLIGHT_MS = 900;    // = feast-fly's duration in game.css
 
 /* Phones get Expert turned on its side — 16 wide and 30 tall instead of 30 wide —
  * because 30 columns on a 390px screen makes every tile a 12px crumb. */
@@ -278,8 +297,17 @@ export function fillGame(body) {
 
   /* --- 2. pick a level ---- */
 
+  /* Resizes the window to the level being played, or back to the regular panel
+   * size for null. The widths themselves are in game.css (data-size). */
+  function sizeWindow(levelId) {
+    const card = document.querySelector('.panel__card');
+    if (levelId) card.dataset.size = levelId;
+    else delete card.dataset.size;
+  }
+
   function showPicker() {
     stopTimer();
+    sizeWindow(null);
     const copy = gameCopy.pick;
     const heading = make('h3', 'game__heading', copy.title);
     const choices = make('div', 'game__levels');
@@ -303,6 +331,7 @@ export function fillGame(body) {
     startedAt = null;
 
     const level = levelById(levelId);
+    sizeWindow(levelId);
     const shape = boardShape(level);
     const board = createBoard(shape.rows, shape.cols, level.fish);
     const label = gameCopy.levels[levelId].label;
@@ -334,6 +363,7 @@ export function fillGame(body) {
     grid.setAttribute('role', 'grid');
     grid.setAttribute('aria-label', gameCopy.boardAria(label));
     grid.style.setProperty('--cols', String(board.cols));
+    grid.style.setProperty('--rows', String(board.rows));
     /* Each tile's size: as big as fits, capped so Easy does not become huge. */
     grid.dataset.level = levelId;
 
@@ -511,7 +541,7 @@ export function fillGame(body) {
       if (!scoresConnected) {
         card.append(make('p', 'game__hint', copy.notConnected));
         card.append(button('game__button game__button--main', copy.seeBoard,
-          () => showAfter(levelId, null)));
+          () => showFeast(levelId, null)));
         return;
       }
 
@@ -533,7 +563,7 @@ export function fillGame(body) {
 
       const save = make('button', 'game__button game__button--main', copy.save);
       save.type = 'submit';
-      const skip = button('game__button', copy.skip, () => showAfter(levelId, null));
+      const skip = button('game__button', copy.skip, () => showFeast(levelId, null));
       const actions = make('div', 'game__actions');
       actions.append(save, skip);
 
@@ -551,7 +581,7 @@ export function fillGame(body) {
         save.textContent = copy.saving;
         try {
           const row = await submitScore({ difficulty: levelId, name: checked.name, timeMs: ms });
-          showAfter(levelId, row ? row.id : null);
+          showFeast(levelId, row ? row.id : null);
         } catch (failure) {
           error.textContent = gameCopy.nameErrors[failure.reason] || gameCopy.nameErrors.network;
           save.disabled = false;
@@ -577,6 +607,66 @@ export function fillGame(body) {
     /* A loss card over the board hides where the fish were, which is half the fun of
      * losing. It sits at the BOTTOM of the game area instead of in the middle. */
     overlay.dataset.place = 'bottom';
+  }
+
+  /* Junnie's feast, between the name and the leaderboard — asked for directly: "after
+   * the player wins the game and inputs their name ... have a fun animation of junnie
+   * playing and eating fish". Fish arc in from both sides into his mouth while he
+   * bats at them, a "nom!" pops up as each one lands, and then the leaderboard
+   * appears. Skip goes straight there. All the motion is CSS (game.css); this only
+   * builds the scene and moves on when it is over. */
+  function showFeast(levelId, highlightId) {
+    const copy = gameCopy.feast;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer = null;
+    let finished = false;
+
+    function finish() {
+      if (finished) return;            // Skip and the timer can both arrive
+      finished = true;
+      clearTimeout(timer);
+      showAfter(levelId, highlightId);
+    }
+
+    showCard((card) => {
+      card.append(make('h3', 'game__card-title', copy.title), make('p', null, copy.body));
+
+      /* Decorative: the title and the sentence above say what is happening, so a
+       * screen reader is not walked through six flying fish. */
+      const scene = make('div', 'feast');
+      scene.setAttribute('aria-hidden', 'true');
+      const cat = make('img', 'feast__junnie');
+      cat.src = 'assets/sprites/junnie.png';
+      cat.alt = '';
+      scene.append(cat);
+
+      FEAST_FISH.forEach((fish, at) => {
+        const flyer = make('span', 'feast__fish');
+        flyer.style.setProperty('--from-x', fish.x);
+        flyer.style.setProperty('--from-y', fish.y);
+        flyer.style.setProperty('--delay', `${at * FEAST_GAP_MS}ms`);
+        /* The emoji faces left; one thrown from the left has to face right, toward
+         * him. The flip is on an inner span so it does not fight the flight. */
+        const face = make('span', 'feast__face', gameCopy.fish);
+        if (fish.fromLeft) face.style.transform = 'scaleX(-1)';
+        flyer.append(face);
+
+        /* "nom!" pops up as that fish reaches his mouth. */
+        const nom = make('span', 'feast__nom', copy.nom);
+        nom.style.setProperty('--delay', `${at * FEAST_GAP_MS + FEAST_FLIGHT_MS}ms`);
+        nom.style.setProperty('--side', fish.fromLeft ? '-1' : '1');
+        scene.append(flyer, nom);
+      });
+      card.append(scene);
+
+      card.append(button('game__button', copy.skip, finish));
+    });
+    live.textContent = copy.title;
+
+    /* Long enough for the last fish to land and be eaten. With reduced motion the
+     * scene is still, so there is nothing to wait for beyond a moment to read it. */
+    const lastLanding = (FEAST_FISH.length - 1) * FEAST_GAP_MS + FEAST_FLIGHT_MS;
+    timer = setTimeout(finish, reduced ? 1800 : lastLanding + 900);
   }
 
   /* That level's leaderboard, popped up after the name is saved or skipped. */

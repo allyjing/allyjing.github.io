@@ -121,9 +121,12 @@ function fill(panel, item) {
     body.append(intro);
   }
 
-  /* The game needs a wider card than a page of text: Expert is 30 tiles across. */
-  const wide = panel.kind === 'game';
-  el('panel').querySelector('.panel__card').classList.toggle('panel__card--wide', wide);
+  /* The game's window resizes itself to the level being played (game.css); every
+   * other panel drops both the class and the size it may have left behind. */
+  const card = el('panel').querySelector('.panel__card');
+  card.classList.toggle('panel__card--game', panel.kind === 'game');
+  delete card.dataset.size;
+  card.style.minHeight = '';
 
   /* The dividers on the side of the window are Feed Junnie!'s alone. Emptied and
    * hidden for every panel, and the role taken off, so an empty strip is never
