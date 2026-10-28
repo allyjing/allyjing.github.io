@@ -78,21 +78,15 @@ export const signs = {
     ariaLabel: "Jingwen's resume, a plain text page",
   },
 
-  /* The post by the fountain, next to Junnie: the game, and the full leaderboard.
-   * Both are panels opened OUTDOORS, by route — see gamePanels below. `id` gives the
-   * board a DOM id of `open-<panel id>` so the panel can hand focus back to it on
-   * close, the way it does for a table indoors. */
+  /* The post by the fountain, next to Junnie: the game. It opens a panel OUTDOORS,
+   * by route — see gamePanels below. `id` gives the board a DOM id of
+   * `open-<panel id>` so the panel can hand focus back to it on close, the way it
+   * does for a table indoors. */
   feedJunnie: {
     id: 'feed-junnie',
     label: 'Feed Junnie!',
     href: '#/exterior/feed-junnie',
     ariaLabel: 'Play Feed Junnie!, a minesweeper game',
-  },
-  leaderboard: {
-    id: 'leaderboard',
-    label: 'Leaderboard',
-    href: '#/exterior/leaderboard',
-    ariaLabel: 'See the Feed Junnie! leaderboard',
   },
 };
 
@@ -1131,6 +1125,7 @@ export const gameCopy = {
     notConnected: 'The leaderboard isn\u2019t connected yet.',
     you: 'you',
     intro: 'The ten fastest times on each level, from everyone who has played.',
-    play: 'Play Feed Junnie!',
+    play: 'Back to the game',
+    all: 'See every level\u2019s top 10',
   },
 };

@@ -45,10 +45,18 @@ Junnie sits. Easy 9x9/10, Intermediate 16x16/40, Expert 30x16/99 (turned on its 
 | `supabase/leaderboard.sql` + `README.md` | the table, its checks, setup steps |
 
 **The flow, asked for in this order:** How to play pops up first → clicking off it (or its
-button) shows the level picker → play → on a win, an optional name → that level's top 10
-pops up. A notebook down the side shows the top 10 per level with divider tabs, after the
-About me journal. A second board on the same post opens `#/exterior/leaderboard`: all three
-levels, top 10 each, name and time.
+button) shows the level picker, **one level per line** → play → on a win, an optional name →
+that level's top 10 pops up.
+
+⚠️ **The leaderboard is at the BOTTOM of the game, not beside it, and NOT outdoors** —
+asked for directly on 2026-10-28, replacing a side column and a Leaderboard link on the
+post: *"no leaderbaord display on the exterior. the leaedrboard should be on the bottom of
+the game"*. It is built from the About me journal's OWN classes (`.journal`,
+`.journal__tab`, `.journal__page`) plus `journal--scores`, which turns the ruling off
+(table rows are not on the baseline grid) and shortens the page to 20rem — still tall
+enough for three dividers. The all-levels page, `#/exterior/leaderboard`, is reached from
+a link under the notebook. The pop-up cards cover the game area only; covering the
+notebook too put them mid-scroll, off screen.
 
 ⚠️ **Two panels open OUTDOORS now.** `gamePanels` in content.js is kept apart from `panels`
 because several checks walk `panels` expecting exactly the five tables. main.js's

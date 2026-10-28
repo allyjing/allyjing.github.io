@@ -10,15 +10,15 @@ await waitFor("document.getElementById('open-feed-junnie')");
 // --- the post by the fountain ---------------------------------------------
 const post = await evaluate(`
   const a=document.getElementById('open-feed-junnie');
-  const b=document.getElementById('open-leaderboard');
   const r=a.getBoundingClientRect();
   const hit=document.elementFromPoint(r.left+r.width/2, r.top+r.height/2);
-  return {sameBoard: a.closest('.sign__panel')===b.closest('.sign__panel'),
-          href:a.getAttribute('href'), top: hit===a};
+  return {href:a.getAttribute('href'), top: hit===a,
+          outdoorBoard: document.querySelectorAll('#props a[href*="leaderboard"]').length};
 `);
-ok('Feed Junnie! and Leaderboard share one board', post.sameBoard===true);
 ok('Feed Junnie! is a route link', post.href==='#/exterior/feed-junnie', post.href);
 ok('nothing covers the Feed Junnie! board', post.top===true);
+// Asked for directly: "no leaderbaord display on the exterior".
+ok('there is NO leaderboard link outdoors', post.outdoorBoard===0, `${post.outdoorBoard}`);
 
 // --- flow: how to play first, click off it, then pick a level --------------
 await evaluate(`location.hash='#/exterior/feed-junnie'; return 1;`);
@@ -42,6 +42,24 @@ const dismissed = await evaluate(`
 ok('clicking off the card closes it', dismissed.hidden===true);
 ok('...and the three levels are there to pick', dismissed.levels===3, `${dismissed.levels}`);
 ok('...with focus on the first level', dismissed.focus==='game__level', dismissed.focus);
+
+// Asked for directly: levels VERTICAL, and the leaderboard at the BOTTOM of the game,
+// with dividers like the About me tabs.
+const shape = await evaluate(`
+  const lv=[...document.querySelectorAll('.game__level')].map(e=>e.getBoundingClientRect());
+  const main=document.querySelector('.game__main').getBoundingClientRect();
+  const book=document.querySelector('.game .journal');
+  const page=book.querySelector('.journal__page').getBoundingClientRect();
+  const tabs=[...book.querySelectorAll('.journal__tab')].map(e=>e.getBoundingClientRect());
+  return {stacked: lv[1].top>=lv[0].bottom && lv[2].top>=lv[1].bottom && lv[0].left===lv[2].left,
+          below: page.top>=main.bottom,
+          tabsRight: tabs.every(t=>t.left>=page.right-30),
+          tabsInside: tabs.every(t=>t.bottom<=page.bottom)};
+`);
+ok('the levels are listed vertically', shape.stacked===true);
+ok('the leaderboard is UNDER the game, not beside it', shape.below===true);
+ok('...with About-me dividers sticking out of its right edge', shape.tabsRight===true);
+ok('...and no divider hangs below the page', shape.tabsInside===true);
 
 // --- a seeded win: the first click is safe, the board clears, a name is asked --
 const win = await evaluate(`

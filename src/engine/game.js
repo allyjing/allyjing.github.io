@@ -89,15 +89,26 @@ async function renderScores(into, levelId, highlightId = null) {
   into.replaceChildren(table);
 }
 
-/* The notebook down the side: one coloured divider tab per level, and a ruled page
- * showing that level's top 10. A real ARIA tablist, like the About me journal. */
+/* The leaderboard notebook UNDER the game: one coloured divider per level sticking
+ * out of the page's right edge, and the page showing that level's top 10. Asked for
+ * directly, "be like the about me tabs" — so it is built from the About me
+ * journal's OWN classes (.journal, .journal__tabs, .journal__tab, .journal__page)
+ * and looks the same by construction. `journal--scores` only turns the ruling off
+ * and shortens the page; see game.css.
+ *
+ * A real ARIA tablist, like the journal. */
 function buildNotebook(startLevel) {
-  const notebook = make('div', 'scorebook');
-  const tabs = make('div', 'scorebook__tabs');
+  const notebook = make('div', 'journal journal--scores');
+  const tabs = make('div', 'journal__tabs');
   tabs.setAttribute('role', 'tablist');
   tabs.setAttribute('aria-label', gameCopy.board.sideTitle);
 
-  const page = make('div', 'scorebook__page');
+  /* Same breakpoint as the journal: dividers down the side on a wide screen, a row
+   * along the top below 34rem (panel.css). aria-orientation says which. */
+  const stacked = window.matchMedia('(max-width: 34rem)').matches;
+  tabs.setAttribute('aria-orientation', stacked ? 'horizontal' : 'vertical');
+
+  const page = make('div', 'journal__page');
   page.setAttribute('role', 'tabpanel');
   page.tabIndex = 0;
   const heading = make('h3', 'scorebook__title');
@@ -117,21 +128,20 @@ function buildNotebook(startLevel) {
     }
     page.id = `scorepage-${levelId}`;
     page.setAttribute('aria-labelledby', `scoretab-${levelId}`);
-    heading.textContent = `${gameCopy.board.sideTitle} · ${gameCopy.levels[levelId].label}`;
+    heading.textContent = `${gameCopy.board.sideTitle} \u00b7 ${gameCopy.levels[levelId].label}`;
     if (focusTab) buttons[levelId].focus();
     renderScores(list, levelId, highlightId);
   }
 
-  levels.forEach((level, at) => {
-    const tab = button('scorebook__tab', gameCopy.levels[level.id].label, () => show(level.id));
+  /* The divider colours come from the journal's :nth-child rules, in level order. */
+  for (const level of levels) {
+    const tab = button('journal__tab', gameCopy.levels[level.id].label, () => show(level.id));
     tab.id = `scoretab-${level.id}`;
     tab.setAttribute('role', 'tab');
     tab.setAttribute('aria-controls', `scorepage-${level.id}`);
-    /* Which divider colour, 1-3, matching the About me journal's dividers. */
-    tab.dataset.tab = String(at + 1);
     buttons[level.id] = tab;
     tabs.append(tab);
-  });
+  }
 
   /* Arrow keys move between tabs, same as the journal. */
   tabs.addEventListener('keydown', (event) => {
@@ -142,6 +152,8 @@ function buildNotebook(startLevel) {
     show(levels[(at + step + levels.length) % levels.length].id, { focusTab: true });
   });
 
+  /* Tabs before the page in the DOM, as in the journal: the page's own edge is what
+   * hides their tucked halves. */
   notebook.append(tabs, page);
   show(startLevel);
   return { node: notebook, show };
@@ -155,7 +167,7 @@ export function fillLeaderboard(body) {
 
   const wrap = make('div', 'scoreboards');
   levels.forEach((level, at) => {
-    const page = make('section', 'scorebook__page scoreboards__page');
+    const page = make('section', 'journal__page scoreboards__page');
     page.dataset.tab = String(at + 1);
     const heading = make('h3', 'scorebook__title', gameCopy.levels[level.id].label);
     const list = make('div', 'scorebook__list');
@@ -188,19 +200,23 @@ export function fillGame(body) {
   const view = make('div', 'game__view');
   const overlay = make('div', 'game__overlay');
   overlay.hidden = true;
-  main.append(view);
+  main.append(view, overlay);
 
-  const side = make('aside', 'game__side');
+  /* The leaderboard sits at the BOTTOM of the game, asked for directly — not in a
+   * column beside it. A link under it opens every level's top 10 at once. */
+  const side = make('section', 'game__scores');
   const notebook = buildNotebook(levels[0].id);
-  side.append(notebook.node);
+  const all = make('a', 'game__button game__all', gameCopy.board.all);
+  all.href = '#/exterior/leaderboard';
+  side.append(notebook.node, all);
 
   /* Announces win, loss and level changes to a screen reader. Visually hidden. */
   const live = make('p', 'game__live');
   live.setAttribute('aria-live', 'polite');
 
-  /* The pop-up cards cover the WHOLE game, notebook included, so a long card like
-   * the how-to has the full height of the panel to sit in. */
-  layout.append(main, side, overlay);
+  /* The pop-up cards cover the game area, NOT the leaderboard under it. Covering
+   * both put the card in the middle of a tall scrolling column, off screen. */
+  layout.append(main, side);
   body.append(layout, live);
 
   let timer = null;          // the setInterval that ticks the clock

@@ -8,37 +8,33 @@
 /* The game needs more room than a page of text. */
 .panel__card--wide { width: min(1120px, 96vw); }
 
-/* --- layout: the game, with the leaderboard notebook beside it ------------- */
+/* --- layout: the game on top, its leaderboard at the bottom -------------------
+   One column, asked for directly: *"the leaderboard should be on the bottom of the
+   game"*, not in a column beside it. */
 .game {
-  /* The positioning box for the pop-up cards, which cover the whole game. The
-     min-height keeps the how-to card from being squashed over the short picker. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* The game area is the positioning box for the pop-up cards. While one is showing
+   it is given enough height for the how-to card, which is the longest; the rest of
+   the time it is only as tall as the board. min-width: 0 lets the board shrink to
+   fit instead of pushing past the panel. */
+.game__main {
   position: relative;
-  min-height: 38rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 16rem;
-  gap: var(--space-4);
-  align-items: start;
+  min-width: 0;
 }
-
-/* Narrower than this and the notebook drops UNDER the board. */
-@media (max-width: 48rem) {
-  .game { grid-template-columns: minmax(0, 1fr); }
-}
-
-/* minmax(0, ...) above and min-width here let the board shrink to fit instead of
-   pushing the notebook out of the panel. */
-.game__main { min-width: 0; }
-
-.game__heading {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-lg);
-}
+.game__main:has(> .game__overlay:not([hidden])) { min-height: 36rem; }
 
 /* --- level picker ------------------------------------------------------------ */
+/* One level per line, top to bottom — asked for directly ("have the level be
+   displayed vertically"). */
 .game__levels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
+  max-width: 28rem;
   margin-bottom: var(--space-4);
 }
 
@@ -297,55 +293,29 @@
 }
 
 /* --- the leaderboard notebook -------------------------------------------------
-   After the About me journal: coloured dividers sticking up out of a ruled page.
-   The colours are the journal's own --room-tab-* tokens, so the two read as the
-   same notebook. */
-.scorebook__tabs {
-  display: flex;
-  gap: var(--space-1);
-  padding-left: var(--space-2);
-}
+   Built from the About me journal's own classes, so the dividers, the spiral binding
+   and the staircase all come from panel.css unchanged. Only two things differ:
 
-.scorebook__tab {
-  appearance: none;
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--text-sm);
-  flex: 1;
-  min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-1);
-  color: var(--ink);
-  border: 0;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  box-shadow: 0 -2px 4px var(--shadow-cast);
-  /* Unselected dividers sit lower, tucked behind the page. */
-  translate: 0 var(--space-2);
+   - The RULING is off. The journal's ruled page is a baseline grid that every
+     element on it must sit on (CLAUDE.md), and a table's rows do not. Rules
+     striking through the scores would be worse than none.
+   - The page is shorter. The journal's 32rem holds four tall dividers; three need
+     about 20rem, and the page must still be at least that tall or the last divider
+     hangs below it. */
+.journal--scores .journal__page {
+  min-height: 20rem;
+  background-image: none;
 }
-.scorebook__tab[data-tab='1'] { background: var(--room-tab-1); }
-.scorebook__tab[data-tab='2'] { background: var(--room-tab-2); }
-.scorebook__tab[data-tab='3'] { background: var(--room-tab-3); }
-
-/* The open divider stands up out of the page — position, not colour, says which is
-   selected, because every divider is already its own colour. */
-.scorebook__tab[aria-selected='true'] {
-  translate: 0 0;
-  font-weight: 700;
-}
-
-.scorebook__page {
-  position: relative;
-  padding: var(--space-3) var(--space-3) var(--space-4);
-  background:
-    repeating-linear-gradient(to bottom, transparent 0 calc(2rem - 1px), var(--hairline) calc(2rem - 1px) 2rem),
-    var(--surface-raised);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px var(--shadow-cast);
+@media (max-width: 34rem) {
+  .journal--scores .journal__page { min-height: 0; }
 }
 
 .scorebook__title {
   margin: 0 0 var(--space-2);
   font-size: var(--text-base);
 }
+
+.game__all { margin-top: var(--space-3); }
 
 /* --- the score tables -------------------------------------------------------- */
 .scores__note {
@@ -392,6 +362,10 @@
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: var(--space-4);
 }
+
+/* Same page as the notebook, without dividers: no ruling, no divider-height
+   minimum, and a coloured top edge in its divider colour instead. */
+.scoreboards__page { min-height: 0; background-image: none; }
 
 /* Each page gets a coloured top edge, its divider colour. */
 .scoreboards__page[data-tab='1'] { border-top: 6px solid var(--room-tab-1); }
