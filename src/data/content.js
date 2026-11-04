@@ -878,7 +878,7 @@ export const panels = {
             when: 'since middle school',
             body: [
               'I’m a dedicated Minesweeper player, and have been since middle school.',
-              'My rank: 108,297 out of 5,777,570 players, the top 1.9%, with a best time of 4.825 seconds, no flags, under the name allison huang.',
+              'My rank: 108,297 out of 5,777,570 players (top 1.9%), with a best time of 4.825 seconds, no flags.',
               'Feed Junnie! by the fountain outside is my own version, with fish for mines. Try to beat me.',
             ],
           },
