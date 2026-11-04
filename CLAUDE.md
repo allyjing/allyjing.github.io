@@ -182,7 +182,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 | Projects | `showcase` | five projects, each with a page of its own. The Arcadium final video is an unlisted YouTube embed (`youtube` field on a video), not a file in the repo |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
-| Arts | `entries` | Catlisa and the Marin Headlands painting |
+| Arts | `entries` | Girl with a Pearl Earring (Junnie as the Vermeer, once misnamed Catlisa/Mona Lisa) and the Marin Headlands painting |
 
 There are three renderers in `panel.js`, chosen by `kind` in the data rather than by
 panel id:
@@ -319,7 +319,7 @@ things verifiable elsewhere in the repo and on the resume, because nothing on th
 covered it. Replace it rather than building on it.
 
 ⚠️ **Arts shows only artwork Jingwen photographed and supplied herself** (2026-10-05):
-the Catlisa ceiling tile and her in-progress Marin Headlands painting with its reference
+the Girl with a Pearl Earring ceiling tile and her in-progress Marin Headlands painting with its reference
 photo. Entries in an `entries` panel can now carry optional `body` paragraphs and `photos`;
 the lightbox walks one entry's photos, not the whole panel. The old site's Arts images were
 stock and AI placeholders — **never fill this panel from that site.**
@@ -458,7 +458,7 @@ things verifiable elsewhere in the repo and on the resume, because nothing on th
 covered it. Replace it rather than building on it.
 
 ⚠️ **Arts shows only artwork Jingwen photographed and supplied herself** (2026-10-05):
-the Catlisa ceiling tile and her in-progress Marin Headlands painting with its reference
+the Girl with a Pearl Earring ceiling tile and her in-progress Marin Headlands painting with its reference
 photo. Entries in an `entries` panel can now carry optional `body` paragraphs and `photos`;
 the lightbox walks one entry's photos, not the whole panel. The old site's Arts images were
 stock and AI placeholders — **never fill this panel from that site.**

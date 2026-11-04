@@ -809,7 +809,7 @@ function article(entry, headingTag) {
   }
 
   /* body is optional prose, for an entry that tells a story rather than listing
-   * points — Catlisa in Arts. Plain paragraphs, after any bullets. */
+   * points — the Pearl Earring tile in Arts. Plain paragraphs, after any bullets. */
   paragraphs(node, entry.body, 'entry__body');
 
   /* photos is optional too. Same thumbnails and lightbox as the gallery, but the

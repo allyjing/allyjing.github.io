@@ -899,7 +899,7 @@ export const panels = {
             when: 'my orange tabby',
             body: [
               'He appears twice in this bakery: outside by the fountain, and curled up inside the shop. Outside, he\u2019s usually watching the fish. He has never caught one.',
-              'He\u2019s also the cat who walked in while I was brainstorming my teacher\u2019s ceiling tile, which is how he became Catlisa.',
+              'He\u2019s also the cat who walked in while I was brainstorming my teacher\u2019s ceiling tile, which is how he became the Cat with the Pearl Earring.',
             ],
             photos: [
               { slug: 'junnie-portrait', width: 1062, height: 1600,
@@ -936,7 +936,8 @@ export const panels = {
   /* The architectural drawing set was taken out on 2026-10-06, asked for directly.
    *
    * The artwork here is HER OWN, photographed by her, supplied 2026-10-05: the
-   * Catlisa ceiling tile and the Marin Headlands painting. The Catlisa story is her
+   * Girl with a Pearl Earring ceiling tile (Junnie as Vermeer's painting) and the Marin
+   * Headlands painting. The ceiling tile story is her
    * words with only the spelling fixed. The per-photo captions and alt text were
    * written for this site.
    *
@@ -950,20 +951,20 @@ export const panels = {
     intro: 'Drawing, modelling, and design work that is not an engineering deliverable.',
     entries: [
       {
-        heading: 'Catlisa',
-        meta: 'Painted ceiling tile · 2025',
+        heading: 'Cat with the Pearl Earring',
+        meta: 'Painted ceiling tile, after Johannes Vermeer · 2025',
         body: [
-          'My teacher has a colorful ceiling, but not all of the tiles are filled. So I told him my concerns, and he allowed me to design something for that tile. I took the tile home and started brainstorming when my cat came in. So I turned my cat into the Mona Lisa. My teacher now has Catlisa on his ceiling to remind him of his lovely 2025 class.',
+          'My teacher has a colorful ceiling, but not all of the tiles are filled. So I told him my concerns, and he allowed me to design something for that tile. I took the tile home and started brainstorming when my cat came in. So I turned my cat into Johannes Vermeer\u2019s Girl with a Pearl Earring. My teacher now has the Cat with the Pearl Earring on his ceiling to remind him of his lovely 2025 class.',
         ],
         photos: [
           { slug: 'catlisa-at-home', width: 1200, height: 1600,
-            alt: 'A tall painted ceiling tile leaning against a wall at home: a cream-coloured cat in a blue and gold head wrap, on a speckled black background, with an orange tabby cat walking past on the floor beside it',
+            alt: 'A tall painted ceiling tile leaning against a wall at home: a cream-coloured cat painted as Vermeer\u2019s Girl with a Pearl Earring, in a blue and gold head wrap with a pearl earring, on a speckled black background, with an orange tabby cat walking past on the floor beside it',
             caption: 'Finished at home, with the model walking past.' },
           { slug: 'catlisa-on-the-ceiling', width: 1200, height: 1600,
-            alt: 'The Catlisa tile installed in a classroom ceiling, among plain white tiles and other painted ones',
+            alt: 'The Cat with the Pearl Earring tile installed in a classroom ceiling, among plain white tiles and other painted ones',
             caption: 'In place on the classroom ceiling.' },
           { slug: 'catlisa-with-my-teacher', width: 900, height: 1600,
-            alt: 'Jingwen and her teacher standing outside a classroom, holding the Catlisa tile between them and smiling',
+            alt: 'Jingwen and her teacher standing outside a classroom, holding the Cat with the Pearl Earring tile between them and smiling',
             caption: 'Handing it over to my teacher.' },
         ],
       },
