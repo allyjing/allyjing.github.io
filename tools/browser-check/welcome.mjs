@@ -72,6 +72,7 @@ await waitFor("document.querySelector('.journal__page')", {label:'hobbies page'}
 const ms = await evaluate(`return document.querySelector('.journal__page').textContent;`);
 ok('Minesweeper is in Hobbies', /Minesweeper/.test(ms));
 ok('...with her rank and best time', /108,297/.test(ms) && /4\.825/.test(ms));
+ok('...and the percentage', /top 1\.9%/.test(ms));
 
 console.log(out.join('\n'));
 close();

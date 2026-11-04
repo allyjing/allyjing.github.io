@@ -944,7 +944,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 268 assertions across eight suites; see
+`index.html` does not reference it. 269 assertions across eight suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

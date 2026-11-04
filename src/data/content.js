@@ -872,12 +872,13 @@ export const panels = {
             /* Her words, 2026-11-03: "im a dedicated minesweeper player since middle
              * school", with her rank and best time from a screenshot she supplied
              * (rank 108 297 of 5 777 570, 4.825 s, NF = no flags, set 28 Oct 2026).
+             * Top 1.9% is 108297 / 5777570 = 1.874%, rounded; recompute if the rank changes.
              * The last line, pointing at Feed Junnie!, was written for this site. */
             title: 'Minesweeper',
             when: 'since middle school',
             body: [
               'I’m a dedicated Minesweeper player, and have been since middle school.',
-              'My rank: 108,297 out of 5,777,570 players, with a best time of 4.825 seconds, no flags, under the name allison huang.',
+              'My rank: 108,297 out of 5,777,570 players, the top 1.9%, with a best time of 4.825 seconds, no flags, under the name allison huang.',
               'Feed Junnie! by the fountain outside is my own version, with fish for mines. Try to beat me.',
             ],
           },
