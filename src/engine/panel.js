@@ -35,6 +35,9 @@ let opener = null;
 /* Which panel id is currently filled, so openPanel can tell "show a different
  * project inside the panel already on screen" from "open a different panel". */
 let filledId = null;
+/* ...and which item inside it (a project, a journal tab), so a repeat of the exact
+ * same route can be told apart from a real change. See openPanel. */
+let filledItem = null;
 
 /* Set by bindPanel. Opening a project, or a tab in the journal, is a ROUTE change
  * rather than a direct DOM call — that is what makes #/interior/projects/arcadium
@@ -141,8 +144,12 @@ function fill(panel, item) {
 
   /* Three renderers, selected by the data rather than by the panel's id — see `kind`
    * in content.js. A panel declares one shape and carries only that shape's keys. */
+  card.classList.toggle('panel__card--welcome', panel.kind === 'welcome');
+
   if (panel.kind === 'game') {
     fillGame(body);
+  } else if (panel.kind === 'welcome') {
+    fillWelcome(body, panel);
   } else if (panel.kind === 'gallery') {
     fillGallery(body, panel);
   } else if (panel.kind === 'showcase') {
@@ -152,6 +159,66 @@ function fill(panel, item) {
   } else {
     fillEntries(body, panel);
   }
+}
+
+/* --- the welcome card ---------------------------------------------------- */
+
+/* The card a first-time visitor sees outdoors: a hello, three links for someone in a
+ * hurry, how to move, and an invitation to look around. All copy is
+ * gamePanels.welcome in content.js. */
+function fillWelcome(body, panel) {
+  paragraphs(body, [panel.greeting], 'welcome__greeting');
+
+  // The fast path: plain links, so they work like links (new tab, copy address).
+  const quick = document.createElement('section');
+  quick.className = 'welcome__quick';
+  const quickLabel = document.createElement('h3');
+  quickLabel.className = 'welcome__label';
+  quickLabel.textContent = panel.quick.label;
+  const row = document.createElement('div');
+  row.className = 'welcome__links';
+  for (const link of panel.quick.links) {
+    const a = document.createElement('a');
+    a.className = 'welcome__link';
+    a.href = link.href;
+    a.textContent = link.label;
+    if (link.external) {
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';     // the new tab cannot reach back into this one
+    }
+    if (link.ariaLabel) a.setAttribute('aria-label', link.ariaLabel);
+    row.append(a);
+  }
+  quick.append(quickLabel, row);
+
+  // How to play: a short list, the control in bold and what it does after it.
+  const how = document.createElement('section');
+  how.className = 'welcome__how';
+  const howLabel = document.createElement('h3');
+  howLabel.className = 'welcome__label';
+  howLabel.textContent = panel.howTo.label;
+  const list = document.createElement('ul');
+  list.className = 'welcome__steps';
+  for (const step of panel.howTo.steps) {
+    const item = document.createElement('li');
+    const keys = document.createElement('strong');
+    keys.textContent = step.keys;
+    item.append(keys, ' ', step.text);
+    list.append(item);
+  }
+  how.append(howLabel, list);
+
+  body.append(quick, how);
+  paragraphs(body, [panel.explore], 'welcome__explore');
+
+  /* data-close is what the scrim and the Close button carry, so bindPanel's one
+   * click handler closes the card through the router for this button too. */
+  const start = document.createElement('button');
+  start.type = 'button';
+  start.className = 'welcome__start';
+  start.setAttribute('data-close', '');
+  start.textContent = panel.start;
+  body.append(start);
 }
 
 /* --- shared bits ---------------------------------------------------------- */
@@ -864,8 +931,15 @@ export function openPanel(id, item = null) {
 
   if (!panel) return false;
 
+  /* The SAME route arriving twice is not a change, so do nothing. A bare address
+   * does this: the router rewrites it to #/exterior, main.js sends it on to
+   * #/exterior/welcome, and both hash changes land after the welcome card is
+   * already open. Treating the second as a tab change moved focus off Close. */
+  if (reuse && item === filledItem) return true;
+
   fill(panel, item);
   filledId = id;
+  filledItem = item;
 
   if (reuse) {
     /* A tab was chosen: focus goes back to the newly selected tab so the arrow keys
@@ -913,6 +987,7 @@ export function closePanel() {
 
   el('panel').hidden = true;
   filledId = null;
+  filledItem = null;
 
   const stage = el('stage');
   stage.removeAttribute('inert');

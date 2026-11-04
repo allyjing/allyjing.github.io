@@ -1018,3 +1018,86 @@
     border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
   }
 }
+
+/* --- the welcome card ---------------------------------------------------- */
+
+/* The first thing a visitor sees, so it is narrower than a content panel and reads
+   top to bottom without scrolling on a laptop. Copy is gamePanels.welcome. */
+.panel__card--welcome { width: min(560px, 92vw); }
+
+.welcome__greeting {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-lg);
+}
+
+.welcome__label {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.welcome__quick,
+.welcome__how { margin-bottom: var(--space-6); }
+
+/* Three pills, the same face as the shop signs (dusty rose, ink lettering: 8.30:1). */
+.welcome__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.welcome__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-6);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-full);
+  background: var(--surface-trim);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.welcome__steps {
+  margin: 0;
+  padding-left: var(--space-6);
+}
+.welcome__steps li { margin-bottom: var(--space-2); }
+
+.welcome__explore {
+  margin: 0 0 var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--surface-trim);
+  background: var(--surface-sunken);
+}
+
+/* The one berry button: the way into the game. Text is --on-accent, never white. */
+.welcome__start {
+  display: block;
+  min-height: var(--tap-min);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-8);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent-berry);
+  color: var(--on-accent);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.welcome__link:focus-visible,
+.welcome__start:focus-visible {
+  outline: 2px solid var(--accent-berry);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .welcome__link:hover { border-color: var(--accent-berry); }
+}

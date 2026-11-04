@@ -144,8 +144,9 @@ for (const p of panels) {
      `${p.title}: ${p.entries} entries, ${p.cards} cards, ${p.photos} photos, ${p.chars} chars${p.placeholder?' PLACEHOLDER TEXT':''}`);
 }
 const exp = panels.find(p=>p.id==='experience');
-ok('Experience groups work and clubs together',
-   exp.groups.length===2 && /Clubs/i.test(exp.groups[1]), exp.groups.join(' | '));
+// The group names follow the resume's headings since 2026-11-03.
+ok('Experience groups work and activities together',
+   exp.groups.length===2 && /Leadership/i.test(exp.groups[1]), exp.groups.join(' | '));
 
 // --- the About me journal (id 'life')
 await goto('http://localhost:8000/#/interior/life');
@@ -306,7 +307,8 @@ await goto('http://localhost:8000/#/interior/experience');
 await waitFor("document.querySelectorAll('.entrygroup').length===2", {label:'experience groups'});
 const moved = await evaluate(`
   const t=document.getElementById('panel-body').textContent;
-  return {clubs: t.indexOf('Makers Club')>=0 && t.indexOf('Science Club for Girls')>=0,
+  // Makers Club left with the old resume (2026-11-03); Electric Racing took its place.
+  return {clubs: t.indexOf('Electric Racing')>=0 && t.indexOf('Science Club for Girls')>=0,
           work: t.indexOf('Red Vest')>=0};
 `);
 ok('the clubs still live in Experience', moved.clubs);

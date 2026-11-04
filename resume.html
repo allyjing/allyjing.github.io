@@ -7,7 +7,7 @@
 <!-- The cake slice from the Arts table, as the tab icon. -->
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="description" content="Jingwen Huang: mechanical engineering student at Northeastern University. Projects in flywheel test rigs, embedded control and fabrication.">
+<meta name="description" content="Jingwen Huang: mechanical engineering student at Northeastern University. Makerspace student helper, materials testing, CAD and fabrication.">
 
 <!-- No leading slashes: they resolve to the domain root and 404 on a project site. -->
 <link rel="stylesheet" href="src/styles/tokens.css">
@@ -21,19 +21,21 @@
      ⚠️ The phone number from the source resume is deliberately NOT here. This repo is
      public (PRD §10.3). Email and LinkedIn are enough to reach her.
 
-     Source: Resume_JingwenH.pdf, 2026-10-01. Every bullet below is hers, verbatim.
-     The resume also lists allyjing.github.io, which is this site, so "Visit the
-     bakery" stands in for it. -->
+     Source: Resume_JingwenH_Mach.pdf (Harvard template), 2026-11-02. Every line
+     below is hers, verbatim, in the same sections and order. The resume also lists
+     allyjing.github.io, which is this site, so "Visit the bakery" stands in for it.
+
+     Each entry is laid out like the template: the organisation with its place on the
+     right, then the role with its dates on the right. -->
 <body data-time="noon">
 
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="sheet__head">
   <h1>Jingwen Huang</h1>
-  <p class="subtitle">Candidate for BS in Mechanical Engineering, Northeastern University</p>
 
   <ul class="contact">
-    <li>Los Angeles, CA</li>
+    <li>Boston, MA &middot; Los Angeles, CA</li>
     <li><a href="mailto:huang.jingwen@northeastern.edu">huang.jingwen@northeastern.edu</a></li>
     <li><a href="https://www.linkedin.com/in/allyjing/" rel="noopener noreferrer">linkedin.com/in/allyjing</a></li>
     <li><a href="index.html">Visit the bakery &rarr;</a></li>
@@ -44,159 +46,137 @@
 
   <section>
     <h2>Education</h2>
+
     <article class="entry">
-      <h3>Northeastern University</h3>
-      <p class="entry__meta">
-        Candidate for Bachelor of Science in Mechanical Engineering
-        &middot; Boston, MA &middot; Expected Dec. 2028
-      </p>
+      <div class="entry__row"><h3>Northeastern University</h3><span>Boston, MA</span></div>
+      <div class="entry__row">
+        <p>Bachelor of Science in Mechanical Engineering. GPA: 3.40/4.00; Dean&rsquo;s List, Fall 2025</p>
+        <span>Expected December 2028</span>
+      </div>
+      <p class="entry__line">Relevant Coursework: Dynamics*, Mechanics of Materials*, Thermodynamics,
+        Physics I–II*, Statics (*lab)</p>
+    </article>
+
+    <article class="entry">
+      <div class="entry__row"><h3>Walnut High School</h3><span>Walnut, CA</span></div>
+      <div class="entry__row"><p>Graduated with High Honors</p><span>May 2025</span></div>
+      <p class="entry__line">SkillsUSA California State Champion, Automated Manufacturing
+        Technology, 1st Place (2024)</p>
       <ul>
-        <li>Cumulative GPA: 3.40/4.00 — Dean&rsquo;s List, Fall 2025</li>
-        <li>Relevant coursework: Mechanics of Materials, Thermodynamics, Statics,
-          Dynamics, Physics I–II, Linear Algebra &amp; Differential Equations,
-          Calculus I–III, Cornerstone of Engineering I–II</li>
+        <li>CNC mill operator; programmed CAM toolpaths in Fusion 360.</li>
       </ul>
     </article>
   </section>
 
   <section>
-    <h2>Technical Skills</h2>
-    <dl class="skills">
-      <dt>CAD</dt>
-      <dd>SolidWorks, Fusion 360, Onshape, AutoCAD</dd>
-
-      <dt>Fabrication</dt>
-      <dd>3D printing, laser cutting, CNC routing, hand and power tools</dd>
-
-      <dt>Electronics</dt>
-      <dd>Arduino, ESP32, Raspberry Pi, motor and servo control, GPIO and serial
-        interfacing</dd>
-
-      <dt>Testing</dt>
-      <dd>Test rig design, subsystem bench testing, iterative design validation</dd>
-
-      <dt>Programming &amp; analysis</dt>
-      <dd>Python, MATLAB, Java, Microsoft Excel</dd>
-
-      <dt>Languages</dt>
-      <dd>English, Mandarin, Cantonese, Hakka</dd>
-    </dl>
-  </section>
-
-  <section>
-    <h2>Engineering Projects</h2>
+    <h2>Engineering Experience</h2>
 
     <article class="entry">
-      <h3>Tennis Ball Flywheel Shooter</h3>
-      <p class="entry__meta">
-        Self-directed project &middot; Feb. 2026 – Present
-      </p>
+      <div class="entry__row"><h3>Northeastern College of Engineering Makerspace</h3><span>Boston, MA</span></div>
+      <div class="entry__row"><p>Student Helper (Red Vest)</p><span>June 2026 – Present</span></div>
       <ul>
-        <li>Design and build a motorized flywheel test rig in Onshape and Fusion 360,
-          iterating flywheel geometry and housing tolerances across CNC-routed and
-          3D-printed revisions.</li>
-        <li>Measure fit on each revision and adjust the CAD before re-manufacturing,
-          working toward repeatable launches without a sponsor or assigned mentor.</li>
-        <li>Program a Raspberry Pi 5 and ESP32 in Python to command motor speed,
-          sequence firing, and pass commands wirelessly between boards for remote
-          operation.</li>
-      </ul>
-    </article>
-
-    <article class="entry">
-      <h3>CADodile — Multiplayer STEM Trivia Game</h3>
-      <p class="entry__meta">
-        Cornerstone of Engineering 2 &middot; Jan. 2026 – May 2026
-      </p>
-      <ul>
-        <li>Led CAD modeling for a 5-person team, designing a laser-cut plywood
-          enclosure and four game boards, and producing assembly and exploded-view
-          documentation the team built from.</li>
-        <li>Integrated a Raspberry Pi Zero 2 WH, servo dispenser, 16×2 LCD, and WS2812B
-          LED strip behind a custom Kivy GUI, bench-testing each subsystem before
-          deployment with 5th graders.</li>
-      </ul>
-    </article>
-
-    <article class="entry">
-      <h3>Arcadium — Portable Arcade Game</h3>
-      <p class="entry__meta">
-        Cornerstone of Engineering 1, Most Favorited Game &middot; Oct. 2025 – Dec. 2025
-      </p>
-      <ul>
-        <li>Diagnosed a GPIO pin shortage on the Pico and reallocated four LED channels
-          to free pins for the servo and LCD, then designed a 3D-printed lever to drive
-          the dispenser mechanism.</li>
-        <li>Iterated with a 4-person team through four prototypes, from cardboard
-          mockups to a laser-cut enclosure with acrylic windows, sizing every cutout to
-          caliper measurements.</li>
-        <li>Programmed a portable Raspberry Pi Pico reflex game in Python driving a
-          16-LED reaction array, LCD scoreboard, and SG-90 servo dispenser through five
-          rounds of increasing speed.</li>
-      </ul>
-    </article>
-  </section>
-
-  <section>
-    <h2>Experience</h2>
-
-    <article class="entry">
-      <h3>Student Helper (Red Vest)</h3>
-      <p class="entry__meta">
-        Northeastern College of Engineering Makerspace
-        &middot; Boston, MA &middot; Jun. 2026 – Present
-      </p>
-      <ul>
-        <li>Coach 100–300 first-year engineering students through cornerstone design
+        <li>Coach 30–45 first-year engineering students daily through cornerstone design
           projects, diagnosing why builds fail, proposing alternative approaches, and
           fabricating custom parts to unblock them.</li>
-        <li>Train Makerspace users on safe operation of 3D printers, hand tools, and
-          prototyping materials before they work independently.</li>
+        <li>Lead woodshop workshops on the laser cutter, band saw, drill press, scroll saw,
+          and belt/disc sander.</li>
       </ul>
     </article>
 
     <article class="entry">
-      <h3>Northeastern Oakland Ambassador</h3>
-      <p class="entry__meta">
-        Northeastern College of Science
-        &middot; Oakland, CA &middot; Jan. 2026 – Apr. 2026
-      </p>
+      <div class="entry__row"><h3>Mechanics of Materials Lab, Northeastern University</h3><span>Boston, MA</span></div>
+      <div class="entry__row"><p>Tensile and Photoelastic Stress Testing</p><span>October 2026</span></div>
       <ul>
-        <li>Evaluated tutoring and other support programs about 4 hours a week as a
-          student user, presenting gaps in weekly staff reviews that led the College to
-          add course offerings and new signage.</li>
-        <li>Proctored 2 makeup assessment sessions weekly for students across the
-          College of Science.</li>
+        <li>Ran unload–reload tensile tests on steel, analyzing force–displacement data in
+          MATLAB to extract modulus, 0.2% offset yield (273 MPa), and ultimate strength
+          within 8% of reference.</li>
+        <li>Traced a 78% low modulus to tester compliance by comparing sample and measured
+          stiffness; mapped stress concentrations around a hole and fillets with a
+          polariscope.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <div class="entry__row"><h3>Cornerstone of Engineering 2, Northeastern University</h3><span>Oakland, CA</span></div>
+      <div class="entry__row"><p>CADodile — STEM Trivia Game</p><span>January 2026 – May 2026</span></div>
+      <ul>
+        <li>Designed a servo-driven 3-pocket rotary dispenser after a scissor-lift prototype
+          failed; iterated 5 versions, resizing the servo-horn bore until printed parts fit
+          snugly.</li>
+        <li>Led SolidWorks CAD for a 5-person team, modeling a plywood enclosure and 4 game
+          boards, then laser-cut the parts from the assembly and exploded-view drawings.</li>
+        <li>Integrated the dispenser with a Raspberry Pi, LCD, and LED strip in Python;
+          deployed to about 30 fifth graders.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <div class="entry__row"><h3>Cornerstone of Engineering 1, Northeastern University</h3><span>Oakland, CA</span></div>
+      <div class="entry__row"><p>Arcadium — Reflex Game</p><span>October 2025 – December 2025</span></div>
+      <ul>
+        <li>Built a reflex game on a Raspberry Pi Pico with a 4-person team, iterating 4
+          prototypes from cardboard to a laser-cut enclosure; voted Most Favorited Game out
+          of 10.</li>
+        <li>Designed a 3D-printed servo lever to dispense candy; cut 4 LED channels to free
+          servo and LCD pins.</li>
+      </ul>
+    </article>
+
+    <article class="entry">
+      <div class="entry__row"><h3>Citrus College</h3><span>Glendora, CA</span></div>
+      <div class="entry__row">
+        <p>Architecture Coursework. GPA: 4.00/4.00; 10 credits transferred to Northeastern</p>
+        <span>August 2023 – August 2024</span>
+      </div>
+      <ul>
+        <li>Completed Mechanical Drawing, Introduction to Engineering, and Introduction to
+          Maya Practices.</li>
       </ul>
     </article>
   </section>
 
   <section>
-    <h2>Leadership &amp; Outreach</h2>
+    <h2>Leadership &amp; Activities</h2>
 
     <article class="entry">
-      <h3>President — Makers Club</h3>
-      <p class="entry__meta">
-        Northeastern University &middot; Oakland, CA &middot; Sep. 2025 – Apr. 2026
-      </p>
+      <div class="entry__row"><h3>Northeastern Electric Racing (Formula SAE Electric)</h3><span>Boston, MA</span></div>
+      <div class="entry__row"><p>Powertrain Subteam Member</p><span>September 2026 – Present</span></div>
       <ul>
-        <li>Led a 40+ member club, running ideation sessions, training members on 3D
-          printers, laser cutters, and CNC machines, and guiding teams from concept
-          through final fabrication.</li>
+        <li>Built an Allen wrench organizer for the team bay&rsquo;s tool drawer as a
+          3-person onboarding project.</li>
       </ul>
     </article>
 
     <article class="entry">
-      <h3>STEM Mentor — Science Club for Girls</h3>
-      <p class="entry__meta">
-        Amigos School &middot; Cambridge, MA &middot; Sep. 2026 – Present
-      </p>
+      <div class="entry__row"><h3>Science Club for Girls, Amigos School</h3><span>Cambridge, MA</span></div>
+      <div class="entry__row"><p>STEM Mentor</p><span>September 2026 – Present</span></div>
       <ul>
-        <li>Lead 2-hour weekly STEM sessions for a classroom of 25 K–8 girls across an
-          8-week semester, teaching the program&rsquo;s chemistry and crystals
-          curriculum and the math each experiment requires.</li>
+        <li>Deliver 2-hour weekly chemistry and math sessions to a classroom of about 25
+          K–8 girls.</li>
       </ul>
     </article>
+  </section>
+
+  <section>
+    <h2>Skills &amp; Interests</h2>
+    <dl class="skills">
+      <dt>CAD</dt>
+      <dd>SolidWorks, Onshape, Fusion 360, AutoCAD, Revit, Maya</dd>
+
+      <dt>Fabrication</dt>
+      <dd>CNC milling, CNC routing, CAM, laser cutting, 3D printing, band saw, drill
+        press, calipers</dd>
+
+      <dt>Programming &amp; Electronics</dt>
+      <dd>Python, MATLAB, Java; Raspberry Pi, ESP32, Arduino</dd>
+
+      <dt>Language</dt>
+      <dd>English (native), Mandarin (native), Cantonese (conversational), Hakka
+        (conversational)</dd>
+
+      <dt>Interests</dt>
+      <dd>Exploring cafes, Minesweeper, painting</dd>
+    </dl>
   </section>
 
 </main>

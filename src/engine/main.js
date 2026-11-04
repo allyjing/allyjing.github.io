@@ -157,6 +157,13 @@ function enterScene(sceneId) {
   teardown.push(bindInput({ stage: document.getElementById('stage'), walker, aspect: scene.aspect }));
 }
 
+/* Read BEFORE the router starts, because startRouter rewrites a bare address to
+ * #/exterior straight away. A visitor who typed allyjing.github.io (or followed the
+ * link on her resume) arrives with no hash at all — that is a first arrival, and it
+ * gets the welcome card. Anyone with a hash was sent somewhere on purpose (a shared
+ * project link, a reload, Back), so the card stays out of their way. */
+const arrivedBare = !window.location.hash;
+
 startRouter((route) => {
   const sceneId = getScene(route.scene) ? route.scene : 'exterior';
 
@@ -183,3 +190,7 @@ startRouter((route) => {
     closePanel();
   }
 });
+
+/* The welcome card is an ordinary panel route, so Close, Escape, the backdrop and
+ * Back all dismiss it the same way they dismiss every other panel. */
+if (arrivedBare) navigate('exterior', 'welcome');

@@ -29,6 +29,24 @@ the `gh` CLI credential helper — see "Deploying" below.
 **Phase 7 (polish) is what remains**: a11y audit on a real screen reader, a performance
 pass, and testing on an actual phone rather than an emulated viewport.
 
+### The welcome card (2026-11-03)
+
+Asked for directly: *"a game like pop up that gives a introduciton"*: links straight to the
+resume, LinkedIn and Projects, how to move her, and a closing line inviting visitors to
+explore the café. Copy is `gamePanels.welcome` in content.js (`kind: 'welcome'`),
+rendered by `fillWelcome` in panel.js. It is an ordinary outdoor panel at
+`#/exterior/welcome`, so Close, Escape, the backdrop and Back all dismiss it.
+
+⚠️ **It opens by itself ONLY on a bare arrival**, meaning the address with no `#` at all.
+main.js reads `arrivedBare` BEFORE `startRouter`, because the router rewrites a bare
+address to `#/exterior` at once. A shared link, a reload or Back already has a hash
+and is left alone. The browser checks always navigate to an explicit hash, so they
+never see it, except `welcome.mjs`, which loads the bare address on purpose.
+
+⚠️ A bare arrival fires the router TWICE for the same route, and the second call used
+to be treated as a tab change, moving focus off Close. `openPanel` now ignores a
+repeat of the exact same panel AND item (`filledItem`).
+
 ### Feed Junnie! — the minesweeper by the fountain (2026-10-28)
 
 Asked for directly: a minesweeper where the mines are fish, held by the fountain where
@@ -178,7 +196,7 @@ No placeholder copy is left anywhere. `src/data/content.js` `panels`:
 
 | panel | `kind` | source of the content |
 |---|---|---|
-| Experience | `entries`, GROUPED | the resume, split into Work and Clubs and volunteering |
+| Experience | `entries`, GROUPED | the resume, split into Engineering experience and Leadership and activities |
 | Projects | `showcase` | five projects, each with a page of its own. The Arcadium final video is an unlisted YouTube embed (`youtube` field on a video), not a file in the repo |
 | Photography | `gallery` | her photographs in SETS, with her own descriptions |
 | About me (id `life`) | `journal` | ⚠️ **drafted by Claude.** The one panel whose words are not hers |
@@ -276,8 +294,8 @@ out. None of it was lost — each already had a proper home:
 
 | was in Life | belongs in |
 |---|---|
-| Makers Club, Science Club for Girls | **Experience** → "Clubs and volunteering" |
-| Student Helper (Red Vest) | **Experience** → "Work" |
+| Makers Club, Science Club for Girls | **Experience** → "Leadership and activities" (Makers Club left the site with the old resume, 2026-11-03) |
+| Student Helper (Red Vest) | **Experience** → "Engineering experience" |
 | CADodile | **Projects** |
 
 Before adding anything to Life, ask whether it is coursework, a club or a job. If it
@@ -292,10 +310,17 @@ and browser tabs legibly, and the 324px dance-group photo is too small to serve.
 
 ### The resume source
 
-**`~/JB applications/Resume_JingwenH.pdf` (2026-10-01) is the current resume.** It drives
-`resume.html`, the Experience panel, and the resume bullets in the CADodile and flywheel
-project pages, all verbatim. The **mini fridge was dropped** from the site with it, on
-her say-so. Its phone number is never copied in — the repo is public.
+**`~/JB applications/Resume_JingwenH_Mach.pdf` (2026-11-02, the Harvard template) is the
+current resume**, chosen by her over `Resume_JingwenH_.pdf` on 2026-11-03. It drives
+`resume.html` (same sections, same order, place and dates right-aligned as on the
+template) and the Experience panel, both verbatim. Asked for directly, the Experience
+panel MATCHES it: the Oakland Ambassador job and Makers Club left with the old resume, and
+Electric Racing, the Mechanics of Materials lab and Citrus College came in. CADodile and
+Arcadium are on the resume but stay in Projects rather than Experience. Its phone number
+is never copied in — the repo is public.
+
+⚠️ **The CADodile and flywheel project pages still carry bullets from the OLD resume**
+(`Resume_JingwenH.pdf`, 2026-10-01). They were not changed with this update.
 
 ### Which words on this site are whose
 
@@ -919,7 +944,7 @@ tools/browser-check/run.sh       # another
 
 They drive headless Chrome over the DevTools Protocol. Node has a native `WebSocket`, so
 this installs nothing and does not break the no-npm rule, and none of it ships —
-`index.html` does not reference it. 252 assertions across seven suites; see
+`index.html` does not reference it. 268 assertions across eight suites; see
 `tools/browser-check/README.md` for what each one holds down.
 
 Eight traps that produce confident, wrong results here. Every one cost a real

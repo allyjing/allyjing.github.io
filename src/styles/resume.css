@@ -79,6 +79,25 @@ h2 {
 .entry { margin-top: var(--space-6); }
 .entry h3 { font-size: var(--text-lg); }
 
+/* The Harvard template's two-line entry head: organisation (bold) with its place on
+ * the right, then the role with its dates on the right. On a phone there is no room
+ * for both on one line, so the right-hand part wraps under the left. */
+.entry__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0 var(--space-4);
+}
+.entry__row p { margin: 0; }
+.entry__row span {
+  margin-left: auto;              /* stays on the right even when it wraps to its own line */
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+.entry__line { margin: 0 0 var(--space-1); }
+.entry .entry__row + ul { margin-top: var(--space-2); }
+
 .entry__meta {
   margin: var(--space-1) 0 var(--space-2);
   color: var(--ink-soft);
@@ -88,7 +107,7 @@ h2 {
 .entry ul { margin: 0; padding-left: var(--space-6); }
 .entry li { margin-bottom: var(--space-2); }
 
-.skills { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); margin: 0; }
+.skills { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); margin: var(--space-4) 0 0; }
 .skills dt { font-weight: 700; }
 .skills dd { margin: 0; }
 

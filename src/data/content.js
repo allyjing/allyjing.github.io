@@ -263,51 +263,66 @@ export const wholeSizes = '(min-width: 46rem) 40rem, 88vw';
  * site hers.
  */
 
-/* Work first, then the unpaid things. One panel, two groups, because they answer
- * different questions and a single flat list of six buries that — asked for
- * directly: "add experience and clubs/volunteering together". */
+/* Matches the resume, Resume_JingwenH_Mach.pdf (2026-11-02), and uses its two
+ * headings as the groups — asked for directly: the panel should "match the resume".
+ * One panel, two groups, because paid and lab work answer a different question from
+ * the team and the volunteering (asked for earlier: "add experience and
+ * clubs/volunteering together").
+ *
+ * Every bullet is hers, verbatim from that resume. CADodile and Arcadium are on the
+ * resume under Engineering Experience too, but they have their own pages in Projects,
+ * so they are not repeated here. Makers Club and the Oakland Ambassador job were
+ * taken off with the old resume. */
 export const panels = {
   experience: {
     title: 'Experience',
     kind: 'entries',
-    intro: 'Where I have worked, what I run, and where I volunteer.',
+    intro: 'Where I work, test, build, and volunteer.',
     groups: [
       {
-        label: 'Work',
+        label: 'Engineering experience',
         entries: [
           {
             heading: 'Student Helper (Red Vest)',
-            meta: 'Northeastern College of Engineering Makerspace · Boston, MA · Jun. 2026 – Present',
+            meta: 'Northeastern College of Engineering Makerspace · Boston, MA · June 2026 – Present',
             bullets: [
-              'Coach 100–300 first-year engineering students through cornerstone design projects, diagnosing why builds fail, proposing alternative approaches, and fabricating custom parts to unblock them.',
-              'Train Makerspace users on safe operation of 3D printers, hand tools, and prototyping materials before they work independently.',
+              'Coach 30–45 first-year engineering students daily through cornerstone design projects, diagnosing why builds fail, proposing alternative approaches, and fabricating custom parts to unblock them.',
+              'Lead woodshop workshops on the laser cutter, band saw, drill press, scroll saw, and belt/disc sander.',
             ],
           },
           {
-            heading: 'Northeastern Oakland Ambassador',
-            meta: 'Northeastern College of Science · Oakland, CA · Jan. 2026 – Apr. 2026',
+            heading: 'Tensile and Photoelastic Stress Testing',
+            meta: 'Mechanics of Materials Lab, Northeastern University · Boston, MA · October 2026',
             bullets: [
-              'Evaluated tutoring and other support programs about 4 hours a week as a student user, presenting gaps in weekly staff reviews that led the College to add course offerings and new signage.',
-              'Proctored 2 makeup assessment sessions weekly for students across the College of Science.',
+              'Ran unload–reload tensile tests on steel, analyzing force–displacement data in MATLAB to extract modulus, 0.2% offset yield (273 MPa), and ultimate strength within 8% of reference.',
+              'Traced a 78% low modulus to tester compliance by comparing sample and measured stiffness; mapped stress concentrations around a hole and fillets with a polariscope.',
+            ],
+          },
+          {
+            heading: 'Architecture Coursework',
+            meta: 'Citrus College · Glendora, CA · August 2023 – August 2024',
+            bullets: [
+              'GPA: 4.00/4.00; 10 credits transferred to Northeastern.',
+              'Completed Mechanical Drawing, Introduction to Engineering, and Introduction to Maya Practices.',
             ],
           },
         ],
       },
       {
-        label: 'Clubs and volunteering',
+        label: 'Leadership and activities',
         entries: [
           {
-            heading: 'President — Makers Club',
-            meta: 'Northeastern University · Oakland, CA · Sep. 2025 – Apr. 2026',
+            heading: 'Powertrain Subteam Member — Northeastern Electric Racing',
+            meta: 'Formula SAE Electric · Boston, MA · September 2026 – Present',
             bullets: [
-              'Led a 40+ member club, running ideation sessions, training members on 3D printers, laser cutters, and CNC machines, and guiding teams from concept through final fabrication.',
+              'Built an Allen wrench organizer for the team bay’s tool drawer as a 3-person onboarding project.',
             ],
           },
           {
             heading: 'STEM Mentor — Science Club for Girls',
-            meta: 'Amigos School · Cambridge, MA · Sep. 2026 – Present',
+            meta: 'Amigos School · Cambridge, MA · September 2026 – Present',
             bullets: [
-              'Lead 2-hour weekly STEM sessions for a classroom of 25 K–8 girls across an 8-week semester, teaching the program’s chemistry and crystals curriculum and the math each experiment requires.',
+              'Deliver 2-hour weekly chemistry and math sessions to a classroom of about 25 K–8 girls.',
             ],
           },
         ],
@@ -854,6 +869,19 @@ export const panels = {
             ],
           },
           {
+            /* Her words, 2026-11-03: "im a dedicated minesweeper player since middle
+             * school", with her rank and best time from a screenshot she supplied
+             * (rank 108 297 of 5 777 570, 4.825 s, NF = no flags, set 28 Oct 2026).
+             * The last line, pointing at Feed Junnie!, was written for this site. */
+            title: 'Minesweeper',
+            when: 'since middle school',
+            body: [
+              'I’m a dedicated Minesweeper player, and have been since middle school.',
+              'My rank: 108,297 out of 5,777,570 players, with a best time of 4.825 seconds, no flags, under the name allison huang.',
+              'Feed Junnie! by the fountain outside is my own version, with fish for mines. Try to beat me.',
+            ],
+          },
+          {
             title: 'Painting',
             when: 'see the Arts table',
             body: [
@@ -1032,6 +1060,40 @@ export const galleryChrome = {
  * not a panel of its own. */
 export const gamePanels = {
   'feed-junnie': { title: 'Feed Junnie!', kind: 'game' },
+
+  /* The welcome card — asked for directly, 2026-11-03: "a game like pop up that gives
+   * a introduction", with straight-away links to the resume, LinkedIn and projects,
+   * how to move the character, and a closing line about exploring the cafe. Written
+   * for this site, not her words — change any of it freely.
+   *
+   * It opens by itself only when a visitor arrives at the BARE address
+   * (allyjing.github.io with no #...); see main.js. #/exterior/welcome opens it on
+   * purpose. It lives in gamePanels because it is an outdoor panel, like the game. */
+  welcome: {
+    title: 'Welcome to Peachy Sweets Bakery!',
+    kind: 'welcome',
+    greeting: 'Hi, I’m Jingwen, a mechanical engineering student at Northeastern University. This little bakery is my portfolio.',
+    quick: {
+      label: 'In a hurry? Skip straight to',
+      links: [
+        { label: 'Resume', href: 'resume.html' },
+        { label: 'LinkedIn', href: contact.linkedin, external: true,
+          ariaLabel: 'LinkedIn, opens in a new tab' },
+        { label: 'Projects', href: '#/interior/projects' },
+      ],
+    },
+    howTo: {
+      label: 'How to play',
+      steps: [
+        { keys: 'Click or tap', text: 'anywhere on the ground and I’ll walk there.' },
+        { keys: 'Arrow keys or WASD', text: 'walk me around with the keyboard.' },
+        { keys: 'The door', text: 'walk up to it, or press “Please enter”, to step inside.' },
+        { keys: 'The clock', text: 'top left, changes the time of day and the view.' },
+      ],
+    },
+    explore: 'Want to explore the café a bit? There’s more inside: every table opens a part of me, including About me, my interests, photography, art and experience. And Junnie is by the fountain, waiting for you to feed him in a round of minesweeper.',
+    start: 'Start exploring',
+  },
 };
 
 export const gameCopy = {
